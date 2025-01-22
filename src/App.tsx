@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/providers/AuthProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ActivityLog from "./pages/ActivityLog";
 import { useAuth } from "@/providers/AuthProvider";
 import { useState } from "react";
 
@@ -24,7 +25,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
-  // Move QueryClient creation inside component and use useState to maintain instance
   const [queryClient] = useState(() => new QueryClient());
 
   return (
@@ -40,6 +40,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <Index />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/activity-log"
+                element={
+                  <ProtectedRoute>
+                    <ActivityLog />
                   </ProtectedRoute>
                 }
               />

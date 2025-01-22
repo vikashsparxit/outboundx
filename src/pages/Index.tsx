@@ -15,7 +15,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Table as TableIcon } from "lucide-react";
+import { LayoutDashboard, Table as TableIcon, ListChecks } from "lucide-react";
 import LeadsTable from "@/components/leads/LeadsTable";
 import SearchBar from "@/components/leads/SearchBar";
 import LeadsPagination from "@/components/leads/LeadsPagination";
@@ -23,11 +23,14 @@ import CsvUploadModal from "@/components/leads/CsvUploadModal";
 import LeadDetails from "@/components/leads/LeadDetails";
 import { Lead, DatabaseLead } from "@/types/lead";
 import { convertFromDatabase } from "@/types/lead";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 10;
 
 const Index = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,20 +88,38 @@ const Index = () => {
                 <SidebarTrigger />
               </div>
             </SidebarHeader>
-            <SidebarContent>
+            <SidebarContent className="pt-[50px]">
               <SidebarGroup>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <SidebarMenuButton tooltip="Dashboard">
+                      <SidebarMenuButton 
+                        tooltip="Dashboard"
+                        onClick={() => navigate("/")}
+                        isActive={location.pathname === "/"}
+                      >
                         <LayoutDashboard className="h-4 w-4" />
                         <span>Dashboard</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                      <SidebarMenuButton tooltip="Leads">
+                      <SidebarMenuButton 
+                        tooltip="Leads"
+                        onClick={() => navigate("/leads")}
+                        isActive={location.pathname === "/leads"}
+                      >
                         <TableIcon className="h-4 w-4" />
                         <span>Leads</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton 
+                        tooltip="Activity Log"
+                        onClick={() => navigate("/activity-log")}
+                        isActive={location.pathname === "/activity-log"}
+                      >
+                        <ListChecks className="h-4 w-4" />
+                        <span>Activity Log</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
