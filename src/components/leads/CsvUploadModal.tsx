@@ -7,6 +7,7 @@ import Papa from "papaparse";
 import { convertToDatabaseLead } from "@/types/lead";
 import UploadZone from "./csv-upload/UploadZone";
 import { validateAndTransformLead } from "./csv-upload/leadValidation";
+import FieldMapping from "./csv-upload/FieldMapping";
 
 interface CsvUploadModalProps {
   isOpen: boolean;
@@ -21,19 +22,44 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
   const [duplicateCount, setDuplicateCount] = useState(0);
   const [errorCount, setErrorCount] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [mappings, setMappings] = useState<Record<string, string>>({});
+  const [showMapping, setShowMapping] = useState(false);
   const { toast } = useToast();
 
-  const resetCounters = () => {
+  const resetState = () => {
     setDuplicateCount(0);
     setErrorCount(0);
     setSuccessCount(0);
     setProgress(0);
+    setCsvHeaders([]);
+    setMappings({});
+    setShowMapping(false);
   };
 
   const handleFileChange = (selectedFile: File | null) => {
     if (selectedFile && selectedFile.type === "text/csv") {
       setFile(selectedFile);
-      resetCounters();
+      resetState();
+      
+      // Parse CSV headers
+      Papa.parse(selectedFile, {
+        header: true,
+        preview: 1,
+        complete: (results) => {
+          console.log('CSV Headers:', Object.keys(results.data[0]));
+          setCsvHeaders(Object.keys(results.data[0]));
+          setShowMapping(true);
+        },
+        error: (error) => {
+          console.error("Error parsing CSV headers:", error);
+          toast({
+            title: "Error parsing CSV",
+            description: "Could not read CSV headers",
+            variant: "destructive",
+          });
+        },
+      });
     } else if (selectedFile) {
       toast({
         title: "Invalid file type",
@@ -46,16 +72,7 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && droppedFile.type === "text/csv") {
-      setFile(droppedFile);
-      resetCounters();
-    } else {
-      toast({
-        title: "Invalid file type",
-        description: "Please drop a CSV file",
-        variant: "destructive",
-      });
-    }
+    handleFileChange(droppedFile);
   };
 
   const checkDuplicate = async (lead: any): Promise<boolean> => {
@@ -71,28 +88,47 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
     return existingLeads && existingLeads.length > 0;
   };
 
+  const handleMappingChange = (dbField: string, csvHeader: string) => {
+    setMappings((prev) => ({
+      ...prev,
+      [dbField]: csvHeader,
+    }));
+  };
+
+  const mapRowToLead = (row: any) => {
+    const mappedData: any = {};
+    Object.entries(mappings).forEach(([dbField, csvHeader]) => {
+      if (csvHeader) {
+        mappedData[dbField] = row[csvHeader];
+      }
+    });
+    return mappedData;
+  };
+
   const handleUpload = async () => {
     if (!file) return;
 
     setUploading(true);
-    resetCounters();
+    setProgress(0);
+    setDuplicateCount(0);
+    setErrorCount(0);
+    setSuccessCount(0);
 
     try {
       Papa.parse(file, {
         header: true,
         complete: async (results) => {
-          console.log('CSV Headers:', Object.keys(results.data[0]));
-          console.log('First row sample:', results.data[0]);
-
+          console.log('Parsing complete, processing rows...');
           const rawLeads = results.data as any[];
           const totalLeads = rawLeads.length;
           
-          for (const rawLead of rawLeads) {
+          for (const rawRow of rawLeads) {
             try {
-              const transformedLead = validateAndTransformLead(rawLead);
+              const mappedLead = mapRowToLead(rawRow);
+              const transformedLead = validateAndTransformLead(mappedLead);
               
               if (!transformedLead) {
-                console.warn("Invalid lead data:", rawLead);
+                console.warn("Invalid lead data:", rawRow);
                 setErrorCount(prev => prev + 1);
                 continue;
               }
@@ -121,7 +157,7 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
               setErrorCount(prev => prev + 1);
             }
 
-            const progress = ((successCount + duplicateCount + errorCount) / totalLeads) * 100;
+            const progress = ((successCount + duplicateCount + errorCount + 1) / totalLeads) * 100;
             setProgress(progress);
           }
 
@@ -169,13 +205,20 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
           onFileChange={handleFileChange}
           onDrop={handleDrop}
         />
+        {showMapping && csvHeaders.length > 0 && (
+          <FieldMapping
+            csvHeaders={csvHeaders}
+            mappings={mappings}
+            onMappingChange={handleMappingChange}
+          />
+        )}
         <div className="flex justify-end space-x-2">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
           <Button
             onClick={handleUpload}
-            disabled={!file || uploading}
+            disabled={!file || uploading || (showMapping && Object.keys(mappings).length === 0)}
           >
             {uploading ? "Uploading..." : "Upload"}
           </Button>
