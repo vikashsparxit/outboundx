@@ -34,7 +34,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     return numbers.join(", ");
   };
 
-  const handleStatusUpdate = async (newStatus: string) => {
+  const handleStatusUpdate = async (newStatus: "new" | "contacted" | "in_progress" | "closed_won" | "closed_lost") => {
     if (!lead) return;
     
     setIsUpdating(true);
