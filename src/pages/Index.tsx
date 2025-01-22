@@ -51,7 +51,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="flex flex-1 pt-16">
+      <div className="flex flex-1 mt-16">
         <SidebarProvider defaultOpen={true}>
           <Sidebar>
             <SidebarHeader className="border-b border-border px-4 py-2">
