@@ -40,14 +40,14 @@ const FieldMapping = ({ csvHeaders, mappings, onMappingChange }: FieldMappingPro
           <div key={dbField} className="flex items-center gap-4">
             <span className="w-32 text-sm text-gray-600">{label}</span>
             <Select
-              value={mappings[dbField] || ""}
-              onValueChange={(csvHeader) => onMappingChange(dbField, csvHeader)}
+              value={mappings[dbField] || "none"}
+              onValueChange={(csvHeader) => onMappingChange(dbField, csvHeader === "none" ? "" : csvHeader)}
             >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Select a field" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {csvHeaders.map((header) => (
                   <SelectItem key={header} value={header}>
                     {header}
