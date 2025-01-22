@@ -69,7 +69,7 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
     transformedLead.bounce_count = rawLead.bounce_count ? Number(rawLead.bounce_count) || 0 : 0;
     transformedLead.call_count = rawLead.call_count ? Number(rawLead.call_count) || 0 : 0;
 
-    // Copy other fields
+    // Copy text fields
     const textFields = [
       'ticket_id',
       'website',
@@ -106,6 +106,8 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
           const rawLeads = results.data as any[];
           const totalLeads = rawLeads.length;
           let uploadedCount = 0;
+
+          console.log('Starting CSV upload with fields:', Object.keys(rawLeads[0]));
 
           for (const rawLead of rawLeads) {
             try {
