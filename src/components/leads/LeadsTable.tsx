@@ -41,14 +41,14 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort }: LeadsTableProps) =
   };
 
   const getStatusBadge = (status: string) => {
-    const variants = {
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       new: "default",
       contacted: "secondary",
       in_progress: "secondary",
-      closed_won: "default",
+      closed_won: "outline",
       closed_lost: "destructive"
     };
-    return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
+    return <Badge variant={variants[status] || "default"}>{status}</Badge>;
   };
 
   if (isLoading) {

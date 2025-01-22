@@ -20,7 +20,8 @@ import LeadsTable from "@/components/leads/LeadsTable";
 import SearchBar from "@/components/leads/SearchBar";
 import LeadsPagination from "@/components/leads/LeadsPagination";
 import CsvUploadModal from "@/components/leads/CsvUploadModal";
-import type { Lead, DatabaseLead, convertFromDatabase } from "@/types/lead";
+import { Lead, DatabaseLead } from "@/types/lead";
+import { convertFromDatabase } from "@/types/lead";
 
 const ITEMS_PER_PAGE = 10;
 

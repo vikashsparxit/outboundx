@@ -34,12 +34,10 @@ export interface Lead {
   emails: EmailAddress[] | null;
 }
 
-// Helper type for database operations
 export type DatabaseLead = Omit<Lead, 'emails'> & {
   emails: Json;
 };
 
-// Conversion functions
 export const convertToDatabaseLead = (lead: Partial<Lead>): Partial<DatabaseLead> => ({
   ...lead,
   emails: lead.emails as unknown as Json,

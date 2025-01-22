@@ -6,7 +6,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Papa from "papaparse";
-import type { Lead, LeadStatus, EmailAddress, convertToDatabaseLead } from "@/types/lead";
+import { Lead, LeadStatus, EmailAddress } from "@/types/lead";
+import { convertToDatabaseLead } from "@/types/lead";
 
 interface CsvUploadModalProps {
   isOpen: boolean;
