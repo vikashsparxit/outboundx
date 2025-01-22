@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUp, ArrowDown, Trash2, Eye, Edit } from "lucide-react";
+import { ArrowUp, ArrowDown, Trash2, Eye } from "lucide-react";
 import { Lead } from "@/types/lead";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,14 +43,21 @@ const LeadsTable = ({
     const checkAdminStatus = async () => {
       if (!user) return;
       
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
 
-      if (!error && data) {
-        setIsAdmin(data.role === 'admin');
+        if (error) {
+          console.error("Error checking admin status:", error);
+          return;
+        }
+
+        setIsAdmin(data?.role === 'admin');
+      } catch (error) {
+        console.error("Error in checkAdminStatus:", error);
       }
     };
 
