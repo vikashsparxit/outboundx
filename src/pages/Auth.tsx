@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -29,12 +29,26 @@ const Auth = () => {
           },
         },
       });
-      if (error) throw error;
+      
+      if (error) {
+        // Handle specific error cases
+        if (error.message.includes("User already registered")) {
+          toast({
+            title: "Account exists",
+            description: "This email is already registered. Please sign in instead.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
+      
       toast({
         title: "Success!",
         description: "Please check your email for the confirmation link.",
       });
     } catch (error: any) {
+      console.error("Signup error:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -56,6 +70,7 @@ const Auth = () => {
       if (error) throw error;
       navigate("/");
     } catch (error: any) {
+      console.error("Signin error:", error);
       toast({
         title: "Error",
         description: error.message,
