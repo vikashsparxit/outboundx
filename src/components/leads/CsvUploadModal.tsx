@@ -191,37 +191,39 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload Leads CSV</DialogTitle>
         </DialogHeader>
-        <UploadZone
-          file={file}
-          uploading={uploading}
-          progress={progress}
-          successCount={successCount}
-          duplicateCount={duplicateCount}
-          errorCount={errorCount}
-          onFileChange={handleFileChange}
-          onDrop={handleDrop}
-        />
-        {showMapping && csvHeaders.length > 0 && (
-          <FieldMapping
-            csvHeaders={csvHeaders}
-            mappings={mappings}
-            onMappingChange={handleMappingChange}
+        <div className="space-y-4">
+          <UploadZone
+            file={file}
+            uploading={uploading}
+            progress={progress}
+            successCount={successCount}
+            duplicateCount={duplicateCount}
+            errorCount={errorCount}
+            onFileChange={handleFileChange}
+            onDrop={handleDrop}
           />
-        )}
-        <div className="flex justify-end space-x-2">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleUpload}
-            disabled={!file || uploading || (showMapping && Object.keys(mappings).length === 0)}
-          >
-            {uploading ? "Uploading..." : "Upload"}
-          </Button>
+          {showMapping && csvHeaders.length > 0 && (
+            <FieldMapping
+              csvHeaders={csvHeaders}
+              mappings={mappings}
+              onMappingChange={handleMappingChange}
+            />
+          )}
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpload}
+              disabled={!file || uploading || (showMapping && Object.keys(mappings).length === 0)}
+            >
+              {uploading ? "Uploading..." : "Upload"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
