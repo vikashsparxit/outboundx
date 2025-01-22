@@ -19,6 +19,7 @@ import { LayoutDashboard, Table as TableIcon } from "lucide-react";
 import LeadsTable from "@/components/leads/LeadsTable";
 import SearchBar from "@/components/leads/SearchBar";
 import LeadsPagination from "@/components/leads/LeadsPagination";
+import CsvUploadModal from "@/components/leads/CsvUploadModal";
 import type { Lead } from "@/types/lead";
 
 const ITEMS_PER_PAGE = 10;
@@ -28,12 +29,13 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState({
     key: "created_at",
     direction: "desc" as "asc" | "desc",
   });
 
-  const { data: leads = [], isLoading: isLoadingLeads } = useQuery({
+  const { data: leads = [], isLoading: isLoadingLeads, refetch } = useQuery({
     queryKey: ["leads", searchTerm, sortConfig],
     queryFn: async () => {
       console.log("Fetching leads with search term:", searchTerm);
@@ -59,15 +61,6 @@ const Index = () => {
       key,
       direction: current.key === key && current.direction === "asc" ? "desc" : "asc",
     }));
-  };
-
-  const handleCsvUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsLoading(true);
-    // TODO: Implement CSV upload logic
-    setIsLoading(false);
   };
 
   // Pagination logic
@@ -123,15 +116,8 @@ const Index = () => {
                 <SearchBar
                   searchTerm={searchTerm}
                   onSearchChange={setSearchTerm}
-                  onUploadClick={() => document.getElementById("csvUpload")?.click()}
+                  onUploadClick={() => setIsCsvModalOpen(true)}
                   isLoading={isLoading}
-                />
-                <input
-                  type="file"
-                  id="csvUpload"
-                  accept=".csv"
-                  className="hidden"
-                  onChange={handleCsvUpload}
                 />
               </div>
 
@@ -153,6 +139,14 @@ const Index = () => {
                   />
                 </div>
               )}
+
+              <CsvUploadModal
+                isOpen={isCsvModalOpen}
+                onClose={() => setIsCsvModalOpen(false)}
+                onSuccess={() => {
+                  refetch();
+                }}
+              />
             </div>
           </main>
         </SidebarProvider>
