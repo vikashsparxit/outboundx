@@ -1,4 +1,3 @@
-<lov-code>
 import {
   Table,
   TableBody,
@@ -37,4 +36,63 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort }: LeadsTableProps) =
   };
 
   const formatPhoneNumbers = (numbers: string[] | null) => {
-   
+    if (!numbers) return "-";
+    return numbers.join(", ");
+  };
+
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      new: "default",
+      contacted: "secondary",
+      in_progress: "secondary",
+      closed_won: "default",
+      closed_lost: "destructive"
+    };
+    return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead onClick={() => onSort("ticket_id")} className="cursor-pointer">
+            Ticket ID {getSortIcon("ticket_id")}
+          </TableHead>
+          <TableHead onClick={() => onSort("website")} className="cursor-pointer">
+            Website {getSortIcon("website")}
+          </TableHead>
+          <TableHead onClick={() => onSort("email")} className="cursor-pointer">
+            Email {getSortIcon("email")}
+          </TableHead>
+          <TableHead>Phone Numbers</TableHead>
+          <TableHead onClick={() => onSort("status")} className="cursor-pointer">
+            Status {getSortIcon("status")}
+          </TableHead>
+          <TableHead onClick={() => onSort("created_at")} className="cursor-pointer">
+            Created At {getSortIcon("created_at")}
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {leads.map((lead) => (
+          <TableRow key={lead.id}>
+            <TableCell>{lead.ticket_id || "-"}</TableCell>
+            <TableCell>{lead.website || "-"}</TableCell>
+            <TableCell>{formatEmails(lead.emails)}</TableCell>
+            <TableCell>{formatPhoneNumbers(lead.phone_numbers)}</TableCell>
+            <TableCell>{getStatusBadge(lead.status)}</TableCell>
+            <TableCell>
+              {new Date(lead.created_at).toLocaleDateString()}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
+
+export default LeadsTable;
