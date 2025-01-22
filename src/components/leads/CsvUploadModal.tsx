@@ -70,10 +70,19 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
     transformedLead.call_count = rawLead.call_count ? Number(rawLead.call_count) || 0 : 0;
 
     // Copy other fields
-    const textFields: (keyof Lead)[] = [
-      'ticket_id', 'website', 'email', 'domain', 'subject',
-      'message', 'lead_type', 'client_type', 'country', 'city', 'state'
-    ];
+    const textFields = [
+      'ticket_id',
+      'website',
+      'email',
+      'domain',
+      'subject',
+      'message',
+      'lead_type',
+      'client_type',
+      'country',
+      'city',
+      'state'
+    ] as const;
 
     textFields.forEach(field => {
       if (rawLead[field] !== undefined) {
