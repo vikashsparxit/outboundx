@@ -14,7 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { logActivity } from "@/utils/activity-logger";
 import ActivityLog from "./ActivityLog";
-import { Input, Textarea } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Edit2 } from "lucide-react";
 
 interface LeadDetailsProps {

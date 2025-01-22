@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import { useState, useEffect } from 'react';
+import { logActivity } from "@/utils/activity-logger";
 import {
   AlertDialog,
   AlertDialogAction,
