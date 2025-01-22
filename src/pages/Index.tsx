@@ -81,7 +81,7 @@ const Index = () => {
       <Navbar />
       <div className="flex flex-1 mt-16">
         <SidebarProvider defaultOpen={true}>
-          <Sidebar className="z-50">
+          <Sidebar className="z-50" variant="sidebar" collapsible="icon">
             <SidebarHeader className="border-b border-border px-4 py-2 mt-[80px]">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Sales Dashboard</h2>
