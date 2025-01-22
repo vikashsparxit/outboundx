@@ -1,5 +1,10 @@
 export type LeadStatus = "new" | "contacted" | "in_progress" | "closed_won" | "closed_lost";
 
+export interface EmailAddress {
+  type: "personal" | "business" | "other";
+  email: string;
+}
+
 export interface Lead {
   id: string;
   ticket_id: string | null;
@@ -20,4 +25,9 @@ export interface Lead {
   assigned_to: string | null;
   created_at: string;
   updated_at: string | null;
+  contact_id: string | null;
+  ip_country: string | null;
+  ip_region: string | null;
+  handled: boolean | null;
+  emails: EmailAddress[] | null;
 }

@@ -100,11 +100,16 @@ export type Database = {
           call_count: number | null
           city: string | null
           client_type: string | null
+          contact_id: string | null
           country: string | null
           created_at: string | null
           domain: string | null
           email: string | null
+          emails: Json | null
+          handled: boolean | null
           id: string
+          ip_country: string | null
+          ip_region: string | null
           lead_type: string | null
           message: string | null
           phone_numbers: string[] | null
@@ -121,11 +126,16 @@ export type Database = {
           call_count?: number | null
           city?: string | null
           client_type?: string | null
+          contact_id?: string | null
           country?: string | null
           created_at?: string | null
           domain?: string | null
           email?: string | null
+          emails?: Json | null
+          handled?: boolean | null
           id?: string
+          ip_country?: string | null
+          ip_region?: string | null
           lead_type?: string | null
           message?: string | null
           phone_numbers?: string[] | null
@@ -142,11 +152,16 @@ export type Database = {
           call_count?: number | null
           city?: string | null
           client_type?: string | null
+          contact_id?: string | null
           country?: string | null
           created_at?: string | null
           domain?: string | null
           email?: string | null
+          emails?: Json | null
+          handled?: boolean | null
           id?: string
+          ip_country?: string | null
+          ip_region?: string | null
           lead_type?: string | null
           message?: string | null
           phone_numbers?: string[] | null

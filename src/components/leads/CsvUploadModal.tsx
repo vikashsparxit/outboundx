@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Papa from "papaparse";
-import type { Lead, LeadStatus } from "@/types/lead";
+import type { Lead, LeadStatus, EmailAddress } from "@/types/lead";
 
 interface CsvUploadModalProps {
   isOpen: boolean;
@@ -47,7 +47,22 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
     }
   };
 
+  const parseEmails = (emailsStr: string): EmailAddress[] => {
+    if (!emailsStr) return [];
+    try {
+      const emailsList = emailsStr.split(',').map(email => email.trim());
+      return emailsList.map((email, index) => ({
+        type: index === 0 ? "business" : index === 1 ? "personal" : "other",
+        email
+      }));
+    } catch (error) {
+      console.error("Error parsing emails:", error);
+      return [];
+    }
+  };
+
   const validateAndTransformLead = (rawLead: any): Partial<Lead> => {
+    console.log("Validating lead:", rawLead);
     const transformedLead: Partial<Lead> = {};
 
     // Handle status with proper type checking
@@ -65,15 +80,24 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
         : rawLead.phone_numbers;
     }
 
+    // Handle emails
+    if (rawLead.email) {
+      transformedLead.email = rawLead.email.split(',')[0]?.trim(); // Primary email
+      transformedLead.emails = parseEmails(rawLead.email);
+    }
+
     // Convert numeric fields
     transformedLead.bounce_count = rawLead.bounce_count ? Number(rawLead.bounce_count) || 0 : 0;
     transformedLead.call_count = rawLead.call_count ? Number(rawLead.call_count) || 0 : 0;
+
+    // Handle boolean fields
+    transformedLead.handled = rawLead.handled === 'true' || rawLead.handled === true;
 
     // Copy text fields
     const textFields = [
       'ticket_id',
       'website',
-      'email',
+      'contact_id',
       'domain',
       'subject',
       'message',
@@ -81,7 +105,9 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
       'client_type',
       'country',
       'city',
-      'state'
+      'state',
+      'ip_country',
+      'ip_region'
     ] as const;
 
     textFields.forEach(field => {
@@ -90,6 +116,7 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
       }
     });
 
+    console.log("Transformed lead:", transformedLead);
     return transformedLead;
   };
 
@@ -106,12 +133,30 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
           const rawLeads = results.data as any[];
           const totalLeads = rawLeads.length;
           let uploadedCount = 0;
+          let duplicateCount = 0;
 
           console.log('Starting CSV upload with fields:', Object.keys(rawLeads[0]));
 
           for (const rawLead of rawLeads) {
             try {
               const transformedLead = validateAndTransformLead(rawLead);
+              
+              // Check for duplicates before inserting
+              if (transformedLead.ticket_id && transformedLead.email) {
+                const { data: existingLeads } = await supabase
+                  .from("leads")
+                  .select("id")
+                  .eq("ticket_id", transformedLead.ticket_id)
+                  .eq("email", transformedLead.email)
+                  .limit(1);
+
+                if (existingLeads && existingLeads.length > 0) {
+                  console.log('Duplicate lead found:', transformedLead);
+                  duplicateCount++;
+                  continue;
+                }
+              }
+
               console.log('Uploading lead:', transformedLead);
               const { error } = await supabase.from("leads").insert([transformedLead]);
               
@@ -129,7 +174,7 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
 
           toast({
             title: "Upload complete",
-            description: `Successfully uploaded ${uploadedCount} leads`,
+            description: `Successfully uploaded ${uploadedCount} leads. ${duplicateCount} duplicates skipped.`,
           });
           onSuccess();
           onClose();
