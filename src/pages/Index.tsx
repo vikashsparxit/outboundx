@@ -3,19 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import Navbar from "@/components/Navbar";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { LayoutDashboard, Table as TableIcon, ListChecks } from "lucide-react";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/sidebar/AppSidebar";
 import LeadsTable from "@/components/leads/LeadsTable";
 import SearchBar from "@/components/leads/SearchBar";
 import LeadsPagination from "@/components/leads/LeadsPagination";
@@ -23,14 +12,11 @@ import CsvUploadModal from "@/components/leads/CsvUploadModal";
 import LeadDetails from "@/components/leads/LeadDetails";
 import { Lead, DatabaseLead } from "@/types/lead";
 import { convertFromDatabase } from "@/types/lead";
-import { useNavigate, useLocation } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 10;
 
 const Index = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -81,53 +67,7 @@ const Index = () => {
       <Navbar />
       <div className="flex flex-1 mt-16">
         <SidebarProvider defaultOpen={true}>
-          <Sidebar className="z-50" variant="sidebar" collapsible="icon">
-            <SidebarHeader className="border-b border-border px-4 py-2 mt-[80px]">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Sales Dashboard</h2>
-                <SidebarTrigger />
-              </div>
-            </SidebarHeader>
-            <SidebarContent>
-              <SidebarGroup>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        tooltip="Dashboard"
-                        onClick={() => navigate("/")}
-                        isActive={location.pathname === "/"}
-                      >
-                        <LayoutDashboard className="h-4 w-4" />
-                        <span>Dashboard</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        tooltip="Leads"
-                        onClick={() => navigate("/leads")}
-                        isActive={location.pathname === "/leads"}
-                      >
-                        <TableIcon className="h-4 w-4" />
-                        <span>Leads</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        tooltip="Activity Log"
-                        onClick={() => navigate("/activity-log")}
-                        isActive={location.pathname === "/activity-log"}
-                      >
-                        <ListChecks className="h-4 w-4" />
-                        <span>Activity Log</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            </SidebarContent>
-          </Sidebar>
-
+          <AppSidebar />
           <main className="flex-1 overflow-auto p-6">
             <div className="container mx-auto">
               <div className="mb-8 flex items-center justify-between">
