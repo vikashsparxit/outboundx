@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types";
+
 export type LeadStatus = "new" | "contacted" | "in_progress" | "closed_won" | "closed_lost";
 
 export interface EmailAddress {
@@ -31,3 +33,19 @@ export interface Lead {
   handled: boolean | null;
   emails: EmailAddress[] | null;
 }
+
+// Helper type for database operations
+export type DatabaseLead = Omit<Lead, 'emails'> & {
+  emails: Json;
+};
+
+// Conversion functions
+export const convertToDatabaseLead = (lead: Partial<Lead>): Partial<DatabaseLead> => ({
+  ...lead,
+  emails: lead.emails as unknown as Json,
+});
+
+export const convertFromDatabase = (dbLead: DatabaseLead): Lead => ({
+  ...dbLead,
+  emails: dbLead.emails as unknown as EmailAddress[] | null,
+});

@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Papa from "papaparse";
-import type { Lead, LeadStatus, EmailAddress } from "@/types/lead";
+import type { Lead, LeadStatus, EmailAddress, convertToDatabaseLead } from "@/types/lead";
 
 interface CsvUploadModalProps {
   isOpen: boolean;
@@ -140,6 +140,7 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
           for (const rawLead of rawLeads) {
             try {
               const transformedLead = validateAndTransformLead(rawLead);
+              const databaseLead = convertToDatabaseLead(transformedLead);
               
               // Check for duplicates before inserting
               if (transformedLead.ticket_id && transformedLead.email) {
@@ -157,8 +158,8 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
                 }
               }
 
-              console.log('Uploading lead:', transformedLead);
-              const { error } = await supabase.from("leads").insert([transformedLead]);
+              console.log('Uploading lead:', databaseLead);
+              const { error } = await supabase.from("leads").insert([databaseLead]);
               
               if (error) {
                 console.error('Error uploading lead:', error);

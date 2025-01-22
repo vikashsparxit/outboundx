@@ -20,7 +20,7 @@ import LeadsTable from "@/components/leads/LeadsTable";
 import SearchBar from "@/components/leads/SearchBar";
 import LeadsPagination from "@/components/leads/LeadsPagination";
 import CsvUploadModal from "@/components/leads/CsvUploadModal";
-import type { Lead } from "@/types/lead";
+import type { Lead, DatabaseLead, convertFromDatabase } from "@/types/lead";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -52,7 +52,7 @@ const Index = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Lead[];
+      return (data as DatabaseLead[]).map(convertFromDatabase);
     },
   });
 
