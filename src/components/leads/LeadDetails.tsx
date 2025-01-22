@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { logActivity } from "@/utils/activity-logger";
 import ActivityLog from "./ActivityLog";
-import { Input } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
 import { Edit2 } from "lucide-react";
 
 interface LeadDetailsProps {
@@ -65,6 +65,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
           domain: editedLead.domain,
           phone_numbers: editedLead.phone_numbers,
           subject: editedLead.subject,
+          message: editedLead.message,
           lead_type: editedLead.lead_type,
           client_type: editedLead.client_type,
           country: editedLead.country,
@@ -141,13 +142,21 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     <div>
       <label className="text-sm text-muted-foreground">{label}</label>
       {isEditing ? (
-        <Input
-          value={editedLead[field] as string || ""}
-          onChange={(e) => setEditedLead({ ...editedLead, [field]: e.target.value })}
-          className="mt-1"
-        />
+        field === 'message' ? (
+          <Textarea
+            value={editedLead[field] as string || ''}
+            onChange={(e) => setEditedLead({ ...editedLead, [field]: e.target.value })}
+            className="mt-1"
+          />
+        ) : (
+          <Input
+            value={editedLead[field] as string || ''}
+            onChange={(e) => setEditedLead({ ...editedLead, [field]: e.target.value })}
+            className="mt-1"
+          />
+        )
       ) : (
-        <p>{value || "-"}</p>
+        <p className="whitespace-pre-wrap">{value || "-"}</p>
       )}
     </div>
   );

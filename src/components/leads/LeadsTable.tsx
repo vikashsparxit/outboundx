@@ -37,14 +37,7 @@ interface LeadsTableProps {
   onLeadDeleted: () => void;
 }
 
-const LeadsTable = ({ 
-  leads, 
-  isLoading, 
-  sortConfig, 
-  onSort, 
-  onLeadSelect,
-  onLeadDeleted 
-}: LeadsTableProps) => {
+const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLeadDeleted }: LeadsTableProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -78,17 +71,28 @@ const LeadsTable = ({
 
   const handleDelete = async (lead: Lead) => {
     try {
+      console.log("Deleting lead:", lead.id);
       const { error } = await supabase
         .from("leads")
         .delete()
         .eq("id", lead.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error in delete query:", error);
+        throw error;
+      }
+
+      await logActivity(
+        lead.id,
+        "lead_deleted",
+        "Lead was deleted"
+      );
 
       toast({
         title: "Lead deleted",
         description: "The lead has been successfully deleted",
       });
+      
       onLeadDeleted();
       setDeleteDialogOpen(false);
       setLeadToDelete(null);
@@ -96,7 +100,7 @@ const LeadsTable = ({
       console.error("Error deleting lead:", error);
       toast({
         title: "Error",
-        description: "Failed to delete lead",
+        description: "Failed to delete lead. Make sure you have admin privileges.",
         variant: "destructive",
       });
     }
