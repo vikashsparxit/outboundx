@@ -1,8 +1,15 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export type ActivityType = 
+  | "status_update"
+  | "note_added"
+  | "lead_created"
+  | "lead_updated"
+  | "lead_deleted";
+
 export const logActivity = async (
   leadId: string,
-  activityType: string,
+  activityType: ActivityType,
   description: string
 ) => {
   const { data: { user } } = await supabase.auth.getUser();
@@ -13,6 +20,7 @@ export const logActivity = async (
   }
 
   try {
+    console.log("Logging activity:", { leadId, activityType, description });
     const { error } = await supabase
       .from("lead_activities")
       .insert({
