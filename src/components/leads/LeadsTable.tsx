@@ -6,14 +6,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUp, ArrowDown, Trash2, Eye } from "lucide-react";
+import { ArrowUp, ArrowDown, Trash2, Eye, Edit } from "lucide-react";
 import { Lead } from "@/types/lead";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
-import { useState, useEffect } from 'react'; // Added missing imports
+import { useState, useEffect } from 'react';
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -50,7 +50,7 @@ const LeadsTable = ({
         .single();
 
       if (!error && data) {
-        setIsAdmin(data.role === "admin");
+        setIsAdmin(data.role === 'admin');
       }
     };
 
@@ -158,7 +158,11 @@ const LeadsTable = ({
       </TableHeader>
       <TableBody>
         {leads.map((lead) => (
-          <TableRow key={lead.id}>
+          <TableRow 
+            key={lead.id}
+            className="cursor-pointer hover:bg-muted/50"
+            onClick={() => onLeadSelect(lead)}
+          >
             <TableCell>{lead.ticket_id || "-"}</TableCell>
             <TableCell>{lead.website || "-"}</TableCell>
             <TableCell>{formatEmails(lead.emails)}</TableCell>
@@ -173,12 +177,15 @@ const LeadsTable = ({
             <TableCell>
               {new Date(lead.created_at).toLocaleDateString()}
             </TableCell>
-            <TableCell>
+            <TableCell onClick={(e) => e.stopPropagation()}>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onLeadSelect(lead)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLeadSelect(lead);
+                  }}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -186,7 +193,10 @@ const LeadsTable = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleDelete(lead)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(lead);
+                    }}
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
