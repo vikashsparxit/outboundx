@@ -116,7 +116,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
 
       await logActivity(
         lead.id,
-        "status_changed",
+        "status_update",
         `Lead status updated to ${newStatus}`
       );
 

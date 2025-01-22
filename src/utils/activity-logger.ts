@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type ActivityType = 
   | "status_update"
+  | "status_changed"  // Adding this as an alias for consistency
   | "note_added"
   | "lead_created"
   | "lead_updated"
