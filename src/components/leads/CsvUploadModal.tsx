@@ -47,23 +47,41 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
     }
   };
 
-  const validateAndTransformLead = (lead: any): Partial<Lead> => {
-    // Ensure status is a valid LeadStatus
-    const status = lead.status?.toLowerCase() as LeadStatus;
-    if (status && !["new", "contacted", "in_progress", "closed_won", "closed_lost"].includes(status)) {
-      lead.status = "new"; // Default to "new" if invalid status
+  const validateAndTransformLead = (rawLead: any): Partial<Lead> => {
+    const transformedLead: Partial<Lead> = {};
+
+    // Handle status with proper type checking
+    const status = rawLead.status?.toLowerCase();
+    if (status && ["new", "contacted", "in_progress", "closed_won", "closed_lost"].includes(status)) {
+      transformedLead.status = status as LeadStatus;
+    } else {
+      transformedLead.status = "new";
     }
 
-    // Transform phone_numbers to array if it exists
-    if (lead.phone_numbers && typeof lead.phone_numbers === 'string') {
-      lead.phone_numbers = lead.phone_numbers.split(',').map(phone => phone.trim());
+    // Transform phone_numbers to array
+    if (rawLead.phone_numbers) {
+      transformedLead.phone_numbers = typeof rawLead.phone_numbers === 'string' 
+        ? rawLead.phone_numbers.split(',').map((phone: string) => phone.trim())
+        : rawLead.phone_numbers;
     }
 
     // Convert numeric fields
-    if (lead.bounce_count) lead.bounce_count = Number(lead.bounce_count) || 0;
-    if (lead.call_count) lead.call_count = Number(lead.call_count) || 0;
+    transformedLead.bounce_count = rawLead.bounce_count ? Number(rawLead.bounce_count) || 0 : 0;
+    transformedLead.call_count = rawLead.call_count ? Number(rawLead.call_count) || 0 : 0;
 
-    return lead;
+    // Copy other fields
+    const textFields: (keyof Lead)[] = [
+      'ticket_id', 'website', 'email', 'domain', 'subject',
+      'message', 'lead_type', 'client_type', 'country', 'city', 'state'
+    ];
+
+    textFields.forEach(field => {
+      if (rawLead[field] !== undefined) {
+        transformedLead[field] = rawLead[field];
+      }
+    });
+
+    return transformedLead;
   };
 
   const handleUpload = async () => {
@@ -76,15 +94,21 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
       Papa.parse(file, {
         header: true,
         complete: async (results) => {
-          const leads = results.data as any[];
-          const totalLeads = leads.length;
+          const rawLeads = results.data as any[];
+          const totalLeads = rawLeads.length;
           let uploadedCount = 0;
 
-          for (const rawLead of leads) {
+          for (const rawLead of rawLeads) {
             try {
-              const lead = validateAndTransformLead(rawLead);
-              const { error } = await supabase.from("leads").insert([lead]);
-              if (error) throw error;
+              const transformedLead = validateAndTransformLead(rawLead);
+              console.log('Uploading lead:', transformedLead);
+              const { error } = await supabase.from("leads").insert([transformedLead]);
+              
+              if (error) {
+                console.error('Error uploading lead:', error);
+                throw error;
+              }
+              
               uploadedCount++;
               setProgress((uploadedCount / totalLeads) * 100);
             } catch (error) {
