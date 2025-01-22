@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -20,6 +20,8 @@ const Auth = () => {
     e.preventDefault();
     try {
       setLoading(true);
+      console.log("Attempting signup with email:", email);
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -31,7 +33,8 @@ const Auth = () => {
       });
       
       if (error) {
-        // Handle specific error cases
+        console.error("Signup error details:", error);
+        
         if (error.message.includes("User already registered")) {
           toast({
             title: "Account exists",
@@ -51,7 +54,7 @@ const Auth = () => {
       console.error("Signup error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An error occurred during signup",
         variant: "destructive",
       });
     } finally {
@@ -63,17 +66,32 @@ const Auth = () => {
     e.preventDefault();
     try {
       setLoading(true);
+      console.log("Attempting signin with email:", email);
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error("Signin error details:", error);
+        if (error.message.includes("Invalid login credentials")) {
+          toast({
+            title: "Invalid credentials",
+            description: "Please check your email and password and try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
+      
       navigate("/");
     } catch (error: any) {
       console.error("Signin error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An error occurred during sign in",
         variant: "destructive",
       });
     } finally {
