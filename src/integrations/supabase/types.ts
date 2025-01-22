@@ -217,6 +217,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      activity_type:
+        | "lead_created"
+        | "lead_updated"
+        | "lead_deleted"
+        | "status_changed"
+        | "note_added"
+        | "note_updated"
+        | "note_deleted"
       lead_status:
         | "new"
         | "contacted"
