@@ -20,7 +20,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Database, Upload, Table as TableIcon } from "lucide-react";
+import { LayoutDashboard, Table as TableIcon, Upload } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
@@ -51,7 +51,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="flex-1 flex">
+      <div className="flex flex-1 pt-16">
         <SidebarProvider defaultOpen={true}>
           <Sidebar>
             <SidebarHeader className="border-b border-border px-4 py-2">
@@ -66,7 +66,7 @@ const Index = () => {
                   <SidebarMenu>
                     <SidebarMenuItem>
                       <SidebarMenuButton tooltip="Dashboard">
-                        <Database className="h-4 w-4" />
+                        <LayoutDashboard className="h-4 w-4" />
                         <span>Dashboard</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -82,8 +82,8 @@ const Index = () => {
             </SidebarContent>
           </Sidebar>
 
-          <main className="flex-1 overflow-auto">
-            <div className="container mx-auto py-6">
+          <main className="flex-1 overflow-auto p-6">
+            <div className="container mx-auto">
               <div className="mb-8 flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl font-bold">Leads Management</h1>

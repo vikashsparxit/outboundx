@@ -13,15 +13,17 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="border-b">
-      <div className="flex h-16 items-center px-4 container mx-auto">
+    <nav className="border-b bg-background fixed top-0 left-0 right-0 z-50">
+      <div className="flex h-16 items-center px-4">
         <div className="flex items-center justify-between w-full">
           <div className="font-semibold text-lg">OutboundX</div>
           <div className="flex items-center gap-4">
             {user && (
               <>
-                <span>{user.email}</span>
-                <Button onClick={handleSignOut} variant="outline">
+                <span className="text-sm text-muted-foreground">
+                  {user.email}
+                </span>
+                <Button onClick={handleSignOut} variant="outline" size="sm">
                   Sign Out
                 </Button>
               </>
