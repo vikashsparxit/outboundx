@@ -20,6 +20,7 @@ import LeadsTable from "@/components/leads/LeadsTable";
 import SearchBar from "@/components/leads/SearchBar";
 import LeadsPagination from "@/components/leads/LeadsPagination";
 import CsvUploadModal from "@/components/leads/CsvUploadModal";
+import LeadDetails from "@/components/leads/LeadDetails";
 import { Lead, DatabaseLead } from "@/types/lead";
 import { convertFromDatabase } from "@/types/lead";
 
@@ -31,6 +32,7 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [sortConfig, setSortConfig] = useState({
     key: "created_at",
     direction: "desc" as "asc" | "desc",
@@ -128,6 +130,8 @@ const Index = () => {
                   isLoading={isLoadingLeads}
                   sortConfig={sortConfig}
                   onSort={handleSort}
+                  onLeadSelect={setSelectedLead}
+                  onLeadDeleted={refetch}
                 />
               </div>
 
@@ -147,6 +151,13 @@ const Index = () => {
                 onSuccess={() => {
                   refetch();
                 }}
+              />
+
+              <LeadDetails
+                lead={selectedLead}
+                isOpen={!!selectedLead}
+                onClose={() => setSelectedLead(null)}
+                onLeadUpdate={refetch}
               />
             </div>
           </main>

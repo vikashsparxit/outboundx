@@ -6,9 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, Trash2, Eye } from "lucide-react";
 import { Lead } from "@/types/lead";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/providers/AuthProvider";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -18,9 +22,64 @@ interface LeadsTableProps {
     direction: "asc" | "desc";
   };
   onSort: (key: string) => void;
+  onLeadSelect: (lead: Lead) => void;
+  onLeadDeleted: () => void;
 }
 
-const LeadsTable = ({ leads, isLoading, sortConfig, onSort }: LeadsTableProps) => {
+const LeadsTable = ({ 
+  leads, 
+  isLoading, 
+  sortConfig, 
+  onSort, 
+  onLeadSelect,
+  onLeadDeleted 
+}: LeadsTableProps) => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setIsAdmin(data.role === "admin");
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
+
+  const handleDelete = async (lead: Lead) => {
+    try {
+      const { error } = await supabase
+        .from("leads")
+        .delete()
+        .eq("id", lead.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Lead deleted",
+        description: "The lead has been successfully deleted",
+      });
+      onLeadDeleted();
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete lead",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getSortIcon = (key: string) => {
     if (sortConfig.key !== key) return null;
     return sortConfig.direction === "asc" ? (
@@ -93,6 +152,7 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort }: LeadsTableProps) =
           <TableHead onClick={() => onSort("created_at")} className="cursor-pointer">
             Created At {getSortIcon("created_at")}
           </TableHead>
+          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -111,6 +171,26 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort }: LeadsTableProps) =
             <TableCell>{getStatusBadge(lead.status)}</TableCell>
             <TableCell>
               {new Date(lead.created_at).toLocaleDateString()}
+            </TableCell>
+            <TableCell>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onLeadSelect(lead)}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(lead)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
+              </div>
             </TableCell>
           </TableRow>
         ))}
