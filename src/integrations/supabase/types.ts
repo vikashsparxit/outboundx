@@ -9,7 +9,191 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      lead_activities: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          lead_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          lead_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          lead_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_notes: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          lead_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_notes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          assigned_to: string | null
+          bounce_count: number | null
+          call_count: number | null
+          city: string | null
+          client_type: string | null
+          country: string | null
+          created_at: string | null
+          domain: string | null
+          email: string | null
+          id: string
+          lead_type: string | null
+          message: string | null
+          phone_numbers: string[] | null
+          state: string | null
+          status: Database["public"]["Enums"]["lead_status"] | null
+          subject: string | null
+          ticket_id: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          bounce_count?: number | null
+          call_count?: number | null
+          city?: string | null
+          client_type?: string | null
+          country?: string | null
+          created_at?: string | null
+          domain?: string | null
+          email?: string | null
+          id?: string
+          lead_type?: string | null
+          message?: string | null
+          phone_numbers?: string[] | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["lead_status"] | null
+          subject?: string | null
+          ticket_id?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          bounce_count?: number | null
+          call_count?: number | null
+          city?: string | null
+          client_type?: string | null
+          country?: string | null
+          created_at?: string | null
+          domain?: string | null
+          email?: string | null
+          id?: string
+          lead_type?: string | null
+          message?: string | null
+          phone_numbers?: string[] | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["lead_status"] | null
+          subject?: string | null
+          ticket_id?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +202,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      lead_status:
+        | "new"
+        | "contacted"
+        | "in_progress"
+        | "closed_won"
+        | "closed_lost"
+      user_role: "admin" | "manager" | "executive"
     }
     CompositeTypes: {
       [_ in never]: never
