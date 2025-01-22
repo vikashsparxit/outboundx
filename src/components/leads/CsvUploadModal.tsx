@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Papa from "papaparse";
-import type { Lead } from "@/types/lead";
+import type { Lead, LeadStatus } from "@/types/lead";
 
 interface CsvUploadModalProps {
   isOpen: boolean;
@@ -47,6 +47,25 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
     }
   };
 
+  const validateAndTransformLead = (lead: any): Partial<Lead> => {
+    // Ensure status is a valid LeadStatus
+    const status = lead.status?.toLowerCase() as LeadStatus;
+    if (status && !["new", "contacted", "in_progress", "closed_won", "closed_lost"].includes(status)) {
+      lead.status = "new"; // Default to "new" if invalid status
+    }
+
+    // Transform phone_numbers to array if it exists
+    if (lead.phone_numbers && typeof lead.phone_numbers === 'string') {
+      lead.phone_numbers = lead.phone_numbers.split(',').map(phone => phone.trim());
+    }
+
+    // Convert numeric fields
+    if (lead.bounce_count) lead.bounce_count = Number(lead.bounce_count) || 0;
+    if (lead.call_count) lead.call_count = Number(lead.call_count) || 0;
+
+    return lead;
+  };
+
   const handleUpload = async () => {
     if (!file) return;
 
@@ -57,12 +76,13 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
       Papa.parse(file, {
         header: true,
         complete: async (results) => {
-          const leads = results.data as Lead[];
+          const leads = results.data as any[];
           const totalLeads = leads.length;
           let uploadedCount = 0;
 
-          for (const lead of leads) {
+          for (const rawLead of leads) {
             try {
+              const lead = validateAndTransformLead(rawLead);
               const { error } = await supabase.from("leads").insert([lead]);
               if (error) throw error;
               uploadedCount++;
