@@ -69,6 +69,24 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort }: LeadsTableProps) =
             Email {getSortIcon("email")}
           </TableHead>
           <TableHead>Phone Numbers</TableHead>
+          <TableHead onClick={() => onSort("lead_type")} className="cursor-pointer">
+            Lead Type {getSortIcon("lead_type")}
+          </TableHead>
+          <TableHead onClick={() => onSort("client_type")} className="cursor-pointer">
+            Client Type {getSortIcon("client_type")}
+          </TableHead>
+          <TableHead onClick={() => onSort("country")} className="cursor-pointer">
+            Country {getSortIcon("country")}
+          </TableHead>
+          <TableHead onClick={() => onSort("city")} className="cursor-pointer">
+            City {getSortIcon("city")}
+          </TableHead>
+          <TableHead onClick={() => onSort("bounce_count")} className="cursor-pointer">
+            Bounce Count {getSortIcon("bounce_count")}
+          </TableHead>
+          <TableHead onClick={() => onSort("call_count")} className="cursor-pointer">
+            Call Count {getSortIcon("call_count")}
+          </TableHead>
           <TableHead onClick={() => onSort("status")} className="cursor-pointer">
             Status {getSortIcon("status")}
           </TableHead>
@@ -84,6 +102,12 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort }: LeadsTableProps) =
             <TableCell>{lead.website || "-"}</TableCell>
             <TableCell>{formatEmails(lead.emails)}</TableCell>
             <TableCell>{formatPhoneNumbers(lead.phone_numbers)}</TableCell>
+            <TableCell>{lead.lead_type || "-"}</TableCell>
+            <TableCell>{lead.client_type || "-"}</TableCell>
+            <TableCell>{lead.country || "-"}</TableCell>
+            <TableCell>{lead.city || "-"}</TableCell>
+            <TableCell>{lead.bounce_count || 0}</TableCell>
+            <TableCell>{lead.call_count || 0}</TableCell>
             <TableCell>{getStatusBadge(lead.status)}</TableCell>
             <TableCell>
               {new Date(lead.created_at).toLocaleDateString()}
