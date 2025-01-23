@@ -10,7 +10,7 @@ import { Lead, LeadStatus, EmailAddress, convertToDatabaseLead } from "@/types/l
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/utils/activity-logger";
 import ActivityLog from "./ActivityLog";
-import { Edit2, Plus, X } from "lucide-react";
+import { Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { calculateBeamScore } from "@/utils/scoring";
 import { LeadIdentification } from "./details/LeadIdentification";
@@ -61,7 +61,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
         },
         async (payload) => {
           const updatedLead = payload.new as Lead;
-          // Recalculate score if relevant fields changed
           if (
             payload.eventType === "UPDATE" &&
             (
@@ -95,7 +94,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
 
       if (error) throw error;
 
-      // Recalculate score immediately after status update
       if (lead) {
         await calculateBeamScore({ ...lead, status: newStatus });
       }
@@ -220,39 +218,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     setEditedLead({ ...editedLead, phone_numbers: newPhoneNumbers });
   };
 
-  const onAddDomain = () => {
-    const newDomains = [...(editedLead.domains || []), ""];
-    setEditedLead({ ...editedLead, domains: newDomains });
-  };
-
-  const onRemoveDomain = (index: number) => {
-    const newDomains = [...(editedLead.domains || [])];
-    newDomains.splice(index, 1);
-    setEditedLead({ ...editedLead, domains: newDomains });
-  };
-
-  const onDomainChange = (index: number, value: string) => {
-    const newDomains = [...(editedLead.domains || [])];
-    newDomains[index] = value;
-    setEditedLead({ ...editedLead, domains: newDomains });
-  };
-
-  const onAddTechnology = (tech: string) => {
-    const currentTech = editedLead.technology_stack || [];
-    if (!currentTech.includes(tech)) {
-      setEditedLead({
-        ...editedLead,
-        technology_stack: [...currentTech, tech],
-      });
-    }
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditedLead(lead || {});
-    setValidationErrors({});
-  };
-
   const renderField = (label: string, value: string | null, field: keyof Lead) => (
     <div>
       <label className="text-sm text-muted-foreground">{label}</label>
@@ -333,9 +298,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             setEditedLead={setEditedLead}
             renderField={renderField}
             validationErrors={validationErrors}
-            onAddDomain={onAddDomain}
-            onRemoveDomain={onRemoveDomain}
-            onDomainChange={onDomainChange}
           />
 
           <LeadLocation 
@@ -351,7 +313,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
-            onAddTechnology={onAddTechnology}
           />
 
           <ScoreHistory leadId={lead.id} />
@@ -371,7 +332,11 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
           isEditing={isEditing}
           isUpdating={isUpdating}
           onSave={handleEdit}
-          onCancel={handleCancel}
+          onCancel={() => {
+            setIsEditing(false);
+            setEditedLead(lead);
+            setValidationErrors({});
+          }}
         />
       </SheetContent>
     </Sheet>
