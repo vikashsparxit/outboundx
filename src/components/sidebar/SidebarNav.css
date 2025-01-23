@@ -9,13 +9,13 @@
 }
 
 .dashboard-icon:hover {
-  animation: pulse 1s ease infinite;
+  animation: bounce 0.6s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+@keyframes bounce {
+  0% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.1) translateY(-2px); }
+  100% { transform: scale(1) translateY(0); }
 }
 
 /* Globe icon rotation */
@@ -24,7 +24,7 @@
 }
 
 .globe-icon:hover {
-  animation: rotate 2s linear infinite;
+  animation: rotate 3s linear infinite;
 }
 
 @keyframes rotate {
@@ -38,13 +38,13 @@
 }
 
 .checklist-icon:hover {
-  animation: check 0.5s ease forwards;
+  animation: check 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes check {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(1.1); opacity: 1; }
 }
 
 /* Calculator icon animation */
@@ -53,12 +53,12 @@
 }
 
 .calculator-icon:hover {
-  animation: calculate 0.5s ease;
+  animation: calculate 0.4s ease infinite;
 }
 
 @keyframes calculate {
   0% { transform: translateY(0); }
-  25% { transform: translateY(-2px); }
-  75% { transform: translateY(2px); }
+  25% { transform: translateY(-3px) rotate(-3deg); }
+  75% { transform: translateY(2px) rotate(3deg); }
   100% { transform: translateY(0); }
 }

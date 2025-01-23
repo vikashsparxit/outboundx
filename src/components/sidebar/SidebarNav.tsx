@@ -1,9 +1,9 @@
 import {
+  House,
   Globe,
   ListChecks,
-  Calculator,
-  LayoutDashboard,
-} from "lucide-react";
+  Calculator
+} from "@phosphor-icons/react";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -18,7 +18,7 @@ const SidebarNav = () => {
 
   const menuItems = [
     {
-      icon: LayoutDashboard,
+      icon: House,
       label: "Dashboard",
       path: "/",
       className: "dashboard-icon",
@@ -52,7 +52,10 @@ const SidebarNav = () => {
             onClick={() => navigate(item.path)}
             isActive={location.pathname === item.path}
           >
-            <item.icon className={`h-4 w-4 ${item.className}`} />
+            <item.icon 
+              className={`h-4 w-4 ${item.className}`}
+              weight={location.pathname === item.path ? "fill" : "regular"}
+            />
             <span>{item.label}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
