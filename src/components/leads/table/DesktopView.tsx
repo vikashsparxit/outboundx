@@ -11,6 +11,7 @@ import StatusBadge from "./StatusBadge";
 import LeadRowActions from "./LeadRowActions";
 import { formatEmails, formatPhoneNumbers } from "./utils";
 import EmailTypeTag from "./EmailTypeTag";
+import { Flag } from "lucide-react";
 
 interface DesktopViewProps {
   leads: Lead[];
@@ -49,17 +50,25 @@ const DesktopView = ({
           >
             <TableCell className="font-medium">{index + 1}</TableCell>
             <TableCell className="max-w-[250px]">
-              <div className="flex flex-wrap items-center gap-1">
+              <div className="flex flex-col gap-0.5">
                 {lead.emails?.map((email, i) => (
-                  <div key={i} className="flex items-center">
-                    <EmailTypeTag type={email.type} />
+                  <div key={i} className="flex flex-col">
                     <span className="truncate">{email.email}</span>
+                    <EmailTypeTag type={email.type} />
                   </div>
                 ))}
               </div>
             </TableCell>
             <TableCell className="max-w-[200px] truncate">
               {formatPhoneNumbers(lead.phone_numbers)}
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                {lead.country && (
+                  <Flag className="h-4 w-4 text-muted-foreground" />
+                )}
+                <span>{lead.country || "-"}</span>
+              </div>
             </TableCell>
             <TableCell>
               <BeamScoreCell lead={lead} />

@@ -17,7 +17,7 @@ const EmailTypeTag = ({ type }: EmailTypeTagProps) => {
   };
 
   return (
-    <Badge variant={getVariant()} className="mr-2 text-xs">
+    <Badge variant={getVariant()} className="text-[10px] px-1 py-0">
       {type}
     </Badge>
   );

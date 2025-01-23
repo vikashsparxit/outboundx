@@ -33,6 +33,9 @@ const LeadsTableHeader = ({ sortConfig, onSort, isMobile, priorityColumns }: Lea
           Email {getSortIcon("email")}
         </TableHead>
         <TableHead className="whitespace-nowrap">Phone Numbers</TableHead>
+        <TableHead onClick={() => onSort("country")} className="cursor-pointer whitespace-nowrap">
+          Country {getSortIcon("country")}
+        </TableHead>
         <TableHead onClick={() => onSort("beam_score")} className="cursor-pointer whitespace-nowrap">
           BEAM Score {getSortIcon("beam_score")}
         </TableHead>
