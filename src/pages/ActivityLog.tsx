@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import Navbar from "@/components/Navbar";
 
 interface ActivityLogEntry {
   id: string;

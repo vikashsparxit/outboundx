@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/card";
-import Navbar from "@/components/Navbar";
 import {
   Table,
   TableBody,
