@@ -21,6 +21,8 @@ import { LeadContact } from "./details/LeadContact";
 import { LeadOnlinePresence } from "./details/LeadOnlinePresence";
 import { LeadLocation } from "./details/LeadLocation";
 import { LeadStatusUpdate } from "./details/LeadStatusUpdate";
+import ScoreBreakdown from "./scoring/ScoreBreakdown";
+import ScoreHistory from "./scoring/ScoreHistory";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -40,6 +42,46 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
       setEditedLead(lead);
     }
   }, [lead]);
+
+  useEffect(() => {
+    if (!lead) return;
+
+    // Subscribe to real-time updates for the lead
+    const channel = supabase
+      .channel(`lead_${lead.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "leads",
+          filter: `id=eq.${lead.id}`,
+        },
+        async (payload) => {
+          const updatedLead = payload.new as Lead;
+          // Recalculate score if relevant fields changed
+          if (
+            payload.eventType === "UPDATE" &&
+            (
+              updatedLead.status !== (payload.old as Lead).status ||
+              updatedLead.call_count !== (payload.old as Lead).call_count ||
+              updatedLead.budget_range !== (payload.old as Lead).budget_range ||
+              updatedLead.decision_maker_level !== (payload.old as Lead).decision_maker_level ||
+              updatedLead.need_urgency !== (payload.old as Lead).need_urgency ||
+              updatedLead.project_timeline !== (payload.old as Lead).project_timeline
+            )
+          ) {
+            await calculateBeamScore(updatedLead);
+          }
+          onLeadUpdate();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [lead, onLeadUpdate]);
 
   const formatEmails = (emails: any[] | null) => {
     if (!emails) return "-";
@@ -191,6 +233,8 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
         </SheetHeader>
         
         <div className="mt-6 space-y-6">
+          <ScoreBreakdown lead={lead} />
+          
           <LeadIdentification 
             lead={lead}
             isEditing={isEditing}
@@ -225,6 +269,8 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             renderField={renderField}
           />
 
+          <ScoreHistory leadId={lead.id} />
+          
           <ActivityLog leadId={lead.id} />
 
           {isEditing ? (
