@@ -77,10 +77,7 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
         .delete()
         .eq("id", lead.id);
 
-      if (error) {
-        console.error("Error in delete query:", error);
-        throw error;
-      }
+      if (error) throw error;
 
       await logActivity(
         lead.id,
@@ -117,7 +114,7 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="w-full p-8 text-center text-muted-foreground">Loading...</div>;
   }
 
   return (
@@ -129,13 +126,13 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
             {leads.map((lead) => (
               <TableRow 
                 key={lead.id}
-                className="cursor-pointer hover:bg-muted/50"
+                className="group cursor-pointer transition-colors hover:bg-muted/50"
                 onClick={() => onLeadSelect(lead)}
               >
-                <TableCell>{lead.ticket_id || "-"}</TableCell>
-                <TableCell>{lead.website || "-"}</TableCell>
-                <TableCell>{formatEmails(lead.emails)}</TableCell>
-                <TableCell>{formatPhoneNumbers(lead.phone_numbers)}</TableCell>
+                <TableCell className="font-medium">{lead.ticket_id || "-"}</TableCell>
+                <TableCell className="max-w-[200px] truncate">{lead.website || "-"}</TableCell>
+                <TableCell className="max-w-[250px] truncate">{formatEmails(lead.emails)}</TableCell>
+                <TableCell className="max-w-[200px] truncate">{formatPhoneNumbers(lead.phone_numbers)}</TableCell>
                 <TableCell>{lead.lead_type || "-"}</TableCell>
                 <TableCell>{lead.client_type || "-"}</TableCell>
                 <TableCell>
@@ -144,19 +141,21 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
                 <TableCell>
                   <StatusBadge status={lead.status} />
                 </TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   {new Date(lead.created_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
-                  <LeadRowActions
-                    lead={lead}
-                    isAdmin={isAdmin}
-                    onView={onLeadSelect}
-                    onDelete={(lead) => {
-                      setLeadToDelete(lead);
-                      setDeleteDialogOpen(true);
-                    }}
-                  />
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <LeadRowActions
+                      lead={lead}
+                      isAdmin={isAdmin}
+                      onView={onLeadSelect}
+                      onDelete={(lead) => {
+                        setLeadToDelete(lead);
+                        setDeleteDialogOpen(true);
+                      }}
+                    />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
