@@ -9,13 +9,23 @@ interface LeadOnlinePresenceProps {
   validationErrors: Record<string, string>;
 }
 
-export const LeadOnlinePresence = ({ lead, renderField }: LeadOnlinePresenceProps) => {
+export const LeadOnlinePresence = ({ 
+  lead,
+  isEditing,
+  editedLead,
+  setEditedLead,
+  renderField,
+  validationErrors
+}: LeadOnlinePresenceProps) => {
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-semibold">Online Presence</h3>
       <div className="grid grid-cols-2 gap-4">
         {renderField("Website", lead.website, "website")}
         {renderField("Domain", lead.domain, "domain")}
+        {validationErrors.website && (
+          <p className="text-sm text-destructive">{validationErrors.website}</p>
+        )}
       </div>
     </div>
   );
