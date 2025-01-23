@@ -2,20 +2,18 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUp, ArrowDown, Trash2, Eye } from "lucide-react";
 import { Lead } from "@/types/lead";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import { useState, useEffect } from 'react';
 import { logActivity } from "@/utils/activity-logger";
 import BeamScoreCell from "./scoring/BeamScoreCell";
+import LeadsTableHeader from "./table/LeadsTableHeader";
+import StatusBadge from "./table/StatusBadge";
+import LeadRowActions from "./table/LeadRowActions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -108,15 +106,6 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
     }
   };
 
-  const getSortIcon = (key: string) => {
-    if (sortConfig.key !== key) return null;
-    return sortConfig.direction === "asc" ? (
-      <ArrowUp className="ml-1 h-4 w-4 inline" />
-    ) : (
-      <ArrowDown className="ml-1 h-4 w-4 inline" />
-    );
-  };
-
   const formatEmails = (emails: any[] | null) => {
     if (!emails) return "-";
     return emails.map(e => `${e.type}: ${e.email}`).join(", ");
@@ -127,45 +116,6 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
     return numbers.join(", ");
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, { bg: string, text: string, icon: JSX.Element }> = {
-      new: {
-        bg: "bg-blue-50 hover:bg-blue-100",
-        text: "text-blue-700",
-        icon: <div className="w-2 h-2 rounded-full bg-blue-500 mr-2" />
-      },
-      contacted: {
-        bg: "bg-yellow-50 hover:bg-yellow-100",
-        text: "text-yellow-700",
-        icon: <div className="w-2 h-2 rounded-full bg-yellow-500 mr-2" />
-      },
-      in_progress: {
-        bg: "bg-purple-50 hover:bg-purple-100",
-        text: "text-purple-700",
-        icon: <div className="w-2 h-2 rounded-full bg-purple-500 mr-2" />
-      },
-      closed_won: {
-        bg: "bg-green-50 hover:bg-green-100",
-        text: "text-green-700",
-        icon: <div className="w-2 h-2 rounded-full bg-green-500 mr-2" />
-      },
-      closed_lost: {
-        bg: "bg-red-50 hover:bg-red-100",
-        text: "text-red-700",
-        icon: <div className="w-2 h-2 rounded-full bg-red-500 mr-2" />
-      }
-    };
-
-    const variant = variants[status] || variants.new;
-    
-    return (
-      <div className={`inline-flex items-center px-2.5 py-1.5 rounded-full font-medium text-sm ${variant.bg} ${variant.text}`}>
-        {variant.icon}
-        {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-      </div>
-    );
-  };
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -174,36 +124,7 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
     <>
       <div className="w-full min-w-[1000px]">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead onClick={() => onSort("ticket_id")} className="cursor-pointer whitespace-nowrap">
-                Ticket ID {getSortIcon("ticket_id")}
-              </TableHead>
-              <TableHead onClick={() => onSort("website")} className="cursor-pointer whitespace-nowrap">
-                Website {getSortIcon("website")}
-              </TableHead>
-              <TableHead onClick={() => onSort("email")} className="cursor-pointer whitespace-nowrap">
-                Email {getSortIcon("email")}
-              </TableHead>
-              <TableHead className="whitespace-nowrap">Phone Numbers</TableHead>
-              <TableHead onClick={() => onSort("lead_type")} className="cursor-pointer whitespace-nowrap">
-                Lead Type {getSortIcon("lead_type")}
-              </TableHead>
-              <TableHead onClick={() => onSort("client_type")} className="cursor-pointer whitespace-nowrap">
-                Client Type {getSortIcon("client_type")}
-              </TableHead>
-              <TableHead onClick={() => onSort("beam_score")} className="cursor-pointer whitespace-nowrap">
-                BEAM Score {getSortIcon("beam_score")}
-              </TableHead>
-              <TableHead onClick={() => onSort("status")} className="cursor-pointer whitespace-nowrap">
-                Status {getSortIcon("status")}
-              </TableHead>
-              <TableHead onClick={() => onSort("created_at")} className="cursor-pointer whitespace-nowrap">
-                Created At {getSortIcon("created_at")}
-              </TableHead>
-              <TableHead className="whitespace-nowrap">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
+          <LeadsTableHeader sortConfig={sortConfig} onSort={onSort} />
           <TableBody>
             {leads.map((lead) => (
               <TableRow 
@@ -220,36 +141,22 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
                 <TableCell>
                   <BeamScoreCell lead={lead} />
                 </TableCell>
-                <TableCell>{getStatusBadge(lead.status)}</TableCell>
+                <TableCell>
+                  <StatusBadge status={lead.status} />
+                </TableCell>
                 <TableCell>
                   {new Date(lead.created_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onLeadSelect(lead);
-                      }}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {isAdmin && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLeadToDelete(lead);
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    )}
-                  </div>
+                  <LeadRowActions
+                    lead={lead}
+                    isAdmin={isAdmin}
+                    onView={onLeadSelect}
+                    onDelete={(lead) => {
+                      setLeadToDelete(lead);
+                      setDeleteDialogOpen(true);
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             ))}
