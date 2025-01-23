@@ -12,6 +12,8 @@ export const LeadSubscription = ({ lead, onLeadUpdate }: LeadSubscriptionProps) 
   useEffect(() => {
     if (!lead) return;
 
+    console.log('Setting up real-time subscription for lead:', lead.id);
+
     const channel = supabase
       .channel(`lead_${lead.id}`)
       .on(
@@ -23,6 +25,7 @@ export const LeadSubscription = ({ lead, onLeadUpdate }: LeadSubscriptionProps) 
           filter: `id=eq.${lead.id}`,
         },
         async (payload) => {
+          console.log('Received real-time update:', payload);
           const updatedLead = payload.new as Lead;
           if (
             payload.eventType === "UPDATE" &&
@@ -35,6 +38,7 @@ export const LeadSubscription = ({ lead, onLeadUpdate }: LeadSubscriptionProps) 
               updatedLead.project_timeline !== (payload.old as Lead).project_timeline
             )
           ) {
+            console.log('Recalculating BEAM score due to relevant changes');
             await calculateBeamScore(updatedLead);
           }
           onLeadUpdate();
@@ -43,6 +47,7 @@ export const LeadSubscription = ({ lead, onLeadUpdate }: LeadSubscriptionProps) 
       .subscribe();
 
     return () => {
+      console.log('Cleaning up real-time subscription for lead:', lead.id);
       supabase.removeChannel(channel);
     };
   }, [lead, onLeadUpdate]);
