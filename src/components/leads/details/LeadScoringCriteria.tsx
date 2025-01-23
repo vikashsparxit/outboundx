@@ -16,12 +16,14 @@ import {
   ANNUAL_REVENUE_RANGES,
   TECHNOLOGY_STACK_OPTIONS,
 } from "@/constants/leadOptions";
+import { useState } from "react";
 
 interface LeadScoringCriteriaProps {
   lead: Lead;
   isEditing: boolean;
   editedLead: Partial<Lead>;
   setEditedLead: (lead: Partial<Lead>) => void;
+  onAddTechnology: (tech: string) => void;
 }
 
 export const LeadScoringCriteria = ({
@@ -29,19 +31,14 @@ export const LeadScoringCriteria = ({
   isEditing,
   editedLead,
   setEditedLead,
+  onAddTechnology
 }: LeadScoringCriteriaProps) => {
-  const handleTechnologyStackChange = (value: string) => {
-    const currentStack = editedLead.technology_stack || [];
-    if (currentStack.includes(value)) {
-      setEditedLead({
-        ...editedLead,
-        technology_stack: currentStack.filter((item) => item !== value),
-      });
-    } else {
-      setEditedLead({
-        ...editedLead,
-        technology_stack: [...currentStack, value],
-      });
+  const [newTech, setNewTech] = useState("");
+
+  const handleAddTech = () => {
+    if (newTech.trim()) {
+      onAddTechnology(newTech.trim());
+      setNewTech("");
     }
   };
 
@@ -227,20 +224,33 @@ export const LeadScoringCriteria = ({
         <div className="space-y-2 col-span-2">
           <label className="text-sm text-muted-foreground">Technology Stack</label>
           {isEditing ? (
-            <div className="flex flex-wrap gap-2">
-              {TECHNOLOGY_STACK_OPTIONS.map((tech) => (
-                <button
-                  key={tech}
-                  onClick={() => handleTechnologyStackChange(tech)}
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    editedLead.technology_stack?.includes(tech)
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-secondary-foreground"
-                  }`}
-                >
-                  {tech}
-                </button>
-              ))}
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {TECHNOLOGY_STACK_OPTIONS.map((tech) => (
+                  <button
+                    key={tech}
+                    onClick={() => onAddTechnology(tech)}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      editedLead.technology_stack?.includes(tech)
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-secondary-foreground"
+                    }`}
+                  >
+                    {tech}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={newTech}
+                  onChange={(e) => setNewTech(e.target.value)}
+                  placeholder="Add custom technology..."
+                  className="flex-1"
+                />
+                <Button onClick={handleAddTech} disabled={!newTech.trim()}>
+                  Add
+                </Button>
+              </div>
             </div>
           ) : (
             <p>{lead.technology_stack?.join(", ") || "-"}</p>

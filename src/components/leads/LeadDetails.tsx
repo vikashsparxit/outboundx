@@ -14,7 +14,7 @@ import { logActivity } from "@/utils/activity-logger";
 import ActivityLog from "./ActivityLog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit2 } from "lucide-react";
+import { Edit2, Plus, X } from "lucide-react";
 import { calculateBeamScore } from "@/utils/scoring";
 import { LeadIdentification } from "./details/LeadIdentification";
 import { LeadContact } from "./details/LeadContact";
@@ -25,6 +25,11 @@ import ScoreBreakdown from "./scoring/ScoreBreakdown";
 import ScoreHistory from "./scoring/ScoreHistory";
 import { LeadScoringCriteria } from "./details/LeadScoringCriteria";
 import { COUNTRIES } from "@/constants/leadOptions";
+import { z } from "zod";
+
+// Email validation schema
+const emailSchema = z.string().email();
+const websiteSchema = z.string().url().optional().or(z.literal(""));
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -38,6 +43,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedLead, setEditedLead] = useState<Partial<Lead>>({});
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (lead) {
@@ -45,10 +51,10 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   }, [lead]);
 
+  // Subscribe to real-time updates for the lead
   useEffect(() => {
     if (!lead) return;
 
-    // Subscribe to real-time updates for the lead
     const channel = supabase
       .channel(`lead_${lead.id}`)
       .on(
@@ -85,23 +91,53 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     };
   }, [lead, onLeadUpdate]);
 
-  const formatEmails = (emails: any[] | null) => {
-    if (!emails) return "-";
-    return emails.map(e => `${e.type}: ${e.email}`).join(", ");
-  };
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    
+    // Validate website
+    if (editedLead.website) {
+      try {
+        websiteSchema.parse(editedLead.website);
+      } catch (error) {
+        errors.website = "Please enter a valid URL";
+      }
+    }
 
-  const formatPhoneNumbers = (numbers: string[] | null) => {
-    if (!numbers) return "-";
-    return numbers.join(", ");
-  };
+    // Validate email
+    if (editedLead.email) {
+      try {
+        emailSchema.parse(editedLead.email);
+      } catch (error) {
+        errors.email = "Please enter a valid email address";
+      }
+    }
 
-  const formatDate = (date: string | null) => {
-    if (!date) return "-";
-    return format(new Date(date), "PPp");
+    // Validate emails array
+    if (editedLead.emails) {
+      editedLead.emails.forEach((emailObj, index) => {
+        try {
+          emailSchema.parse(emailObj.email);
+        } catch (error) {
+          errors[`emails.${index}`] = "Please enter a valid email address";
+        }
+      });
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleEdit = async () => {
     if (!lead || !editedLead) return;
+    
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the form errors before saving",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsUpdating(true);
     try {
@@ -126,13 +162,17 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
           company_size: editedLead.company_size,
           industry_vertical: editedLead.industry_vertical,
           annual_revenue_range: editedLead.annual_revenue_range,
-          technology_stack: editedLead.technology_stack
+          technology_stack: editedLead.technology_stack,
+          emails: editedLead.emails
         })
         .eq("id", lead.id);
 
       if (error) throw error;
 
-      await calculateBeamScore(editedLead);
+      // Recalculate score immediately after update
+      const newScores = await calculateBeamScore(editedLead);
+      console.log("New scores calculated:", newScores);
+
       await logActivity(lead.id, "lead_updated", "Lead details were updated");
 
       toast({
@@ -154,38 +194,41 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
-  const handleStatusUpdate = async (newStatus: Lead['status']) => {
-    if (!lead) return;
-    
-    setIsUpdating(true);
-    try {
-      const { error } = await supabase
-        .from("leads")
-        .update({ status: newStatus })
-        .eq("id", lead.id);
+  const handleAddEmail = () => {
+    const currentEmails = editedLead.emails || [];
+    setEditedLead({
+      ...editedLead,
+      emails: [...currentEmails, { type: "business", email: "" }]
+    });
+  };
 
-      if (error) throw error;
+  const handleRemoveEmail = (index: number) => {
+    const currentEmails = editedLead.emails || [];
+    setEditedLead({
+      ...editedLead,
+      emails: currentEmails.filter((_, i) => i !== index)
+    });
+  };
 
-      await logActivity(
-        lead.id,
-        "status_update",
-        `Lead status updated to ${newStatus}`
-      );
+  const handleEmailChange = (index: number, field: "type" | "email", value: string) => {
+    const currentEmails = [...(editedLead.emails || [])];
+    currentEmails[index] = {
+      ...currentEmails[index],
+      [field]: value
+    };
+    setEditedLead({
+      ...editedLead,
+      emails: currentEmails
+    });
+  };
 
-      toast({
-        title: "Status updated",
-        description: `Lead status has been updated to ${newStatus}`,
+  const handleAddTechnology = (tech: string) => {
+    const currentStack = editedLead.technology_stack || [];
+    if (!currentStack.includes(tech)) {
+      setEditedLead({
+        ...editedLead,
+        technology_stack: [...currentStack, tech]
       });
-      onLeadUpdate();
-    } catch (error) {
-      console.error("Error updating lead status:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update lead status",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -251,8 +294,18 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             editedLead={editedLead}
             setEditedLead={setEditedLead}
             renderField={renderField}
-            formatEmails={formatEmails}
-            formatPhoneNumbers={formatPhoneNumbers}
+            formatEmails={(emails) => {
+              if (!emails) return "-";
+              return emails.map(e => `${e.type}: ${e.email}`).join(", ");
+            }}
+            formatPhoneNumbers={(numbers) => {
+              if (!numbers) return "-";
+              return numbers.join(", ");
+            }}
+            onAddEmail={handleAddEmail}
+            onRemoveEmail={handleRemoveEmail}
+            onEmailChange={handleEmailChange}
+            validationErrors={validationErrors}
           />
 
           <LeadOnlinePresence 
@@ -261,6 +314,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             editedLead={editedLead}
             setEditedLead={setEditedLead}
             renderField={renderField}
+            validationErrors={validationErrors}
           />
 
           <LeadLocation 
@@ -276,6 +330,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
+            onAddTechnology={handleAddTechnology}
           />
 
           <ScoreHistory leadId={lead.id} />
@@ -292,6 +347,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
                 onClick={() => {
                   setIsEditing(false);
                   setEditedLead(lead);
+                  setValidationErrors({});
                 }}
                 disabled={isUpdating}
               >
