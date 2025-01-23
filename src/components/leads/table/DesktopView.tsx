@@ -10,6 +10,7 @@ import LeadsTableHeader from "./LeadsTableHeader";
 import StatusBadge from "./StatusBadge";
 import LeadRowActions from "./LeadRowActions";
 import { formatEmails, formatPhoneNumbers } from "./utils";
+import EmailTypeTag from "./EmailTypeTag";
 
 interface DesktopViewProps {
   leads: Lead[];
@@ -47,8 +48,15 @@ const DesktopView = ({
             onClick={() => onLeadSelect(lead)}
           >
             <TableCell className="font-medium">{index + 1}</TableCell>
-            <TableCell className="max-w-[250px] truncate">
-              {formatEmails(lead.emails)}
+            <TableCell className="max-w-[250px]">
+              <div className="flex flex-wrap items-center gap-1">
+                {lead.emails?.map((email, i) => (
+                  <div key={i} className="flex items-center">
+                    <EmailTypeTag type={email.type} />
+                    <span className="truncate">{email.email}</span>
+                  </div>
+                ))}
+              </div>
             </TableCell>
             <TableCell className="max-w-[200px] truncate">
               {formatPhoneNumbers(lead.phone_numbers)}
