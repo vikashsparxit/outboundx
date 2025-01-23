@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import { useState, useEffect } from 'react';
 import { logActivity } from "@/utils/activity-logger";
+import BeamScoreCell from "./scoring/BeamScoreCell";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -134,7 +135,21 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
       closed_won: "outline",
       closed_lost: "destructive"
     };
-    return <Badge variant={variants[status] || "default"}>{status}</Badge>;
+    const colors: Record<string, string> = {
+      new: "bg-blue-100 text-blue-800",
+      contacted: "bg-yellow-100 text-yellow-800",
+      in_progress: "bg-purple-100 text-purple-800",
+      closed_won: "bg-green-100 text-green-800",
+      closed_lost: "bg-red-100 text-red-800"
+    };
+    return (
+      <Badge 
+        variant={variants[status] || "default"}
+        className={colors[status]}
+      >
+        {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+      </Badge>
+    );
   };
 
   if (isLoading) {
@@ -163,17 +178,8 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
               <TableHead onClick={() => onSort("client_type")} className="cursor-pointer whitespace-nowrap">
                 Client Type {getSortIcon("client_type")}
               </TableHead>
-              <TableHead onClick={() => onSort("country")} className="cursor-pointer whitespace-nowrap">
-                Country {getSortIcon("country")}
-              </TableHead>
-              <TableHead onClick={() => onSort("city")} className="cursor-pointer whitespace-nowrap">
-                City {getSortIcon("city")}
-              </TableHead>
-              <TableHead onClick={() => onSort("bounce_count")} className="cursor-pointer whitespace-nowrap">
-                Bounce Count {getSortIcon("bounce_count")}
-              </TableHead>
-              <TableHead onClick={() => onSort("call_count")} className="cursor-pointer whitespace-nowrap">
-                Call Count {getSortIcon("call_count")}
+              <TableHead onClick={() => onSort("beam_score")} className="cursor-pointer whitespace-nowrap">
+                BEAM Score {getSortIcon("beam_score")}
               </TableHead>
               <TableHead onClick={() => onSort("status")} className="cursor-pointer whitespace-nowrap">
                 Status {getSortIcon("status")}
@@ -197,10 +203,9 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
                 <TableCell>{formatPhoneNumbers(lead.phone_numbers)}</TableCell>
                 <TableCell>{lead.lead_type || "-"}</TableCell>
                 <TableCell>{lead.client_type || "-"}</TableCell>
-                <TableCell>{lead.country || "-"}</TableCell>
-                <TableCell>{lead.city || "-"}</TableCell>
-                <TableCell>{lead.bounce_count || 0}</TableCell>
-                <TableCell>{lead.call_count || 0}</TableCell>
+                <TableCell>
+                  <BeamScoreCell lead={lead} />
+                </TableCell>
                 <TableCell>{getStatusBadge(lead.status)}</TableCell>
                 <TableCell>
                   {new Date(lead.created_at).toLocaleDateString()}
