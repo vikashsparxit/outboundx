@@ -31,10 +31,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       <Navbar />
       <div className="flex flex-1 mt-16">
         <SidebarProvider defaultOpen={true}>
-          <AppSidebar />
-          <main className="flex-1 overflow-auto p-6">
-            {children}
-          </main>
+          <div className="flex w-full">
+            <AppSidebar />
+            <main className="flex-1 p-6">
+              {children}
+            </main>
+          </div>
         </SidebarProvider>
       </div>
     </div>

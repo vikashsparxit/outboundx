@@ -18,7 +18,7 @@ export const LeadEditActions = ({
 }: LeadEditActionsProps) => {
   if (isEditing) {
     return (
-      <div className="fixed bottom-0 right-0 w-[400px] p-4 bg-background border-t border-border flex gap-2 justify-end items-center">
+      <div className="fixed bottom-0 right-0 w-[540px] sm:w-[540px] p-4 bg-background border-t border-border flex gap-2 justify-end items-center">
         <Button 
           onClick={onSave} 
           disabled={isUpdating} 
