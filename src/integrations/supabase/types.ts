@@ -159,6 +159,7 @@ export type Database = {
           created_at: string | null
           decision_maker_level: string | null
           domain: string | null
+          domains: string[] | null
           email: string | null
           emails: Json | null
           engagement_score: number | null
@@ -167,6 +168,7 @@ export type Database = {
           industry_vertical: string | null
           ip_country: string | null
           ip_region: string | null
+          lead_source_website: string | null
           lead_type: string | null
           market_score: number | null
           message: string | null
@@ -198,6 +200,7 @@ export type Database = {
           created_at?: string | null
           decision_maker_level?: string | null
           domain?: string | null
+          domains?: string[] | null
           email?: string | null
           emails?: Json | null
           engagement_score?: number | null
@@ -206,6 +209,7 @@ export type Database = {
           industry_vertical?: string | null
           ip_country?: string | null
           ip_region?: string | null
+          lead_source_website?: string | null
           lead_type?: string | null
           market_score?: number | null
           message?: string | null
@@ -237,6 +241,7 @@ export type Database = {
           created_at?: string | null
           decision_maker_level?: string | null
           domain?: string | null
+          domains?: string[] | null
           email?: string | null
           emails?: Json | null
           engagement_score?: number | null
@@ -245,6 +250,7 @@ export type Database = {
           industry_vertical?: string | null
           ip_country?: string | null
           ip_region?: string | null
+          lead_source_website?: string | null
           lead_type?: string | null
           market_score?: number | null
           message?: string | null
