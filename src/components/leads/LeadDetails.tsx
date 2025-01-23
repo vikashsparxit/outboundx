@@ -218,6 +218,30 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     setEditedLead({ ...editedLead, phone_numbers: newPhoneNumbers });
   };
 
+  const onAddDomain = () => {
+    const newDomains = [...(editedLead.domains || []), ""];
+    setEditedLead({ ...editedLead, domains: newDomains });
+  };
+
+  const onRemoveDomain = (index: number) => {
+    const newDomains = [...(editedLead.domains || [])];
+    newDomains.splice(index, 1);
+    setEditedLead({ ...editedLead, domains: newDomains });
+  };
+
+  const onDomainChange = (index: number, value: string) => {
+    const newDomains = [...(editedLead.domains || [])];
+    newDomains[index] = value;
+    setEditedLead({ ...editedLead, domains: newDomains });
+  };
+
+  const onAddTechnology = (tech: string) => {
+    if (!editedLead.technology_stack?.includes(tech)) {
+      const newTechStack = [...(editedLead.technology_stack || []), tech];
+      setEditedLead({ ...editedLead, technology_stack: newTechStack });
+    }
+  };
+
   const renderField = (label: string, value: string | null, field: keyof Lead) => (
     <div>
       <label className="text-sm text-muted-foreground">{label}</label>
@@ -298,6 +322,9 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             setEditedLead={setEditedLead}
             renderField={renderField}
             validationErrors={validationErrors}
+            onAddDomain={onAddDomain}
+            onRemoveDomain={onRemoveDomain}
+            onDomainChange={onDomainChange}
           />
 
           <LeadLocation 
@@ -313,6 +340,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
+            onAddTechnology={onAddTechnology}
           />
 
           <ScoreHistory leadId={lead.id} />
