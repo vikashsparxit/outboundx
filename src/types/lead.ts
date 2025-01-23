@@ -13,6 +13,8 @@ export interface Lead {
   website: string | null;
   email: string | null;
   domain: string | null;
+  domains: string[] | null;
+  lead_source_website: string | null;
   phone_numbers: string[] | null;
   subject: string | null;
   message: string | null;
