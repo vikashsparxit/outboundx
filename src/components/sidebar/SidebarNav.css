@@ -1,0 +1,64 @@
+/* Base styles for all icons */
+.h-4 {
+  transition: all 0.3s ease;
+}
+
+/* Dashboard icon animation */
+.dashboard-icon {
+  transform-origin: center;
+}
+
+.dashboard-icon:hover {
+  animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Globe icon rotation */
+.globe-icon {
+  transform-origin: center;
+}
+
+.globe-icon:hover {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Checklist icon animation */
+.checklist-icon {
+  transform-origin: center;
+}
+
+.checklist-icon:hover {
+  animation: check 0.5s ease forwards;
+}
+
+@keyframes check {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Calculator icon animation */
+.calculator-icon {
+  transform-origin: center;
+}
+
+.calculator-icon:hover {
+  animation: calculate 0.5s ease;
+}
+
+@keyframes calculate {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-2px); }
+  75% { transform: translateY(2px); }
+  100% { transform: translateY(0); }
+}

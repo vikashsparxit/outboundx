@@ -1,0 +1,29 @@
+.outbound-logo {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.outbound-logo:hover {
+  transform: translateY(-1px);
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.outbound-logo span {
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.outbound-logo:hover span {
+  transform: scale(1.05);
+}
+
+.outbound-logo span:last-child {
+  font-weight: 900;
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
