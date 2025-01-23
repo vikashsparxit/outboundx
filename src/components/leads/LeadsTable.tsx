@@ -128,27 +128,41 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      new: "default",
-      contacted: "secondary",
-      in_progress: "secondary",
-      closed_won: "outline",
-      closed_lost: "destructive"
+    const variants: Record<string, { bg: string, text: string, icon: JSX.Element }> = {
+      new: {
+        bg: "bg-blue-50 hover:bg-blue-100",
+        text: "text-blue-700",
+        icon: <div className="w-2 h-2 rounded-full bg-blue-500 mr-2" />
+      },
+      contacted: {
+        bg: "bg-yellow-50 hover:bg-yellow-100",
+        text: "text-yellow-700",
+        icon: <div className="w-2 h-2 rounded-full bg-yellow-500 mr-2" />
+      },
+      in_progress: {
+        bg: "bg-purple-50 hover:bg-purple-100",
+        text: "text-purple-700",
+        icon: <div className="w-2 h-2 rounded-full bg-purple-500 mr-2" />
+      },
+      closed_won: {
+        bg: "bg-green-50 hover:bg-green-100",
+        text: "text-green-700",
+        icon: <div className="w-2 h-2 rounded-full bg-green-500 mr-2" />
+      },
+      closed_lost: {
+        bg: "bg-red-50 hover:bg-red-100",
+        text: "text-red-700",
+        icon: <div className="w-2 h-2 rounded-full bg-red-500 mr-2" />
+      }
     };
-    const colors: Record<string, string> = {
-      new: "bg-blue-100 text-blue-800",
-      contacted: "bg-yellow-100 text-yellow-800",
-      in_progress: "bg-purple-100 text-purple-800",
-      closed_won: "bg-green-100 text-green-800",
-      closed_lost: "bg-red-100 text-red-800"
-    };
+
+    const variant = variants[status] || variants.new;
+    
     return (
-      <Badge 
-        variant={variants[status] || "default"}
-        className={colors[status]}
-      >
+      <div className={`inline-flex items-center px-2.5 py-1.5 rounded-full font-medium text-sm ${variant.bg} ${variant.text}`}>
+        {variant.icon}
         {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-      </Badge>
+      </div>
     );
   };
 
