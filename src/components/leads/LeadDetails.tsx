@@ -1,27 +1,12 @@
-import { useEffect } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Lead } from "@/types/lead";
-import { supabase } from "@/integrations/supabase/client";
-import ActivityLog from "./ActivityLog";
-import { calculateBeamScore } from "@/utils/scoring";
-import { LeadIdentification } from "./details/LeadIdentification";
-import { LeadContact } from "./details/LeadContact";
-import { LeadOnlinePresence } from "./details/LeadOnlinePresence";
-import { LeadLocation } from "./details/LeadLocation";
-import { LeadStatusUpdate } from "./details/LeadStatusUpdate";
-import ScoreBreakdown from "./scoring/ScoreBreakdown";
-import ScoreHistory from "./scoring/ScoreHistory";
-import { LeadScoringCriteria } from "./details/LeadScoringCriteria";
-import { LeadEditActions } from "./details/LeadEditActions";
 import { useLeadEdit } from "@/hooks/use-lead-edit";
 import { useLeadStatus } from "@/hooks/use-lead-status";
 import { useLeadContact } from "@/hooks/use-lead-contact";
 import { LeadFormField } from "./details/LeadFormField";
+import { LeadSubscription } from "./details/LeadSubscription";
+import { LeadDetailsHeader } from "./details/LeadDetailsHeader";
+import { LeadDetailsContent } from "./details/LeadDetailsContent";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -64,44 +49,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     />
   );
 
-  useEffect(() => {
-    if (!lead) return;
-
-    const channel = supabase
-      .channel(`lead_${lead.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "leads",
-          filter: `id=eq.${lead.id}`,
-        },
-        async (payload) => {
-          const updatedLead = payload.new as Lead;
-          if (
-            payload.eventType === "UPDATE" &&
-            (
-              updatedLead.status !== (payload.old as Lead).status ||
-              updatedLead.call_count !== (payload.old as Lead).call_count ||
-              updatedLead.budget_range !== (payload.old as Lead).budget_range ||
-              updatedLead.decision_maker_level !== (payload.old as Lead).decision_maker_level ||
-              updatedLead.need_urgency !== (payload.old as Lead).need_urgency ||
-              updatedLead.project_timeline !== (payload.old as Lead).project_timeline
-            )
-          ) {
-            await calculateBeamScore(updatedLead);
-          }
-          onLeadUpdate();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [lead, onLeadUpdate]);
-
   const onAddDomain = () => {
     const newDomains = [...(editedLead.domains || []), ""];
     setEditedLead({ ...editedLead, domains: newDomains });
@@ -131,90 +78,41 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto pb-20">
-        <SheetHeader>
-          <div className="flex items-center justify-between">
-            <SheetTitle>Lead Details</SheetTitle>
-            <LeadEditActions
-              isEditing={isEditing}
-              isUpdating={isUpdating}
-              onEdit={() => setIsEditing(true)}
-              onSave={handleEdit}
-              onCancel={() => {
-                setIsEditing(false);
-                setEditedLead(lead);
-              }}
-            />
-          </div>
-        </SheetHeader>
+        <LeadSubscription lead={lead} onLeadUpdate={onLeadUpdate} />
         
-        <div className="mt-6 space-y-6">
-          <ScoreBreakdown lead={lead} />
-          
-          <LeadIdentification 
-            lead={lead}
-            isEditing={isEditing}
-            editedLead={editedLead}
-            setEditedLead={setEditedLead}
-            renderField={renderField}
-          />
-
-          <LeadContact 
-            lead={lead}
-            isEditing={isEditing}
-            editedLead={editedLead}
-            setEditedLead={setEditedLead}
-            onAddEmail={onAddEmail}
-            onRemoveEmail={onRemoveEmail}
-            onEmailChange={onEmailChange}
-            onAddPhoneNumber={onAddPhoneNumber}
-            onRemovePhoneNumber={onRemovePhoneNumber}
-            onPhoneNumberChange={onPhoneNumberChange}
-            formatEmails={formatEmails}
-            formatPhoneNumbers={formatPhoneNumbers}
-            validationErrors={validationErrors}
-            renderField={renderField}
-          />
-
-          <LeadOnlinePresence 
-            lead={lead}
-            isEditing={isEditing}
-            editedLead={editedLead}
-            setEditedLead={setEditedLead}
-            validationErrors={validationErrors}
-            onAddDomain={onAddDomain}
-            onRemoveDomain={onRemoveDomain}
-            onDomainChange={onDomainChange}
-            renderField={renderField}
-          />
-
-          <LeadLocation 
-            lead={lead}
-            isEditing={isEditing}
-            editedLead={editedLead}
-            setEditedLead={setEditedLead}
-            renderField={renderField}
-          />
-
-          <LeadScoringCriteria
-            lead={lead}
-            isEditing={isEditing}
-            editedLead={editedLead}
-            setEditedLead={setEditedLead}
-            onAddTechnology={onAddTechnology}
-          />
-
-          <ScoreHistory leadId={lead.id} />
-          
-          <ActivityLog leadId={lead.id} />
-
-          {!isEditing && (
-            <LeadStatusUpdate 
-              lead={lead}
-              isUpdating={isUpdating}
-              onStatusUpdate={handleStatusUpdate}
-            />
-          )}
-        </div>
+        <LeadDetailsHeader
+          isEditing={isEditing}
+          isUpdating={isUpdating}
+          onEdit={() => setIsEditing(true)}
+          onSave={handleEdit}
+          onCancel={() => {
+            setIsEditing(false);
+            setEditedLead(lead);
+          }}
+        />
+        
+        <LeadDetailsContent
+          lead={lead}
+          isEditing={isEditing}
+          isUpdating={isUpdating}
+          editedLead={editedLead}
+          setEditedLead={setEditedLead}
+          validationErrors={validationErrors}
+          renderField={renderField}
+          onAddEmail={onAddEmail}
+          onRemoveEmail={onRemoveEmail}
+          onEmailChange={onEmailChange}
+          onAddPhoneNumber={onAddPhoneNumber}
+          onRemovePhoneNumber={onRemovePhoneNumber}
+          onPhoneNumberChange={onPhoneNumberChange}
+          formatEmails={formatEmails}
+          formatPhoneNumbers={formatPhoneNumbers}
+          onAddDomain={onAddDomain}
+          onRemoveDomain={onRemoveDomain}
+          onDomainChange={onDomainChange}
+          onAddTechnology={onAddTechnology}
+          onStatusUpdate={handleStatusUpdate}
+        />
       </SheetContent>
     </Sheet>
   );
