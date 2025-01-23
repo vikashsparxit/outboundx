@@ -10,8 +10,6 @@ import { Lead, LeadStatus, EmailAddress, convertToDatabaseLead } from "@/types/l
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/utils/activity-logger";
 import ActivityLog from "./ActivityLog";
-import { Edit2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { calculateBeamScore } from "@/utils/scoring";
 import { LeadIdentification } from "./details/LeadIdentification";
 import { LeadContact } from "./details/LeadContact";
@@ -21,10 +19,9 @@ import { LeadStatusUpdate } from "./details/LeadStatusUpdate";
 import ScoreBreakdown from "./scoring/ScoreBreakdown";
 import ScoreHistory from "./scoring/ScoreHistory";
 import { LeadScoringCriteria } from "./details/LeadScoringCriteria";
-import { LeadActions } from "./details/LeadActions";
 import { validateLead } from "./details/LeadValidation";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { LeadEditActions } from "./details/LeadEditActions";
+import { LeadFormField } from "./details/LeadFormField";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -169,16 +166,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
-  const formatEmails = (emails: EmailAddress[] | null) => {
-    if (!emails || emails.length === 0) return "-";
-    return emails.map(e => `${e.type}: ${e.email}`).join(", ");
-  };
-
-  const formatPhoneNumbers = (numbers: string[] | null) => {
-    if (!numbers || numbers.length === 0) return "-";
-    return numbers.join(", ");
-  };
-
   const onAddEmail = () => {
     const newEmails: EmailAddress[] = [...(editedLead.emails || []), { type: "business", email: "" }];
     setEditedLead({ ...editedLead, emails: newEmails });
@@ -242,29 +229,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
-  const renderField = (label: string, value: string | null, field: keyof Lead) => (
-    <div>
-      <label className="text-sm text-muted-foreground">{label}</label>
-      {isEditing ? (
-        field === 'message' ? (
-          <Textarea
-            value={editedLead[field] as string || ''}
-            onChange={(e) => setEditedLead({ ...editedLead, [field]: e.target.value })}
-            className="mt-1"
-          />
-        ) : (
-          <Input
-            value={editedLead[field] as string || ''}
-            onChange={(e) => setEditedLead({ ...editedLead, [field]: e.target.value })}
-            className="mt-1"
-          />
-        )
-      ) : (
-        <p className="whitespace-pre-wrap">{value || "-"}</p>
-      )}
-    </div>
-  );
-
   if (!lead) return null;
 
   return (
@@ -273,17 +237,17 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
         <SheetHeader>
           <div className="flex items-center justify-between">
             <SheetTitle>Lead Details</SheetTitle>
-            {!isEditing && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2"
-              >
-                <Edit2 className="h-4 w-4" />
-                Edit
-              </Button>
-            )}
+            <LeadEditActions
+              isEditing={isEditing}
+              isUpdating={isUpdating}
+              onEdit={() => setIsEditing(true)}
+              onSave={handleEdit}
+              onCancel={() => {
+                setIsEditing(false);
+                setEditedLead(lead);
+                setValidationErrors({});
+              }}
+            />
           </div>
         </SheetHeader>
         
@@ -295,7 +259,15 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
-            renderField={renderField}
+            renderField={(label, value, field) => (
+              <LeadFormField
+                label={label}
+                value={value}
+                field={field}
+                isEditing={isEditing}
+                onChange={(value) => setEditedLead({ ...editedLead, [field]: value })}
+              />
+            )}
           />
 
           <LeadContact 
@@ -303,16 +275,22 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
-            renderField={renderField}
-            formatEmails={formatEmails}
-            formatPhoneNumbers={formatPhoneNumbers}
+            renderField={(label, value, field) => (
+              <LeadFormField
+                label={label}
+                value={value}
+                field={field}
+                isEditing={isEditing}
+                onChange={(value) => setEditedLead({ ...editedLead, [field]: value })}
+              />
+            )}
             onAddEmail={onAddEmail}
             onRemoveEmail={onRemoveEmail}
             onEmailChange={onEmailChange}
-            validationErrors={validationErrors}
             onAddPhoneNumber={onAddPhoneNumber}
             onRemovePhoneNumber={onRemovePhoneNumber}
             onPhoneNumberChange={onPhoneNumberChange}
+            validationErrors={validationErrors}
           />
 
           <LeadOnlinePresence 
@@ -320,7 +298,15 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
-            renderField={renderField}
+            renderField={(label, value, field) => (
+              <LeadFormField
+                label={label}
+                value={value}
+                field={field}
+                isEditing={isEditing}
+                onChange={(value) => setEditedLead({ ...editedLead, [field]: value })}
+              />
+            )}
             validationErrors={validationErrors}
             onAddDomain={onAddDomain}
             onRemoveDomain={onRemoveDomain}
@@ -332,7 +318,15 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
-            renderField={renderField}
+            renderField={(label, value, field) => (
+              <LeadFormField
+                label={label}
+                value={value}
+                field={field}
+                isEditing={isEditing}
+                onChange={(value) => setEditedLead({ ...editedLead, [field]: value })}
+              />
+            )}
           />
 
           <LeadScoringCriteria
@@ -355,17 +349,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             />
           )}
         </div>
-
-        <LeadActions
-          isEditing={isEditing}
-          isUpdating={isUpdating}
-          onSave={handleEdit}
-          onCancel={() => {
-            setIsEditing(false);
-            setEditedLead(lead);
-            setValidationErrors({});
-          }}
-        />
       </SheetContent>
     </Sheet>
   );
