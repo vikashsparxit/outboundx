@@ -7,9 +7,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Lead } from "@/types/lead";
-import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { logActivity } from "@/utils/activity-logger";
@@ -18,6 +16,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit2 } from "lucide-react";
 import { calculateBeamScore } from "@/utils/scoring";
+import { LeadIdentification } from "./details/LeadIdentification";
+import { LeadContact } from "./details/LeadContact";
+import { LeadOnlinePresence } from "./details/LeadOnlinePresence";
+import { LeadLocation } from "./details/LeadLocation";
+import { LeadStatusUpdate } from "./details/LeadStatusUpdate";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -31,7 +34,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedLead, setEditedLead] = useState<Partial<Lead>>({});
-  const { user } = useAuth();
 
   useEffect(() => {
     if (lead) {
@@ -86,14 +88,8 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
 
       if (error) throw error;
 
-      // Recalculate BEAM score after update
       await calculateBeamScore(editedLead);
-
-      await logActivity(
-        lead.id,
-        "lead_updated",
-        "Lead details were updated"
-      );
+      await logActivity(lead.id, "lead_updated", "Lead details were updated");
 
       toast({
         title: "Lead updated",
@@ -114,7 +110,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
-  const handleStatusUpdate = async (newStatus: "new" | "contacted" | "in_progress" | "closed_won" | "closed_lost") => {
+  const handleStatusUpdate = async (newStatus: Lead['status']) => {
     if (!lead) return;
     
     setIsUpdating(true);
@@ -149,8 +145,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
-  if (!lead) return null;
-
   const renderField = (label: string, value: string | null, field: keyof Lead) => (
     <div>
       <label className="text-sm text-muted-foreground">{label}</label>
@@ -174,6 +168,8 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     </div>
   );
 
+  if (!lead) return null;
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
@@ -195,87 +191,45 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
         </SheetHeader>
         
         <div className="mt-6 space-y-6">
-          {/* Identification Information */}
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Identification</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-muted-foreground">Lead ID</label>
-                <p className="truncate">{lead.id}</p>
-              </div>
-              {renderField("Ticket ID", lead.ticket_id, "ticket_id")}
-              {renderField("Contact ID", lead.contact_id, "contact_id")}
-              <div>
-                <label className="text-sm text-muted-foreground">Status</label>
-                <p><Badge>{lead.status}</Badge></p>
-              </div>
-            </div>
-          </div>
+          <LeadIdentification 
+            lead={lead}
+            isEditing={isEditing}
+            editedLead={editedLead}
+            setEditedLead={setEditedLead}
+            renderField={renderField}
+          />
 
-          {/* Contact Information */}
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Contact Information</h3>
-            <div className="space-y-2">
-              <div>
-                <label className="text-sm text-muted-foreground">Emails</label>
-                <p>{formatEmails(lead.emails)}</p>
-              </div>
-              {renderField("Primary Email", lead.email, "email")}
-              <div>
-                <label className="text-sm text-muted-foreground">Phone Numbers</label>
-                <p>{formatPhoneNumbers(lead.phone_numbers)}</p>
-              </div>
-            </div>
-          </div>
+          <LeadContact 
+            lead={lead}
+            isEditing={isEditing}
+            editedLead={editedLead}
+            setEditedLead={setEditedLead}
+            renderField={renderField}
+            formatEmails={formatEmails}
+            formatPhoneNumbers={formatPhoneNumbers}
+          />
 
-          {/* Online Presence */}
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Online Presence</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {renderField("Website", lead.website, "website")}
-              {renderField("Domain", lead.domain, "domain")}
-            </div>
-          </div>
+          <LeadOnlinePresence 
+            lead={lead}
+            isEditing={isEditing}
+            editedLead={editedLead}
+            setEditedLead={setEditedLead}
+            renderField={renderField}
+          />
 
-          {/* Location Information */}
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Location</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {renderField("Country", lead.country, "country")}
-              {renderField("City", lead.city, "city")}
-              {renderField("State", lead.state, "state")}
-              {renderField("IP Country", lead.ip_country, "ip_country")}
-              {renderField("IP Region", lead.ip_region, "ip_region")}
-            </div>
-          </div>
+          <LeadLocation 
+            lead={lead}
+            isEditing={isEditing}
+            editedLead={editedLead}
+            setEditedLead={setEditedLead}
+            renderField={renderField}
+          />
 
-          {/* Lead Details */}
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Lead Details</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {renderField("Lead Type", lead.lead_type, "lead_type")}
-              {renderField("Client Type", lead.client_type, "client_type")}
-              {renderField("Subject", lead.subject, "subject")}
-              <div>
-                <label className="text-sm text-muted-foreground">Handled</label>
-                <p>{lead.handled ? "Yes" : "No"}</p>
-              </div>
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Message</label>
-              <p className="whitespace-pre-wrap">{lead.message || "-"}</p>
-            </div>
-          </div>
-
-          {/* Activity Log */}
           <ActivityLog leadId={lead.id} />
 
           {isEditing ? (
             <div className="flex gap-2">
-              <Button
-                onClick={handleEdit}
-                disabled={isUpdating}
-              >
+              <Button onClick={handleEdit} disabled={isUpdating}>
                 Save Changes
               </Button>
               <Button
@@ -290,52 +244,11 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
               </Button>
             </div>
           ) : (
-            /* Status Update Section */
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Update Status</h3>
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isUpdating || lead.status === "new"}
-                  onClick={() => handleStatusUpdate("new")}
-                >
-                  New
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isUpdating || lead.status === "contacted"}
-                  onClick={() => handleStatusUpdate("contacted")}
-                >
-                  Contacted
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isUpdating || lead.status === "in_progress"}
-                  onClick={() => handleStatusUpdate("in_progress")}
-                >
-                  In Progress
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isUpdating || lead.status === "closed_won"}
-                  onClick={() => handleStatusUpdate("closed_won")}
-                >
-                  Closed Won
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isUpdating || lead.status === "closed_lost"}
-                  onClick={() => handleStatusUpdate("closed_lost")}
-                >
-                  Closed Lost
-                </Button>
-              </div>
-            </div>
+            <LeadStatusUpdate 
+              lead={lead}
+              isUpdating={isUpdating}
+              onStatusUpdate={handleStatusUpdate}
+            />
           )}
         </div>
       </SheetContent>
