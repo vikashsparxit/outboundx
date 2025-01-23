@@ -1,150 +1,182 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/providers/AuthProvider";
-import Navbar from "@/components/Navbar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import AppSidebar from "@/components/sidebar/AppSidebar";
-import LeadsTable from "@/components/leads/LeadsTable";
-import SearchBar from "@/components/leads/SearchBar";
-import LeadsPagination from "@/components/leads/LeadsPagination";
-import CsvUploadModal from "@/components/leads/CsvUploadModal";
-import LeadDetails from "@/components/leads/LeadDetails";
-import { Lead, DatabaseLead } from "@/types/lead";
-import { convertFromDatabase } from "@/types/lead";
-import { toast } from "sonner";
-
-const ITEMS_PER_PAGE = 10;
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { LeadStatus } from "@/types/lead";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { Activity, Users, Target, TrendingUp } from "lucide-react";
 
 const Index = () => {
-  const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [sortConfig, setSortConfig] = useState({
-    key: "created_at",
-    direction: "desc" as "asc" | "desc",
-  });
-
-  const { data: leads = [], isLoading: isLoadingLeads, error, refetch } = useQuery({
-    queryKey: ["leads", searchTerm, sortConfig],
+  // Fetch dashboard statistics
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard-stats"],
     queryFn: async () => {
-      try {
-        console.log("Fetching leads with search term:", searchTerm);
-        let query = supabase
-          .from("leads")
-          .select("*")
-          .order(sortConfig.key, { ascending: sortConfig.direction === "asc" });
+      const { data: totalLeads } = await supabase
+        .from("leads")
+        .select("status", { count: "exact" });
 
-        if (searchTerm) {
-          query = query.or(
-            `website.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,ticket_id.ilike.%${searchTerm}%`
-          );
-        }
+      const { data: statusCounts } = await supabase
+        .from("leads")
+        .select("status")
+        .then(({ data }) => {
+          const counts: Record<LeadStatus, number> = {
+            new: 0,
+            contacted: 0,
+            in_progress: 0,
+            closed_won: 0,
+            closed_lost: 0,
+          };
+          data?.forEach((lead) => {
+            if (lead.status) counts[lead.status as LeadStatus]++;
+          });
+          return counts;
+        });
 
-        const { data, error } = await query;
-        
-        if (error) {
-          console.error("Error fetching leads:", error);
-          throw error;
-        }
+      const { data: recentActivities } = await supabase
+        .from("lead_activities")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5);
 
-        if (!data) {
-          return [];
-        }
-
-        return (data as DatabaseLead[]).map(convertFromDatabase);
-      } catch (error) {
-        console.error("Error in leads query:", error);
-        toast.error("Failed to fetch leads. Please try again.");
-        throw error;
-      }
+      return {
+        totalLeads: totalLeads?.length || 0,
+        statusCounts,
+        recentActivities,
+      };
     },
-    retry: 1,
   });
 
-  const handleSort = (key: string) => {
-    setSortConfig((current) => ({
-      key,
-      direction: current.key === key && current.direction === "asc" ? "desc" : "asc",
-    }));
-  };
-
-  // Pagination logic
-  const totalPages = Math.ceil(leads.length / ITEMS_PER_PAGE);
-  const paginatedLeads = leads.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  if (error) {
-    console.error("Error in leads query:", error);
-  }
+  const chartData = stats?.statusCounts
+    ? Object.entries(stats.statusCounts).map(([status, count]) => ({
+        status,
+        count,
+      }))
+    : [];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex flex-1 mt-16">
-        <SidebarProvider defaultOpen={true}>
-          <AppSidebar />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="container mx-auto">
-              <div className="mb-8 flex items-center justify-between">
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+      
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalLeads || 0}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats?.statusCounts
+                ? Math.round(
+                    (stats.statusCounts.closed_won /
+                      (stats.totalLeads || 1)) *
+                      100
+                  )
+                : 0}
+              %
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Active Leads</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {(stats?.statusCounts?.in_progress || 0) +
+                (stats?.statusCounts?.contacted || 0)}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Recent Activities</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats?.recentActivities?.length || 0}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Lead Status Distribution Chart */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Lead Status Distribution</CardTitle>
+          <CardDescription>
+            Distribution of leads across different stages
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="status" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#3b82f6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Activities */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activities</CardTitle>
+          <CardDescription>Latest actions taken on leads</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {stats?.recentActivities?.map((activity) => (
+              <div
+                key={activity.id}
+                className="flex items-center justify-between border-b pb-2"
+              >
                 <div>
-                  <h1 className="text-2xl font-bold">Leads Management</h1>
-                  <p className="text-muted-foreground">
-                    Manage and track all your leads
+                  <p className="font-medium">{activity.activity_type}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {activity.description}
                   </p>
                 </div>
-                <SearchBar
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  onUploadClick={() => setIsCsvModalOpen(true)}
-                  isLoading={isLoading}
-                />
-              </div>
-
-              <div className="rounded-md border">
-                <LeadsTable
-                  leads={paginatedLeads}
-                  isLoading={isLoadingLeads}
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onLeadSelect={setSelectedLead}
-                  onLeadDeleted={refetch}
-                />
-              </div>
-
-              {leads.length > 0 && (
-                <div className="mt-4">
-                  <LeadsPagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                  />
+                <div className="text-sm text-muted-foreground">
+                  {new Date(activity.created_at || "").toLocaleDateString()}
                 </div>
-              )}
-
-              <CsvUploadModal
-                isOpen={isCsvModalOpen}
-                onClose={() => setIsCsvModalOpen(false)}
-                onSuccess={() => {
-                  refetch();
-                }}
-              />
-
-              <LeadDetails
-                lead={selectedLead}
-                isOpen={!!selectedLead}
-                onClose={() => setSelectedLead(null)}
-                onLeadUpdate={refetch}
-              />
-            </div>
-          </main>
-        </SidebarProvider>
-      </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
