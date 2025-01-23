@@ -11,7 +11,6 @@ import ActivityLog from "./pages/ActivityLog";
 import ScoringGuide from "./pages/ScoringGuide";
 import { useAuth } from "@/providers/AuthProvider";
 import { useState } from "react";
-import Navbar from "@/components/Navbar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/sidebar/AppSidebar";
 
@@ -27,18 +26,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex flex-1 mt-16">
-        <SidebarProvider defaultOpen={true}>
-          <div className="flex w-full">
-            <AppSidebar />
-            <main className="flex-1 px-4 py-4">
-              {children}
-            </main>
-          </div>
-        </SidebarProvider>
-      </div>
+    <div className="min-h-screen flex">
+      <SidebarProvider defaultOpen={true}>
+        <div className="flex w-full">
+          <AppSidebar />
+          <main className="flex-1 px-4 py-4">
+            {children}
+          </main>
+        </div>
+      </SidebarProvider>
     </div>
   );
 };
