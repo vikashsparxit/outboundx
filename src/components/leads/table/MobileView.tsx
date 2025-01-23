@@ -9,6 +9,7 @@ import BeamScoreCell from "../scoring/BeamScoreCell";
 import LeadsTableHeader from "./LeadsTableHeader";
 import StatusBadge from "./StatusBadge";
 import LeadRowActions from "./LeadRowActions";
+import { formatEmails, formatPhoneNumbers } from "./utils";
 
 interface MobileViewProps {
   leads: Lead[];
@@ -22,7 +23,7 @@ interface MobileViewProps {
   onDelete: (lead: Lead) => void;
 }
 
-const PRIORITY_COLUMNS = ["beam_score", "status", "website", "actions"];
+const PRIORITY_COLUMNS = ["email", "phone_numbers", "beam_score", "status", "website", "actions"];
 
 const MobileView = ({
   leads,
@@ -41,12 +42,19 @@ const MobileView = ({
         priorityColumns={PRIORITY_COLUMNS}
       />
       <TableBody>
-        {leads.map((lead) => (
+        {leads.map((lead, index) => (
           <TableRow 
             key={lead.id}
             className="group cursor-pointer transition-colors hover:bg-muted/50"
             onClick={() => onLeadSelect(lead)}
           >
+            <TableCell className="font-medium">{index + 1}</TableCell>
+            <TableCell className="max-w-[250px] truncate">
+              {formatEmails(lead.emails)}
+            </TableCell>
+            <TableCell className="max-w-[200px] truncate">
+              {formatPhoneNumbers(lead.phone_numbers)}
+            </TableCell>
             <TableCell>
               <BeamScoreCell lead={lead} />
             </TableCell>

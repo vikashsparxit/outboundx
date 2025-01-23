@@ -40,12 +40,19 @@ const DesktopView = ({
         priorityColumns={[]}
       />
       <TableBody>
-        {leads.map((lead) => (
+        {leads.map((lead, index) => (
           <TableRow 
             key={lead.id}
             className="group cursor-pointer transition-colors hover:bg-muted/50"
             onClick={() => onLeadSelect(lead)}
           >
+            <TableCell className="font-medium">{index + 1}</TableCell>
+            <TableCell className="max-w-[250px] truncate">
+              {formatEmails(lead.emails)}
+            </TableCell>
+            <TableCell className="max-w-[200px] truncate">
+              {formatPhoneNumbers(lead.phone_numbers)}
+            </TableCell>
             <TableCell>
               <BeamScoreCell lead={lead} />
             </TableCell>
@@ -54,12 +61,6 @@ const DesktopView = ({
             </TableCell>
             <TableCell className="max-w-[200px] truncate">
               {lead.website || "-"}
-            </TableCell>
-            <TableCell className="max-w-[250px] truncate">
-              {formatEmails(lead.emails)}
-            </TableCell>
-            <TableCell className="max-w-[200px] truncate">
-              {formatPhoneNumbers(lead.phone_numbers)}
             </TableCell>
             <TableCell>{lead.lead_type || "-"}</TableCell>
             <TableCell>{lead.client_type || "-"}</TableCell>

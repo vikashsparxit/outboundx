@@ -28,6 +28,11 @@ const LeadsTableHeader = ({ sortConfig, onSort, isMobile, priorityColumns }: Lea
   return (
     <TableHeader>
       <TableRow>
+        <TableHead className="w-[60px] whitespace-nowrap">S.No.</TableHead>
+        <TableHead onClick={() => onSort("email")} className="cursor-pointer whitespace-nowrap">
+          Email {getSortIcon("email")}
+        </TableHead>
+        <TableHead className="whitespace-nowrap">Phone Numbers</TableHead>
         <TableHead onClick={() => onSort("beam_score")} className="cursor-pointer whitespace-nowrap">
           BEAM Score {getSortIcon("beam_score")}
         </TableHead>
@@ -39,10 +44,6 @@ const LeadsTableHeader = ({ sortConfig, onSort, isMobile, priorityColumns }: Lea
         </TableHead>
         {!isMobile && (
           <>
-            <TableHead onClick={() => onSort("email")} className="cursor-pointer whitespace-nowrap">
-              Email {getSortIcon("email")}
-            </TableHead>
-            <TableHead className="whitespace-nowrap">Phone Numbers</TableHead>
             <TableHead onClick={() => onSort("lead_type")} className="cursor-pointer whitespace-nowrap">
               Lead Type {getSortIcon("lead_type")}
             </TableHead>
