@@ -6,14 +6,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Lead, LeadStatus, convertToDatabaseLead } from "@/types/lead";
+import { Lead, LeadStatus } from "@/types/lead";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/utils/activity-logger";
 import ActivityLog from "./ActivityLog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Edit2, Plus, X } from "lucide-react";
+import { Edit2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { calculateBeamScore } from "@/utils/scoring";
 import { LeadIdentification } from "./details/LeadIdentification";
 import { LeadContact } from "./details/LeadContact";
@@ -23,11 +21,10 @@ import { LeadStatusUpdate } from "./details/LeadStatusUpdate";
 import ScoreBreakdown from "./scoring/ScoreBreakdown";
 import ScoreHistory from "./scoring/ScoreHistory";
 import { LeadScoringCriteria } from "./details/LeadScoringCriteria";
-import { z } from "zod";
-
-// Email validation schema
-const emailSchema = z.string().email();
-const websiteSchema = z.string().url().optional().or(z.literal(""));
+import { LeadActions } from "./details/LeadActions";
+import { validateLead } from "./details/LeadValidation";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -49,7 +46,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   }, [lead]);
 
-  // Subscribe to real-time updates for the lead
   useEffect(() => {
     if (!lead) return;
 
@@ -89,56 +85,22 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     };
   }, [lead, onLeadUpdate]);
 
-  const validateForm = () => {
-    const errors: Record<string, string> = {};
-    
-    // Validate website
-    if (editedLead.website) {
-      try {
-        websiteSchema.parse(editedLead.website);
-      } catch (error) {
-        errors.website = "Please enter a valid URL";
-      }
-    }
-
-    // Validate email
-    if (editedLead.email) {
-      try {
-        emailSchema.parse(editedLead.email);
-      } catch (error) {
-        errors.email = "Please enter a valid email address";
-      }
-    }
-
-    // Validate emails array
-    if (editedLead.emails) {
-      editedLead.emails.forEach((emailObj, index) => {
-        try {
-          emailSchema.parse(emailObj.email);
-        } catch (error) {
-          errors[`emails.${index}`] = "Please enter a valid email address";
-        }
-      });
-    }
-
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   const handleStatusUpdate = async (newStatus: LeadStatus) => {
     setIsUpdating(true);
     try {
       const { error } = await supabase
         .from("leads")
         .update({ status: newStatus })
-        .eq("id", lead.id);
+        .eq("id", lead?.id);
 
       if (error) throw error;
 
       // Recalculate score immediately after status update
-      await calculateBeamScore({ ...lead, status: newStatus });
+      if (lead) {
+        await calculateBeamScore({ ...lead, status: newStatus });
+      }
       
-      await logActivity(lead.id, "status_updated", `Lead status updated to ${newStatus}`);
+      await logActivity(lead?.id || "", "status_updated", `Lead status updated to ${newStatus}`);
       
       toast({
         title: "Status updated",
@@ -161,7 +123,9 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
   const handleEdit = async () => {
     if (!lead || !editedLead) return;
     
-    if (!validateForm()) {
+    const errors = validateLead(editedLead);
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
       toast({
         title: "Validation Error",
         description: "Please fix the form errors before saving",
@@ -172,19 +136,16 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     
     setIsUpdating(true);
     try {
-      // Convert EmailAddress[] to Json before sending to Supabase
-      const databaseLead = convertToDatabaseLead(editedLead);
-      
       const { error } = await supabase
         .from("leads")
-        .update(databaseLead)
+        .update(editedLead)
         .eq("id", lead.id);
 
       if (error) throw error;
 
       // Recalculate score immediately after update
-      const newScores = await calculateBeamScore(editedLead);
-      console.log("New scores calculated:", newScores);
+      await calculateBeamScore(editedLead);
+      console.log("BEAM Score recalculated after edit");
 
       await logActivity(lead.id, "lead_updated", "Lead details were updated");
 
@@ -195,6 +156,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
       
       onLeadUpdate();
       setIsEditing(false);
+      setValidationErrors({});
     } catch (error) {
       console.error("Error updating lead:", error);
       toast({
@@ -207,42 +169,10 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
-  const handleAddEmail = () => {
-    const currentEmails = editedLead.emails || [];
-    setEditedLead({
-      ...editedLead,
-      emails: [...currentEmails, { type: "business", email: "" }]
-    });
-  };
-
-  const handleRemoveEmail = (index: number) => {
-    const currentEmails = editedLead.emails || [];
-    setEditedLead({
-      ...editedLead,
-      emails: currentEmails.filter((_, i) => i !== index)
-    });
-  };
-
-  const handleEmailChange = (index: number, field: "type" | "email", value: string) => {
-    const currentEmails = [...(editedLead.emails || [])];
-    currentEmails[index] = {
-      ...currentEmails[index],
-      [field]: value
-    };
-    setEditedLead({
-      ...editedLead,
-      emails: currentEmails
-    });
-  };
-
-  const handleAddTechnology = (tech: string) => {
-    const currentStack = editedLead.technology_stack || [];
-    if (!currentStack.includes(tech)) {
-      setEditedLead({
-        ...editedLead,
-        technology_stack: [...currentStack, tech]
-      });
-    }
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedLead(lead || {});
+    setValidationErrors({});
   };
 
   const renderField = (label: string, value: string | null, field: keyof Lead) => (
@@ -272,7 +202,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+      <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto pb-20">
         <SheetHeader>
           <div className="flex items-center justify-between">
             <SheetTitle>Lead Details</SheetTitle>
@@ -307,17 +237,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             editedLead={editedLead}
             setEditedLead={setEditedLead}
             renderField={renderField}
-            formatEmails={(emails) => {
-              if (!emails) return "-";
-              return emails.map(e => `${e.type}: ${e.email}`).join(", ");
-            }}
-            formatPhoneNumbers={(numbers) => {
-              if (!numbers) return "-";
-              return numbers.join(", ");
-            }}
-            onAddEmail={handleAddEmail}
-            onRemoveEmail={handleRemoveEmail}
-            onEmailChange={handleEmailChange}
             validationErrors={validationErrors}
           />
 
@@ -343,31 +262,13 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
-            onAddTechnology={handleAddTechnology}
           />
 
           <ScoreHistory leadId={lead.id} />
           
           <ActivityLog leadId={lead.id} />
 
-          {isEditing ? (
-            <div className="flex gap-2">
-              <Button onClick={handleEdit} disabled={isUpdating}>
-                Save Changes
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsEditing(false);
-                  setEditedLead(lead);
-                  setValidationErrors({});
-                }}
-                disabled={isUpdating}
-              >
-                Cancel
-              </Button>
-            </div>
-          ) : (
+          {!isEditing && (
             <LeadStatusUpdate 
               lead={lead}
               isUpdating={isUpdating}
@@ -375,6 +276,13 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             />
           )}
         </div>
+
+        <LeadActions
+          isEditing={isEditing}
+          isUpdating={isUpdating}
+          onSave={handleEdit}
+          onCancel={handleCancel}
+        />
       </SheetContent>
     </Sheet>
   );

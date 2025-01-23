@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { Lead } from "@/types/lead";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Lead, LeadStatus } from "@/types/lead";
 
 interface LeadIdentificationProps {
   lead: Lead;
@@ -16,6 +17,8 @@ export const LeadIdentification = ({
   setEditedLead, 
   renderField 
 }: LeadIdentificationProps) => {
+  const statuses: LeadStatus[] = ["new", "contacted", "in_progress", "closed_won", "closed_lost"];
+  
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-semibold">Identification</h3>
@@ -28,7 +31,27 @@ export const LeadIdentification = ({
         {renderField("Contact ID", lead.contact_id, "contact_id")}
         <div>
           <label className="text-sm text-muted-foreground">Status</label>
-          <p><Badge>{lead.status}</Badge></p>
+          {isEditing ? (
+            <Select
+              value={editedLead.status || lead.status}
+              onValueChange={(value: LeadStatus) =>
+                setEditedLead({ ...editedLead, status: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                {statuses.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <Badge>{lead.status}</Badge>
+          )}
         </div>
       </div>
     </div>
