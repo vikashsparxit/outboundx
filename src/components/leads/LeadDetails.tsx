@@ -5,7 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Lead, LeadStatus } from "@/types/lead";
+import { Lead } from "@/types/lead";
 import { supabase } from "@/integrations/supabase/client";
 import ActivityLog from "./ActivityLog";
 import { calculateBeamScore } from "@/utils/scoring";
@@ -21,6 +21,7 @@ import { LeadEditActions } from "./details/LeadEditActions";
 import { useLeadEdit } from "@/hooks/use-lead-edit";
 import { useLeadStatus } from "@/hooks/use-lead-status";
 import { useLeadContact } from "@/hooks/use-lead-contact";
+import { LeadFormField } from "./details/LeadFormField";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -52,6 +53,16 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     formatEmails,
     formatPhoneNumbers,
   } = useLeadContact(editedLead, setEditedLead);
+
+  const renderField = (label: string, value: string | null, field: keyof Lead) => (
+    <LeadFormField
+      label={label}
+      value={value}
+      field={field}
+      isEditing={isEditing}
+      onChange={(value) => setEditedLead({ ...editedLead, [field]: value })}
+    />
+  );
 
   useEffect(() => {
     if (!lead) return;
@@ -144,6 +155,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
+            renderField={renderField}
           />
 
           <LeadContact 
@@ -160,6 +172,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             formatEmails={formatEmails}
             formatPhoneNumbers={formatPhoneNumbers}
             validationErrors={validationErrors}
+            renderField={renderField}
           />
 
           <LeadOnlinePresence 
@@ -171,6 +184,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             onAddDomain={onAddDomain}
             onRemoveDomain={onRemoveDomain}
             onDomainChange={onDomainChange}
+            renderField={renderField}
           />
 
           <LeadLocation 
@@ -178,6 +192,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
+            renderField={renderField}
           />
 
           <LeadScoringCriteria

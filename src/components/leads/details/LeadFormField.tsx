@@ -1,6 +1,6 @@
+import { Lead } from "@/types/lead";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Lead } from "@/types/lead";
 
 interface LeadFormFieldProps {
   label: string;
