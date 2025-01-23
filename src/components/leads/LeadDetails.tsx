@@ -17,6 +17,7 @@ import ActivityLog from "./ActivityLog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit2 } from "lucide-react";
+import { calculateBeamScore } from "@/utils/scoring";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -72,10 +73,21 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
           country: editedLead.country,
           city: editedLead.city,
           state: editedLead.state,
+          budget_range: editedLead.budget_range,
+          decision_maker_level: editedLead.decision_maker_level,
+          need_urgency: editedLead.need_urgency,
+          project_timeline: editedLead.project_timeline,
+          company_size: editedLead.company_size,
+          industry_vertical: editedLead.industry_vertical,
+          annual_revenue_range: editedLead.annual_revenue_range,
+          technology_stack: editedLead.technology_stack
         })
         .eq("id", lead.id);
 
       if (error) throw error;
+
+      // Recalculate BEAM score after update
+      await calculateBeamScore(editedLead);
 
       await logActivity(
         lead.id,
