@@ -6,6 +6,7 @@ interface LeadOnlinePresenceProps {
   editedLead: Partial<Lead>;
   setEditedLead: (lead: Partial<Lead>) => void;
   renderField: (label: string, value: string | null, field: keyof Lead) => JSX.Element;
+  validationErrors: Record<string, string>;
 }
 
 export const LeadOnlinePresence = ({ lead, renderField }: LeadOnlinePresenceProps) => {

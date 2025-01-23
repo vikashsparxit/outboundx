@@ -7,9 +7,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Lead } from "@/types/lead";
+import { Lead, LeadStatus, convertToDatabaseLead } from "@/types/lead";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
 import { logActivity } from "@/utils/activity-logger";
 import ActivityLog from "./ActivityLog";
 import { Input } from "@/components/ui/input";
@@ -24,7 +23,6 @@ import { LeadStatusUpdate } from "./details/LeadStatusUpdate";
 import ScoreBreakdown from "./scoring/ScoreBreakdown";
 import ScoreHistory from "./scoring/ScoreHistory";
 import { LeadScoringCriteria } from "./details/LeadScoringCriteria";
-import { COUNTRIES } from "@/constants/leadOptions";
 import { z } from "zod";
 
 // Email validation schema
@@ -127,6 +125,39 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     return Object.keys(errors).length === 0;
   };
 
+  const handleStatusUpdate = async (newStatus: LeadStatus) => {
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from("leads")
+        .update({ status: newStatus })
+        .eq("id", lead.id);
+
+      if (error) throw error;
+
+      // Recalculate score immediately after status update
+      await calculateBeamScore({ ...lead, status: newStatus });
+      
+      await logActivity(lead.id, "status_updated", `Lead status updated to ${newStatus}`);
+      
+      toast({
+        title: "Status updated",
+        description: `Lead status has been updated to ${newStatus}`,
+      });
+      
+      onLeadUpdate();
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lead status",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const handleEdit = async () => {
     if (!lead || !editedLead) return;
     
@@ -141,30 +172,12 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     
     setIsUpdating(true);
     try {
+      // Convert EmailAddress[] to Json before sending to Supabase
+      const databaseLead = convertToDatabaseLead(editedLead);
+      
       const { error } = await supabase
         .from("leads")
-        .update({
-          website: editedLead.website,
-          email: editedLead.email,
-          domain: editedLead.domain,
-          phone_numbers: editedLead.phone_numbers,
-          subject: editedLead.subject,
-          message: editedLead.message,
-          lead_type: editedLead.lead_type,
-          client_type: editedLead.client_type,
-          country: editedLead.country,
-          city: editedLead.city,
-          state: editedLead.state,
-          budget_range: editedLead.budget_range,
-          decision_maker_level: editedLead.decision_maker_level,
-          need_urgency: editedLead.need_urgency,
-          project_timeline: editedLead.project_timeline,
-          company_size: editedLead.company_size,
-          industry_vertical: editedLead.industry_vertical,
-          annual_revenue_range: editedLead.annual_revenue_range,
-          technology_stack: editedLead.technology_stack,
-          emails: editedLead.emails
-        })
+        .update(databaseLead)
         .eq("id", lead.id);
 
       if (error) throw error;
