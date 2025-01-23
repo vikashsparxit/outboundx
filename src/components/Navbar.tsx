@@ -14,9 +14,9 @@ const Navbar = () => {
 
   return (
     <nav className="border-b bg-background fixed top-0 left-0 right-0 z-50">
-      <div className="flex h-16 items-center px-4">
+      <div className="flex h-16 items-center px-4 md:px-6">
         <div className="flex items-center justify-between w-full">
-          <div className="font-semibold text-lg">OutboundX</div>
+          <div className="font-semibold text-lg lg:hidden">OutboundX</div>
           <div className="flex items-center gap-4">
             {user && (
               <>

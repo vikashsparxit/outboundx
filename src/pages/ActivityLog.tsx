@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, Filter, User, Ticket } from "lucide-react";
+import { Clock, User, Ticket } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import AppSidebar from "@/components/sidebar/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -72,13 +71,13 @@ const ActivityLogPage = () => {
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex">
       <Navbar />
-      <div className="flex flex-1 mt-16">
-        <SidebarProvider defaultOpen={true}>
+      <SidebarProvider defaultOpen={true}>
+        <div className="flex flex-1 mt-16">
           <AppSidebar />
           <main className="flex-1 overflow-auto p-6">
-            <div className="container mx-auto">
+            <div className="max-w-[1200px] mx-auto">
               <div className="mb-8">
                 <h1 className="text-2xl font-bold">Activity Log</h1>
                 <p className="text-muted-foreground">
@@ -165,8 +164,8 @@ const ActivityLogPage = () => {
               </div>
             </div>
           </main>
-        </SidebarProvider>
-      </div>
+        </div>
+      </SidebarProvider>
     </div>
   );
 };
