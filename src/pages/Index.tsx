@@ -24,26 +24,25 @@ const Index = () => {
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
-      const { data: totalLeads } = await supabase
+      const { count: totalLeads } = await supabase
         .from("leads")
-        .select("status", { count: "exact" });
+        .select("*", { count: "exact", head: true });
 
-      const { data: statusCounts } = await supabase
+      const { data: statusData } = await supabase
         .from("leads")
-        .select("status")
-        .then(({ data }) => {
-          const counts: Record<LeadStatus, number> = {
-            new: 0,
-            contacted: 0,
-            in_progress: 0,
-            closed_won: 0,
-            closed_lost: 0,
-          };
-          data?.forEach((lead) => {
-            if (lead.status) counts[lead.status as LeadStatus]++;
-          });
-          return counts;
-        });
+        .select("status");
+
+      const statusCounts: Record<LeadStatus, number> = {
+        new: 0,
+        contacted: 0,
+        in_progress: 0,
+        closed_won: 0,
+        closed_lost: 0,
+      };
+
+      statusData?.forEach((lead) => {
+        if (lead.status) statusCounts[lead.status as LeadStatus]++;
+      });
 
       const { data: recentActivities } = await supabase
         .from("lead_activities")
@@ -52,7 +51,7 @@ const Index = () => {
         .limit(5);
 
       return {
-        totalLeads: totalLeads?.length || 0,
+        totalLeads: totalLeads || 0,
         statusCounts,
         recentActivities,
       };
