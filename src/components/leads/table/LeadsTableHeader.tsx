@@ -28,8 +28,11 @@ const LeadsTableHeader = ({ sortConfig, onSort, isMobile, priorityColumns }: Lea
   return (
     <TableHeader>
       <TableRow>
-        <TableHead onClick={() => onSort("ticket_id")} className="cursor-pointer whitespace-nowrap">
-          Ticket ID {getSortIcon("ticket_id")}
+        <TableHead onClick={() => onSort("beam_score")} className="cursor-pointer whitespace-nowrap">
+          BEAM Score {getSortIcon("beam_score")}
+        </TableHead>
+        <TableHead onClick={() => onSort("status")} className="cursor-pointer whitespace-nowrap">
+          Status {getSortIcon("status")}
         </TableHead>
         <TableHead onClick={() => onSort("website")} className="cursor-pointer whitespace-nowrap">
           Website {getSortIcon("website")}
@@ -46,18 +49,10 @@ const LeadsTableHeader = ({ sortConfig, onSort, isMobile, priorityColumns }: Lea
             <TableHead onClick={() => onSort("client_type")} className="cursor-pointer whitespace-nowrap">
               Client Type {getSortIcon("client_type")}
             </TableHead>
+            <TableHead onClick={() => onSort("created_at")} className="cursor-pointer whitespace-nowrap">
+              Created At {getSortIcon("created_at")}
+            </TableHead>
           </>
-        )}
-        <TableHead onClick={() => onSort("beam_score")} className="cursor-pointer whitespace-nowrap">
-          BEAM Score {getSortIcon("beam_score")}
-        </TableHead>
-        <TableHead onClick={() => onSort("status")} className="cursor-pointer whitespace-nowrap">
-          Status {getSortIcon("status")}
-        </TableHead>
-        {!isMobile && (
-          <TableHead onClick={() => onSort("created_at")} className="cursor-pointer whitespace-nowrap">
-            Created At {getSortIcon("created_at")}
-          </TableHead>
         )}
         <TableHead className="whitespace-nowrap">Actions</TableHead>
       </TableRow>
