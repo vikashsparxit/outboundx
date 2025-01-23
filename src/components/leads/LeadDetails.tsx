@@ -229,6 +229,16 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
+  const formatEmails = (emails: EmailAddress[] | null) => {
+    if (!emails || emails.length === 0) return "-";
+    return emails.map(e => `${e.email} (${e.type})`).join(", ");
+  };
+
+  const formatPhoneNumbers = (numbers: string[] | null) => {
+    if (!numbers || numbers.length === 0) return "-";
+    return numbers.join(", ");
+  };
+
   if (!lead) return null;
 
   return (
@@ -290,6 +300,8 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             onAddPhoneNumber={onAddPhoneNumber}
             onRemovePhoneNumber={onRemovePhoneNumber}
             onPhoneNumberChange={onPhoneNumberChange}
+            formatEmails={formatEmails}
+            formatPhoneNumbers={formatPhoneNumbers}
             validationErrors={validationErrors}
           />
 
