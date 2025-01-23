@@ -17,12 +17,13 @@ export const logActivity = async (
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
-    console.error("No authenticated user found");
+    console.error("No authenticated user found when trying to log activity");
     return;
   }
 
   try {
-    console.log("Logging activity:", { leadId, activityType, description });
+    console.log("Logging activity:", { leadId, activityType, description, userId: user.id });
+    
     const { error } = await supabase
       .from("lead_activities")
       .insert({
@@ -32,9 +33,14 @@ export const logActivity = async (
         description: description,
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error logging activity:", error);
+      throw error;
+    }
+
+    console.log("Activity logged successfully");
   } catch (error) {
-    console.error("Error logging activity:", error);
+    console.error("Error in logActivity:", error);
     throw error;
   }
 };
