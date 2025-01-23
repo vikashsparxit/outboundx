@@ -18,6 +18,63 @@ const sidebarVariants = cva(
   }
 );
 
+interface SidebarContextValue {
+  expanded: boolean;
+  setExpanded: (expanded: boolean) => void;
+  variant?: "default" | "floating" | "sidebar";
+}
+
+const SidebarContext = React.createContext<SidebarContextValue>({
+  expanded: true,
+  setExpanded: () => null,
+  variant: "default",
+});
+
+interface SidebarProviderProps {
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}
+
+const SidebarProvider = ({ children, defaultOpen = true }: SidebarProviderProps) => {
+  const [expanded, setExpanded] = React.useState(defaultOpen);
+
+  return (
+    <SidebarContext.Provider value={{ expanded, setExpanded }}>
+      {children}
+    </SidebarContext.Provider>
+  );
+};
+
+const useSidebar = () => {
+  const context = React.useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider");
+  }
+  return context;
+};
+
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "floating" | "sidebar";
+  collapsible?: "icon" | "full" | false;
+}
+
+const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
+  ({ className, variant = "default", collapsible = false, ...props }, ref) => {
+    const { expanded } = useSidebar();
+
+    return (
+      <div
+        ref={ref}
+        data-expanded={expanded}
+        data-variant={variant}
+        className={cn(sidebarVariants({ variant }), className)}
+        {...props}
+      />
+    );
+  }
+);
+Sidebar.displayName = "Sidebar";
+
 const SidebarContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -33,4 +90,87 @@ const SidebarContent = React.forwardRef<
 ));
 SidebarContent.displayName = "SidebarContent";
 
-export { sidebarVariants, SidebarContent };
+const SidebarHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center justify-between", className)}
+    {...props}
+  />
+));
+SidebarHeader.displayName = "SidebarHeader";
+
+const SidebarGroup = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col gap-4 py-2", className)}
+    {...props}
+  />
+));
+SidebarGroup.displayName = "SidebarGroup";
+
+const SidebarGroupContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("space-y-1", className)} {...props} />
+));
+SidebarGroupContent.displayName = "SidebarGroupContent";
+
+const SidebarMenu = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("", className)} {...props} />
+));
+SidebarMenu.displayName = "SidebarMenu";
+
+const SidebarMenuItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+      className
+    )}
+    {...props}
+  />
+));
+SidebarMenuItem.displayName = "SidebarMenuItem";
+
+const SidebarMenuButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(({ className, ...props }, ref) => (
+  <button
+    ref={ref}
+    className={cn(
+      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+      className
+    )}
+    {...props}
+  />
+));
+SidebarMenuButton.displayName = "SidebarMenuButton";
+
+export {
+  Sidebar,
+  SidebarContent,
+  SidebarContext,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarProvider,
+  sidebarVariants,
+  useSidebar,
+};
