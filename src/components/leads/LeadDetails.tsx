@@ -182,7 +182,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
   };
 
   const onAddEmail = () => {
-    const newEmails = [...(editedLead.emails || []), { type: "business", email: "" }];
+    const newEmails: EmailAddress[] = [...(editedLead.emails || []), { type: "business", email: "" }];
     setEditedLead({ ...editedLead, emails: newEmails });
   };
 
@@ -193,9 +193,14 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
   };
 
   const onEmailChange = (index: number, field: "type" | "email", value: string) => {
-    const newEmails = [...(editedLead.emails || [])];
-    newEmails[index] = { ...newEmails[index], [field]: value };
-    setEditedLead({ ...editedLead, emails: newEmails });
+    const newEmails = [...(editedLead.emails || [])] as EmailAddress[];
+    if (field === "type" && (value === "personal" || value === "business" || value === "other")) {
+      newEmails[index] = { ...newEmails[index], [field]: value };
+      setEditedLead({ ...editedLead, emails: newEmails });
+    } else if (field === "email") {
+      newEmails[index] = { ...newEmails[index], [field]: value };
+      setEditedLead({ ...editedLead, emails: newEmails });
+    }
   };
 
   const onAddTechnology = (tech: string) => {
