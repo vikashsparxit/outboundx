@@ -72,19 +72,24 @@ const TableContainer = ({
 
   const handleDelete = async (lead: Lead) => {
     try {
-      console.log("Deleting lead:", lead.id);
+      console.log("Starting lead deletion process:", lead.id);
+      
+      // First, log the activity
+      await logActivity(
+        lead.id,
+        "lead_deleted",
+        "Lead was deleted"
+      );
+      
+      console.log("Activity logged, proceeding with deletion");
+      
+      // Then delete the lead
       const { error } = await supabase
         .from("leads")
         .delete()
         .eq("id", lead.id);
 
       if (error) throw error;
-
-      await logActivity(
-        lead.id,
-        "lead_deleted",
-        "Lead was deleted"
-      );
 
       toast({
         title: "Lead deleted",
@@ -95,7 +100,7 @@ const TableContainer = ({
       setDeleteDialogOpen(false);
       setLeadToDelete(null);
     } catch (error) {
-      console.error("Error deleting lead:", error);
+      console.error("Error in deletion process:", error);
       toast({
         title: "Error",
         description: "Failed to delete lead. Make sure you have admin privileges.",
