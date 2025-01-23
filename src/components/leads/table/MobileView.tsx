@@ -5,13 +5,18 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import BeamScoreCell from "../scoring/BeamScoreCell";
 import LeadsTableHeader from "./LeadsTableHeader";
 import StatusBadge from "./StatusBadge";
 import LeadRowActions from "./LeadRowActions";
 import { formatEmails, formatPhoneNumbers } from "./utils";
 import EmailTypeTag from "./EmailTypeTag";
-import { Flag } from "lucide-react";
 
 interface MobileViewProps {
   leads: Lead[];
@@ -26,6 +31,10 @@ interface MobileViewProps {
 }
 
 const PRIORITY_COLUMNS = ["email", "phone_numbers", "country", "beam_score", "status", "website", "actions"];
+
+const getCountryFlag = (countryCode: string) => {
+  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;
+};
 
 const MobileView = ({
   leads,
@@ -65,12 +74,22 @@ const MobileView = ({
               {formatPhoneNumbers(lead.phone_numbers)}
             </TableCell>
             <TableCell>
-              <div className="flex items-center gap-2">
-                {lead.country && (
-                  <Flag className="h-4 w-4 text-muted-foreground" />
-                )}
-                <span>{lead.country || "-"}</span>
-              </div>
+              {lead.country && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <img 
+                        src={getCountryFlag(lead.country)} 
+                        alt={lead.country}
+                        className="w-4 h-4 rounded-sm object-cover"
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{lead.country}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </TableCell>
             <TableCell>
               <BeamScoreCell lead={lead} />
