@@ -2,11 +2,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type ActivityType = 
   | "status_update"
-  | "status_changed"  // Adding this as an alias for consistency
+  | "status_changed"
   | "note_added"
   | "lead_created"
   | "lead_updated"
-  | "lead_deleted";
+  | "lead_deleted"
+  | "score_updated";
 
 export const logActivity = async (
   leadId: string,
