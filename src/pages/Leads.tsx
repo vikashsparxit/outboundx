@@ -81,8 +81,8 @@ const Leads = () => {
   }
 
   return (
-    <div className="container mx-auto">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1400px]">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Leads Management</h1>
           <p className="text-muted-foreground">
@@ -97,15 +97,17 @@ const Leads = () => {
         />
       </div>
 
-      <div className="rounded-md border">
-        <LeadsTable
-          leads={paginatedLeads}
-          isLoading={isLoadingLeads}
-          sortConfig={sortConfig}
-          onSort={handleSort}
-          onLeadSelect={setSelectedLead}
-          onLeadDeleted={refetch}
-        />
+      <div className="rounded-md border overflow-hidden">
+        <div className="w-full overflow-x-auto">
+          <LeadsTable
+            leads={paginatedLeads}
+            isLoading={isLoadingLeads}
+            sortConfig={sortConfig}
+            onSort={handleSort}
+            onLeadSelect={setSelectedLead}
+            onLeadDeleted={refetch}
+          />
+        </div>
       </div>
 
       {leads.length > 0 && (
