@@ -6,7 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Lead, LeadStatus } from "@/types/lead";
+import { Lead, LeadStatus, EmailAddress, convertToDatabaseLead } from "@/types/lead";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/utils/activity-logger";
 import ActivityLog from "./ActivityLog";
@@ -136,14 +136,16 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     
     setIsUpdating(true);
     try {
+      const dbLead = convertToDatabaseLead(editedLead);
+      console.log('Converting lead for database:', dbLead);
+      
       const { error } = await supabase
         .from("leads")
-        .update(editedLead)
+        .update(dbLead)
         .eq("id", lead.id);
 
       if (error) throw error;
 
-      // Recalculate score immediately after update
       await calculateBeamScore(editedLead);
       console.log("BEAM Score recalculated after edit");
 
@@ -166,6 +168,43 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
       });
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const formatEmails = (emails: EmailAddress[] | null) => {
+    if (!emails || emails.length === 0) return "-";
+    return emails.map(e => `${e.type}: ${e.email}`).join(", ");
+  };
+
+  const formatPhoneNumbers = (numbers: string[] | null) => {
+    if (!numbers || numbers.length === 0) return "-";
+    return numbers.join(", ");
+  };
+
+  const onAddEmail = () => {
+    const newEmails = [...(editedLead.emails || []), { type: "business", email: "" }];
+    setEditedLead({ ...editedLead, emails: newEmails });
+  };
+
+  const onRemoveEmail = (index: number) => {
+    const newEmails = [...(editedLead.emails || [])];
+    newEmails.splice(index, 1);
+    setEditedLead({ ...editedLead, emails: newEmails });
+  };
+
+  const onEmailChange = (index: number, field: "type" | "email", value: string) => {
+    const newEmails = [...(editedLead.emails || [])];
+    newEmails[index] = { ...newEmails[index], [field]: value };
+    setEditedLead({ ...editedLead, emails: newEmails });
+  };
+
+  const onAddTechnology = (tech: string) => {
+    const currentTech = editedLead.technology_stack || [];
+    if (!currentTech.includes(tech)) {
+      setEditedLead({
+        ...editedLead,
+        technology_stack: [...currentTech, tech],
+      });
     }
   };
 
@@ -237,6 +276,11 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             editedLead={editedLead}
             setEditedLead={setEditedLead}
             renderField={renderField}
+            formatEmails={formatEmails}
+            formatPhoneNumbers={formatPhoneNumbers}
+            onAddEmail={onAddEmail}
+            onRemoveEmail={onRemoveEmail}
+            onEmailChange={onEmailChange}
             validationErrors={validationErrors}
           />
 
@@ -262,6 +306,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
+            onAddTechnology={onAddTechnology}
           />
 
           <ScoreHistory leadId={lead.id} />
