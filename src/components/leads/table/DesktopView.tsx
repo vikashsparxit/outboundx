@@ -52,7 +52,7 @@ const DesktopView = ({
             <TableCell className="max-w-[250px]">
               <div className="flex flex-col gap-0.5">
                 {lead.emails?.map((email, i) => (
-                  <div key={i} className="flex flex-col">
+                  <div key={i} className="flex flex-col gap-0.5">
                     <span className="truncate">{email.email}</span>
                     <EmailTypeTag type={email.type} />
                   </div>
