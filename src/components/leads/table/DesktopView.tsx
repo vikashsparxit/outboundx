@@ -17,6 +17,7 @@ import StatusBadge from "./StatusBadge";
 import LeadRowActions from "./LeadRowActions";
 import { formatEmails, formatPhoneNumbers } from "./utils";
 import EmailTypeTag from "./EmailTypeTag";
+import { MapPin } from "lucide-react";
 
 interface DesktopViewProps {
   leads: Lead[];
@@ -30,8 +31,18 @@ interface DesktopViewProps {
   onDelete: (lead: Lead) => void;
 }
 
-const getCountryFlag = (countryCode: string) => {
-  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;
+const COUNTRY_CODES: Record<string, string> = {
+  "United States": "us",
+  "United Kingdom": "gb",
+  "Canada": "ca",
+  // Add more mappings as needed
+};
+
+const getCountryFlag = (country: string | null) => {
+  if (!country) return null;
+  const code = COUNTRY_CODES[country];
+  if (!code) return null;
+  return `https://flagcdn.com/${code}.svg`;
 };
 
 const DesktopView = ({
@@ -72,21 +83,27 @@ const DesktopView = ({
               {formatPhoneNumbers(lead.phone_numbers)}
             </TableCell>
             <TableCell>
-              {lead.country && (
+              {lead.country ? (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <img 
-                        src={getCountryFlag(lead.country)} 
-                        alt={lead.country}
-                        className="w-4 h-4 rounded-sm object-cover"
-                      />
+                      {getCountryFlag(lead.country) ? (
+                        <img 
+                          src={getCountryFlag(lead.country)} 
+                          alt={lead.country}
+                          className="w-4 h-4 rounded-sm object-cover"
+                        />
+                      ) : (
+                        <MapPin className="w-4 h-4 text-muted-foreground" />
+                      )}
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{lead.country}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+              ) : (
+                <MapPin className="w-4 h-4 text-muted-foreground" />
               )}
             </TableCell>
             <TableCell>
