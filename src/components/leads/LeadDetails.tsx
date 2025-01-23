@@ -23,6 +23,8 @@ import { LeadLocation } from "./details/LeadLocation";
 import { LeadStatusUpdate } from "./details/LeadStatusUpdate";
 import ScoreBreakdown from "./scoring/ScoreBreakdown";
 import ScoreHistory from "./scoring/ScoreHistory";
+import { LeadScoringCriteria } from "./details/LeadScoringCriteria";
+import { COUNTRIES } from "@/constants/leadOptions";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -267,6 +269,13 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             editedLead={editedLead}
             setEditedLead={setEditedLead}
             renderField={renderField}
+          />
+
+          <LeadScoringCriteria
+            lead={lead}
+            isEditing={isEditing}
+            editedLead={editedLead}
+            setEditedLead={setEditedLead}
           />
 
           <ScoreHistory leadId={lead.id} />
