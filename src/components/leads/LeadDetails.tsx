@@ -10,7 +10,7 @@ import { Lead, LeadStatus, EmailAddress, convertToDatabaseLead } from "@/types/l
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/utils/activity-logger";
 import ActivityLog from "./ActivityLog";
-import { Edit2 } from "lucide-react";
+import { Edit2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { calculateBeamScore } from "@/utils/scoring";
 import { LeadIdentification } from "./details/LeadIdentification";
@@ -203,6 +203,40 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
+  const onAddPhoneNumber = () => {
+    const newPhoneNumbers = [...(editedLead.phone_numbers || []), ""];
+    setEditedLead({ ...editedLead, phone_numbers: newPhoneNumbers });
+  };
+
+  const onRemovePhoneNumber = (index: number) => {
+    const newPhoneNumbers = [...(editedLead.phone_numbers || [])];
+    newPhoneNumbers.splice(index, 1);
+    setEditedLead({ ...editedLead, phone_numbers: newPhoneNumbers });
+  };
+
+  const onPhoneNumberChange = (index: number, value: string) => {
+    const newPhoneNumbers = [...(editedLead.phone_numbers || [])];
+    newPhoneNumbers[index] = value;
+    setEditedLead({ ...editedLead, phone_numbers: newPhoneNumbers });
+  };
+
+  const onAddDomain = () => {
+    const newDomains = [...(editedLead.domains || []), ""];
+    setEditedLead({ ...editedLead, domains: newDomains });
+  };
+
+  const onRemoveDomain = (index: number) => {
+    const newDomains = [...(editedLead.domains || [])];
+    newDomains.splice(index, 1);
+    setEditedLead({ ...editedLead, domains: newDomains });
+  };
+
+  const onDomainChange = (index: number, value: string) => {
+    const newDomains = [...(editedLead.domains || [])];
+    newDomains[index] = value;
+    setEditedLead({ ...editedLead, domains: newDomains });
+  };
+
   const onAddTechnology = (tech: string) => {
     const currentTech = editedLead.technology_stack || [];
     if (!currentTech.includes(tech)) {
@@ -287,6 +321,9 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             onRemoveEmail={onRemoveEmail}
             onEmailChange={onEmailChange}
             validationErrors={validationErrors}
+            onAddPhoneNumber={onAddPhoneNumber}
+            onRemovePhoneNumber={onRemovePhoneNumber}
+            onPhoneNumberChange={onPhoneNumberChange}
           />
 
           <LeadOnlinePresence 
@@ -296,6 +333,9 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             setEditedLead={setEditedLead}
             renderField={renderField}
             validationErrors={validationErrors}
+            onAddDomain={onAddDomain}
+            onRemoveDomain={onRemoveDomain}
+            onDomainChange={onDomainChange}
           />
 
           <LeadLocation 
