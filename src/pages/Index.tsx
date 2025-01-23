@@ -12,6 +12,7 @@ import CsvUploadModal from "@/components/leads/CsvUploadModal";
 import LeadDetails from "@/components/leads/LeadDetails";
 import { Lead, DatabaseLead } from "@/types/lead";
 import { convertFromDatabase } from "@/types/lead";
+import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -27,25 +28,41 @@ const Index = () => {
     direction: "desc" as "asc" | "desc",
   });
 
-  const { data: leads = [], isLoading: isLoadingLeads, refetch } = useQuery({
+  const { data: leads = [], isLoading: isLoadingLeads, error, refetch } = useQuery({
     queryKey: ["leads", searchTerm, sortConfig],
     queryFn: async () => {
-      console.log("Fetching leads with search term:", searchTerm);
-      let query = supabase
-        .from("leads")
-        .select("*")
-        .order(sortConfig.key, { ascending: sortConfig.direction === "asc" });
+      try {
+        console.log("Fetching leads with search term:", searchTerm);
+        let query = supabase
+          .from("leads")
+          .select("*")
+          .order(sortConfig.key, { ascending: sortConfig.direction === "asc" });
 
-      if (searchTerm) {
-        query = query.or(
-          `website.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,ticket_id.ilike.%${searchTerm}%`
-        );
+        if (searchTerm) {
+          query = query.or(
+            `website.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,ticket_id.ilike.%${searchTerm}%`
+          );
+        }
+
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error("Error fetching leads:", error);
+          throw error;
+        }
+
+        if (!data) {
+          return [];
+        }
+
+        return (data as DatabaseLead[]).map(convertFromDatabase);
+      } catch (error) {
+        console.error("Error in leads query:", error);
+        toast.error("Failed to fetch leads. Please try again.");
+        throw error;
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return (data as DatabaseLead[]).map(convertFromDatabase);
     },
+    retry: 1,
   });
 
   const handleSort = (key: string) => {
@@ -61,6 +78,10 @@ const Index = () => {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  if (error) {
+    console.error("Error in leads query:", error);
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
