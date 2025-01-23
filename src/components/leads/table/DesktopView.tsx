@@ -83,28 +83,30 @@ const DesktopView = ({
               {formatPhoneNumbers(lead.phone_numbers)}
             </TableCell>
             <TableCell>
-              {lead.country ? (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      {getCountryFlag(lead.country) ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    {lead.country ? (
+                      getCountryFlag(lead.country) ? (
                         <img 
                           src={getCountryFlag(lead.country)} 
                           alt={lead.country}
                           className="w-4 h-4 rounded-sm object-cover"
                         />
                       ) : (
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                      )}
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{lead.country}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ) : (
-                <MapPin className="w-4 h-4 text-muted-foreground" />
-              )}
+                        <span className="text-sm text-muted-foreground">
+                          {lead.country}
+                        </span>
+                      )
+                    ) : (
+                      <span className="text-sm text-muted-foreground">NA</span>
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{lead.country || "Not Available"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </TableCell>
             <TableCell>
               <BeamScoreCell lead={lead} />
