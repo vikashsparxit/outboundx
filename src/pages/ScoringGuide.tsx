@@ -1,7 +1,5 @@
 import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import AppSidebar from "@/components/sidebar/AppSidebar";
 import {
   Table,
   TableBody,
@@ -13,21 +11,16 @@ import {
 
 const ScoringGuide = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex flex-1 mt-16">
-        <SidebarProvider defaultOpen={true}>
-          <AppSidebar />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="container mx-auto space-y-8">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">BEAM Score Guide</h1>
-                <p className="text-muted-foreground">
-                  Understanding our lead scoring methodology
-                </p>
-              </div>
+    <div className="flex-1 overflow-auto p-6">
+      <div className="container mx-auto space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">BEAM Score Guide</h1>
+          <p className="text-muted-foreground">
+            Understanding our lead scoring methodology
+          </p>
+        </div>
 
-              {/* Overview Section */}
+        {/* Overview Section */}
               <Card className="p-6">
                 <h2 className="text-2xl font-semibold mb-4">Overview</h2>
                 <p className="mb-4">
@@ -62,7 +55,7 @@ const ScoringGuide = () => {
                 </div>
               </Card>
 
-              {/* Scoring Components Section */}
+        {/* Scoring Components Section */}
               <Card className="p-6">
                 <h2 className="text-2xl font-semibold mb-6">
                   Scoring Components
@@ -249,7 +242,7 @@ const ScoringGuide = () => {
                 </div>
               </Card>
 
-              {/* Score Interpretation */}
+        {/* Score Interpretation */}
               <Card className="p-6">
                 <h2 className="text-2xl font-semibold mb-4">
                   Score Interpretation
@@ -295,7 +288,7 @@ const ScoringGuide = () => {
                 </Table>
               </Card>
 
-              {/* Best Practices */}
+        {/* Best Practices */}
               <Card className="p-6">
                 <h2 className="text-2xl font-semibold mb-4">Best Practices</h2>
                 <div className="space-y-4">
@@ -323,9 +316,6 @@ const ScoringGuide = () => {
                   </div>
                 </div>
               </Card>
-            </div>
-          </main>
-        </SidebarProvider>
       </div>
     </div>
   );

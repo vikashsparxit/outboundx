@@ -13,8 +13,6 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppSidebar from "@/components/sidebar/AppSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface ActivityLogEntry {
   id: string;
@@ -71,101 +69,93 @@ const ActivityLogPage = () => {
   });
 
   return (
-    <div className="min-h-screen flex">
-      <Navbar />
-      <SidebarProvider defaultOpen={true}>
-        <div className="flex flex-1 mt-16">
-          <AppSidebar />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-[1200px] mx-auto">
-              <div className="mb-8">
-                <h1 className="text-2xl font-bold">Activity Log</h1>
-                <p className="text-muted-foreground">
-                  Track all user activities and lead interactions
-                </p>
-              </div>
-
-              <div className="flex gap-4 mb-6">
-                <div className="flex-1">
-                  <Input
-                    placeholder="Search activities..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="max-w-sm"
-                  />
-                </div>
-                <Select
-                  value={activityType}
-                  onValueChange={setActivityType}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Activities</SelectItem>
-                    <SelectItem value="status_update">Status Updates</SelectItem>
-                    <SelectItem value="note_added">Notes Added</SelectItem>
-                    <SelectItem value="lead_created">Lead Created</SelectItem>
-                    <SelectItem value="lead_updated">Lead Updated</SelectItem>
-                    <SelectItem value="lead_deleted">Lead Deleted</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="bg-card rounded-lg border">
-                <ScrollArea className="h-[600px]">
-                  {isLoading ? (
-                    <div className="p-8 text-center">Loading activities...</div>
-                  ) : activities && activities.length > 0 ? (
-                    <div className="divide-y">
-                      {activities.map((activity) => (
-                        <div key={activity.id} className="p-4 hover:bg-muted/50">
-                          <div className="flex gap-4">
-                            <Clock className="h-5 w-5 mt-1 flex-shrink-0 text-muted-foreground" />
-                            <div className="space-y-1 flex-1">
-                              <p className="text-sm">
-                                {activity.description}
-                                {activity.leads && (
-                                  <span className="text-muted-foreground">
-                                    {" "}
-                                    - Lead: {activity.leads.ticket_id || activity.leads.email}
-                                  </span>
-                                )}
-                              </p>
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <User className="h-3 w-3" />
-                                  <span>
-                                    {activity.profiles?.full_name || activity.profiles?.email || "Unknown user"}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  <span>{format(new Date(activity.created_at), "PPp")}</span>
-                                </div>
-                                {activity.leads?.ticket_id && (
-                                  <div className="flex items-center gap-1">
-                                    <Ticket className="h-3 w-3" />
-                                    <span>{activity.leads.ticket_id}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-8 text-center text-muted-foreground">
-                      No activities found
-                    </div>
-                  )}
-                </ScrollArea>
-              </div>
-            </div>
-          </main>
+    <div className="flex-1 overflow-auto p-6">
+      <div className="max-w-[1200px] mx-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold">Activity Log</h1>
+          <p className="text-muted-foreground">
+            Track all user activities and lead interactions
+          </p>
         </div>
-      </SidebarProvider>
+
+        <div className="flex gap-4 mb-6">
+          <div className="flex-1">
+            <Input
+              placeholder="Search activities..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm"
+            />
+          </div>
+          <Select
+            value={activityType}
+            onValueChange={setActivityType}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Activities</SelectItem>
+              <SelectItem value="status_update">Status Updates</SelectItem>
+              <SelectItem value="note_added">Notes Added</SelectItem>
+              <SelectItem value="lead_created">Lead Created</SelectItem>
+              <SelectItem value="lead_updated">Lead Updated</SelectItem>
+              <SelectItem value="lead_deleted">Lead Deleted</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="bg-card rounded-lg border">
+          <ScrollArea className="h-[600px]">
+            {isLoading ? (
+              <div className="p-8 text-center">Loading activities...</div>
+            ) : activities && activities.length > 0 ? (
+              <div className="divide-y">
+                {activities.map((activity) => (
+                  <div key={activity.id} className="p-4 hover:bg-muted/50">
+                    <div className="flex gap-4">
+                      <Clock className="h-5 w-5 mt-1 flex-shrink-0 text-muted-foreground" />
+                      <div className="space-y-1 flex-1">
+                        <p className="text-sm">
+                          {activity.description}
+                          {activity.leads && (
+                            <span className="text-muted-foreground">
+                              {" "}
+                              - Lead: {activity.leads.ticket_id || activity.leads.email}
+                            </span>
+                          )}
+                        </p>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            <span>
+                              {activity.profiles?.full_name || activity.profiles?.email || "Unknown user"}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            <span>{format(new Date(activity.created_at), "PPp")}</span>
+                          </div>
+                          {activity.leads?.ticket_id && (
+                            <div className="flex items-center gap-1">
+                              <Ticket className="h-3 w-3" />
+                              <span>{activity.leads.ticket_id}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center text-muted-foreground">
+                No activities found
+              </div>
+            )}
+          </ScrollArea>
+        </div>
+      </div>
     </div>
   );
 };
