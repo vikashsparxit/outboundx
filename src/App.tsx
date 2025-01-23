@@ -7,6 +7,7 @@ import { AuthProvider } from "@/providers/AuthProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ActivityLog from "./pages/ActivityLog";
+import ScoringGuide from "./pages/ScoringGuide";
 import { useAuth } from "@/providers/AuthProvider";
 import { useState } from "react";
 
@@ -48,6 +49,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <ActivityLog />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/scoring-guide"
+                element={
+                  <ProtectedRoute>
+                    <ScoringGuide />
                   </ProtectedRoute>
                 }
               />

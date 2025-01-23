@@ -93,81 +93,168 @@ export type Database = {
           },
         ]
       }
+      lead_scoring_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          lead_id: string | null
+          new_score: number | null
+          previous_score: number | null
+          reason: string | null
+          score_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          new_score?: number | null
+          previous_score?: number | null
+          reason?: string | null
+          score_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          new_score?: number | null
+          previous_score?: number | null
+          reason?: string | null
+          score_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_scoring_history_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_scoring_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
+          account_score: number | null
+          annual_revenue_range: string | null
           assigned_to: string | null
+          bant_score: number | null
+          beam_score: number | null
           bounce_count: number | null
+          budget_range: string | null
           call_count: number | null
           city: string | null
           client_type: string | null
+          company_size: string | null
           contact_id: string | null
           country: string | null
           created_at: string | null
+          decision_maker_level: string | null
           domain: string | null
           email: string | null
           emails: Json | null
+          engagement_score: number | null
           handled: boolean | null
           id: string
+          industry_vertical: string | null
           ip_country: string | null
           ip_region: string | null
           lead_type: string | null
+          market_score: number | null
           message: string | null
+          need_urgency: string | null
           phone_numbers: string[] | null
+          project_timeline: string | null
           state: string | null
           status: Database["public"]["Enums"]["lead_status"] | null
           subject: string | null
+          technology_stack: string[] | null
           ticket_id: string | null
           updated_at: string | null
           website: string | null
         }
         Insert: {
+          account_score?: number | null
+          annual_revenue_range?: string | null
           assigned_to?: string | null
+          bant_score?: number | null
+          beam_score?: number | null
           bounce_count?: number | null
+          budget_range?: string | null
           call_count?: number | null
           city?: string | null
           client_type?: string | null
+          company_size?: string | null
           contact_id?: string | null
           country?: string | null
           created_at?: string | null
+          decision_maker_level?: string | null
           domain?: string | null
           email?: string | null
           emails?: Json | null
+          engagement_score?: number | null
           handled?: boolean | null
           id?: string
+          industry_vertical?: string | null
           ip_country?: string | null
           ip_region?: string | null
           lead_type?: string | null
+          market_score?: number | null
           message?: string | null
+          need_urgency?: string | null
           phone_numbers?: string[] | null
+          project_timeline?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["lead_status"] | null
           subject?: string | null
+          technology_stack?: string[] | null
           ticket_id?: string | null
           updated_at?: string | null
           website?: string | null
         }
         Update: {
+          account_score?: number | null
+          annual_revenue_range?: string | null
           assigned_to?: string | null
+          bant_score?: number | null
+          beam_score?: number | null
           bounce_count?: number | null
+          budget_range?: string | null
           call_count?: number | null
           city?: string | null
           client_type?: string | null
+          company_size?: string | null
           contact_id?: string | null
           country?: string | null
           created_at?: string | null
+          decision_maker_level?: string | null
           domain?: string | null
           email?: string | null
           emails?: Json | null
+          engagement_score?: number | null
           handled?: boolean | null
           id?: string
+          industry_vertical?: string | null
           ip_country?: string | null
           ip_region?: string | null
           lead_type?: string | null
+          market_score?: number | null
           message?: string | null
+          need_urgency?: string | null
           phone_numbers?: string[] | null
+          project_timeline?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["lead_status"] | null
           subject?: string | null
+          technology_stack?: string[] | null
           ticket_id?: string | null
           updated_at?: string | null
           website?: string | null

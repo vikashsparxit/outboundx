@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Table as TableIcon,
   ListChecks,
+  Calculator,
 } from "lucide-react";
 import {
   SidebarMenu,
@@ -29,6 +30,11 @@ const SidebarNav = () => {
       icon: ListChecks,
       label: "Activity Log",
       path: "/activity-log",
+    },
+    {
+      icon: Calculator,
+      label: "Scoring Guide",
+      path: "/scoring-guide",
     },
   ];
 
