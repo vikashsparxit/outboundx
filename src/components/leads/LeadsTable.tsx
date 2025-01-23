@@ -46,6 +46,9 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
   const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null);
   const isMobile = useIsMobile();
 
+  // Define priority columns for mobile view
+  const priorityColumns = ["ticket_id", "website", "beam_score", "status", "actions"];
+
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (!user) return;
@@ -118,9 +121,6 @@ const LeadsTable = ({ leads, isLoading, sortConfig, onSort, onLeadSelect, onLead
   if (isLoading) {
     return <div className="w-full p-8 text-center text-muted-foreground">Loading...</div>;
   }
-
-  // Define priority columns for mobile
-  const priorityColumns = ["ticket_id", "website", "beam_score", "status", "actions"];
 
   return (
     <>
