@@ -81,7 +81,7 @@ const Leads = () => {
   }
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Leads Management</h1>
@@ -89,12 +89,14 @@ const Leads = () => {
             Manage and track all your leads
           </p>
         </div>
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onUploadClick={() => setIsCsvModalOpen(true)}
-          isLoading={isLoading}
-        />
+        <div className="w-full sm:w-auto">
+          <SearchBar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            onUploadClick={() => setIsCsvModalOpen(true)}
+            isLoading={isLoading}
+          />
+        </div>
       </div>
 
       <div className="rounded-md border overflow-hidden bg-white">
