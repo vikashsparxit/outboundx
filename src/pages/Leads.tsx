@@ -81,8 +81,8 @@ const Leads = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1400px]">
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="w-full max-w-[1400px] mx-auto space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Leads Management</h1>
           <p className="text-muted-foreground">
@@ -97,7 +97,7 @@ const Leads = () => {
         />
       </div>
 
-      <div className="rounded-md border overflow-hidden">
+      <div className="rounded-md border overflow-hidden bg-white">
         <div className="w-full overflow-x-auto">
           <LeadsTable
             leads={paginatedLeads}
