@@ -1,4 +1,7 @@
 import { Lead } from "@/types/lead";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface LeadIdentificationProps {
   lead: Lead;
@@ -13,8 +16,12 @@ export const LeadIdentification = ({
   isEditing,
   editedLead,
   setEditedLead,
-  renderField,
 }: LeadIdentificationProps) => {
+  const handleNumberChange = (field: keyof Lead, value: string) => {
+    const numValue = parseInt(value) || 0;
+    setEditedLead({ ...editedLead, [field]: numValue });
+  };
+
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-semibold">Identification</h3>
@@ -25,34 +32,105 @@ export const LeadIdentification = ({
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Ticket ID</label>
-          <p>{lead.ticket_id || "-"}</p>
+          {isEditing ? (
+            <Input
+              value={editedLead.ticket_id || ''}
+              onChange={(e) => setEditedLead({ ...editedLead, ticket_id: e.target.value })}
+              className="mt-1"
+            />
+          ) : (
+            <p>{lead.ticket_id || "-"}</p>
+          )}
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Contact ID</label>
-          <p>{lead.contact_id || "-"}</p>
+          {isEditing ? (
+            <Input
+              value={editedLead.contact_id || ''}
+              onChange={(e) => setEditedLead({ ...editedLead, contact_id: e.target.value })}
+              className="mt-1"
+            />
+          ) : (
+            <p>{lead.contact_id || "-"}</p>
+          )}
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Status</label>
-          <p>{lead.status}</p>
+          {isEditing ? (
+            <Select
+              value={editedLead.status || "new"}
+              onValueChange={(value) => setEditedLead({ ...editedLead, status: value as Lead['status'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="new">New</SelectItem>
+                <SelectItem value="contacted">Contacted</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="closed_won">Closed Won</SelectItem>
+                <SelectItem value="closed_lost">Closed Lost</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            <p>{lead.status}</p>
+          )}
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Bounce Count</label>
-          <p>{lead.bounce_count || 0}</p>
+          {isEditing ? (
+            <Input
+              type="number"
+              min="0"
+              value={editedLead.bounce_count || 0}
+              onChange={(e) => handleNumberChange('bounce_count', e.target.value)}
+              className="mt-1"
+            />
+          ) : (
+            <p>{lead.bounce_count || 0}</p>
+          )}
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Call Count</label>
-          <p>{lead.call_count || 0}</p>
+          {isEditing ? (
+            <Input
+              type="number"
+              min="0"
+              value={editedLead.call_count || 0}
+              onChange={(e) => handleNumberChange('call_count', e.target.value)}
+              className="mt-1"
+            />
+          ) : (
+            <p>{lead.call_count || 0}</p>
+          )}
         </div>
       </div>
       
       <div className="space-y-4 mt-4">
         <div>
           <label className="text-sm text-muted-foreground">Subject</label>
-          <p className="whitespace-pre-wrap">{lead.subject || "-"}</p>
+          {isEditing ? (
+            <Input
+              value={editedLead.subject || ''}
+              onChange={(e) => setEditedLead({ ...editedLead, subject: e.target.value })}
+              className="mt-1"
+            />
+          ) : (
+            <p className="whitespace-pre-wrap">{lead.subject || "-"}</p>
+          )}
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Message</label>
-          <p className="whitespace-pre-wrap">{lead.message || "-"}</p>
+          {isEditing ? (
+            <Textarea
+              value={editedLead.message || ''}
+              onChange={(e) => setEditedLead({ ...editedLead, message: e.target.value })}
+              className="mt-1"
+              rows={6}
+            />
+          ) : (
+            <p className="whitespace-pre-wrap">{lead.message || "-"}</p>
+          )}
         </div>
       </div>
     </div>
