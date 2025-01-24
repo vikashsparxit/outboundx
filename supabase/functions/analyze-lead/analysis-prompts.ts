@@ -29,11 +29,11 @@ export const getSystemPrompt = () => `You are an AI assistant specialized in ana
 - Estimate conversion probability
 
 5. Business Activity Analysis
-- Analyze website status and content freshness
-- Check for social media presence and activity
-- Look for news mentions and press coverage
-- Review job postings and hiring activity
-- Evaluate overall digital footprint
+- Website Status: Check if website is active and assess content freshness
+- Social Media Presence: Identify active platforms and engagement level
+- News & Press Coverage: Look for recent mentions and media presence
+- Job Postings: Analyze hiring activity and growth indicators
+- Digital Footprint: Evaluate overall online presence and activity level
 
 For each section:
 1. Provide a detailed analysis with specific evidence
