@@ -43,8 +43,8 @@ export const LeadScoringCriteria = ({
       const updatedTechStack = [...(editedLead.technology_stack || [])];
       if (!updatedTechStack.includes(techToAdd)) {
         updatedTechStack.push(techToAdd);
+        console.log('Adding custom tech:', techToAdd, 'New stack:', updatedTechStack);
         setEditedLead({ ...editedLead, technology_stack: updatedTechStack });
-        console.log('Updated technology stack:', updatedTechStack);
       }
       setNewTech("");
     }
@@ -260,6 +260,7 @@ export const LeadScoringCriteria = ({
                     <button
                       onClick={() => handleRemoveTech(tech)}
                       className="ml-1 hover:text-red-300"
+                      type="button"
                     >
                       ×
                     </button>
@@ -271,6 +272,7 @@ export const LeadScoringCriteria = ({
                   <button
                     key={tech}
                     onClick={() => handlePresetTech(tech)}
+                    type="button"
                     className={`px-3 py-1 rounded-full text-sm ${
                       editedLead.technology_stack?.includes(tech)
                         ? "bg-primary text-primary-foreground"
@@ -297,6 +299,7 @@ export const LeadScoringCriteria = ({
                 <Button 
                   onClick={handleAddTech} 
                   disabled={!newTech.trim()}
+                  type="button"
                 >
                   Add
                 </Button>
