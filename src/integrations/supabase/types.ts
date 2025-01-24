@@ -210,6 +210,7 @@ export type Database = {
           call_count: number | null
           city: string | null
           client_type: string | null
+          company_name: string | null
           company_size: string | null
           contact_id: string | null
           country: string | null
@@ -253,6 +254,7 @@ export type Database = {
           call_count?: number | null
           city?: string | null
           client_type?: string | null
+          company_name?: string | null
           company_size?: string | null
           contact_id?: string | null
           country?: string | null
@@ -296,6 +298,7 @@ export type Database = {
           call_count?: number | null
           city?: string | null
           client_type?: string | null
+          company_name?: string | null
           company_size?: string | null
           contact_id?: string | null
           country?: string | null
