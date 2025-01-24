@@ -42,23 +42,36 @@ serve(async (req) => {
 
     // Enhanced lead context for better analysis
     const leadContext = {
+      // Message content analysis
       message: lead.message,
       subject: lead.subject,
+      
+      // Contact information
       email: lead.email,
       emails: lead.emails,
+      phone_numbers: lead.phone_numbers,
       domain: lead.domain,
+      domain_type: lead.domain_type,
+      
+      // Company information
       website: lead.website,
+      domains: lead.domains,
       company_size: lead.company_size,
       industry_vertical: lead.industry_vertical,
       annual_revenue_range: lead.annual_revenue_range,
       technology_stack: lead.technology_stack,
-      domains: lead.domains,
+      
+      // Project details
       budget_range: lead.budget_range,
       need_urgency: lead.need_urgency,
       project_timeline: lead.project_timeline,
+      
+      // Location information
       country: lead.country,
       city: lead.city,
       state: lead.state,
+      
+      // Historical context
       previous_activities: lead.lead_activities
     };
 
@@ -73,47 +86,66 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant specialized in analyzing sales leads and discovering business opportunities. 
-            Analyze the provided lead information in detail, focusing on these key areas:
+            content: `You are an AI assistant specialized in analyzing sales leads. Analyze the provided information in detail, focusing on these key areas:
 
-            1. Message Analysis (Score: 1-5)
-            - Analyze email message content, tone, and quality
-            - Identify key requirements and pain points
-            - Extract timeline and budget indicators
-            - Assess communication style and professionalism
-
-            2. Contact Quality (Score: 1-5)
-            - Evaluate email domain quality (business vs personal)
-            - Assess contact information completeness
-            - Determine decision-maker level
-            - Check for multiple contact points
-
-            3. Company Assessment (Score: 1-5)
-            - Analyze company size and market position
-            - Evaluate industry vertical and market potential
-            - Review technology stack and technical sophistication
-            - Identify growth indicators and company maturity
-
+            1. Email Message Analysis (Score: 1-5)
+            - Analyze message content quality, depth, and clarity
+            - Identify specific pain points and requirements
+            - Evaluate communication style and professionalism
+            - Extract budget mentions and timeline indicators
+            - Assess decision-maker level from writing style
+            
+            2. Contact Quality Assessment (Score: 1-5)
+            - Evaluate email domain quality and business relevance
+            - Analyze completeness of contact information
+            - Assess validity and reliability of provided details
+            - Check for multiple contact points and consistency
+            - Determine decision-maker level from contact details
+            
+            3. Company Research & Analysis (Score: 1-5)
+            - Analyze company size and market presence
+            - Evaluate industry vertical and sector potential
+            - Assess technology stack and technical maturity
+            - Identify growth indicators and company stage
+            - Research competitive positioning
+            
             4. Opportunity Evaluation (Score: 1-5)
-            - Assess project scope and complexity
-            - Evaluate budget potential and resource requirements
-            - Analyze timeline and urgency factors
-            - Calculate conversion probability
-
+            - Calculate project scope and complexity
+            - Assess budget range and resource requirements
+            - Evaluate timeline urgency and implementation factors
+            - Determine technical feasibility and challenges
+            - Estimate conversion probability
+            
             For each section:
-            - Provide a detailed analysis
-            - Include specific evidence from the data
-            - Assign a score (1-5)
-            - List key findings and recommendations
-
-            Return the analysis in this format:
-            1. Message Analysis
+            1. Provide a detailed analysis with specific evidence
+            2. Assign a score (1-5) with clear justification
+            3. List key findings and insights
+            4. Add specific recommendations
+            
+            Format the response as:
+            
+            1. Email Message Analysis
             Score: X/5
-            Analysis: [detailed analysis]
+            Analysis: [detailed analysis with specific quotes/evidence]
             Key Findings:
             - [bullet points]
+            Recommendations:
+            - [bullet points]
             
-            [Repeat for each section]`
+            [Repeat format for each section]
+            
+            Also extract any discoveries in this JSON format at the end:
+            {
+              "discoveries": [
+                {
+                  "field_name": "string",
+                  "discovered_value": "string",
+                  "confidence_level": "high|medium|low",
+                  "source": "string",
+                  "metadata": {}
+                }
+              ]
+            }`
           },
           {
             role: 'user',
