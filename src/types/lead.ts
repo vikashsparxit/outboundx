@@ -58,6 +58,8 @@ export interface Lead {
   beam_score: number | null;
   domain_type: EmailDomainType | null;
   lead_activities?: LeadActivity[] | null;
+  company_name: string | null;  // Added this field
+  location: string | null;      // Added this field
 }
 
 export type DatabaseLead = Omit<Lead, 'emails'> & {
