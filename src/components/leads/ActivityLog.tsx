@@ -75,7 +75,11 @@ const ActivityLog = ({ leadId }: ActivityLogProps) => {
             {activities.map((activity) => (
               <div key={activity.id} className="space-y-2">
                 {activity.activity_type === 'ai_analysis' ? (
-                  <Accordion type="single" collapsible>
+                  <Accordion 
+                    type="single" 
+                    collapsible
+                    data-analysis-id={leadId}
+                  >
                     <AccordionItem value="analysis">
                       <AccordionTrigger className="text-sm hover:no-underline">
                         <div className="flex items-center gap-2">
