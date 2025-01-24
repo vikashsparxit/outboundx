@@ -15,7 +15,7 @@ const ScoringGuide = () => {
         <div>
           <h1 className="text-3xl font-bold mb-2">BEAM Score Guide</h1>
           <p className="text-muted-foreground">
-            Understanding our comprehensive lead scoring methodology
+            Understanding our comprehensive lead scoring methodology enhanced with AI analysis
           </p>
         </div>
 
@@ -26,7 +26,7 @@ const ScoringGuide = () => {
             The BEAM Score (Business Engagement & Authority Matrix) is our
             comprehensive lead scoring system that evaluates leads across four key
             dimensions, with each component contributing up to 25 points for a
-            total maximum score of 100.
+            total maximum score of 100. The system is enhanced by AI analysis for more accurate scoring.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -38,12 +38,27 @@ const ScoringGuide = () => {
                 <li>Market Signals (25 points)</li>
               </ul>
             </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">AI Enhancement</h3>
+              <p className="text-muted-foreground">
+                Our AI system analyzes leads to provide deeper insights and influence scoring in these areas:
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground mt-2">
+                <li>Message quality analysis</li>
+                <li>Company research and validation</li>
+                <li>Technical requirements assessment</li>
+                <li>Opportunity evaluation</li>
+              </ul>
+            </div>
           </div>
         </Card>
 
         {/* BANT Score */}
         <Card className="p-6">
           <h2 className="text-2xl font-semibold mb-4">BANT Score (25 points)</h2>
+          <p className="mb-4 text-muted-foreground">
+            AI analysis helps validate and enhance BANT scoring through message content analysis and company research.
+          </p>
           <Table>
             <TableHeader>
               <TableRow>
@@ -111,6 +126,9 @@ const ScoringGuide = () => {
           <h2 className="text-2xl font-semibold mb-4">
             Engagement Score (25 points)
           </h2>
+          <p className="mb-4 text-muted-foreground">
+            AI analysis evaluates message quality and engagement patterns to provide more accurate scoring.
+          </p>
           <Table>
             <TableHeader>
               <TableRow>
@@ -148,9 +166,9 @@ const ScoringGuide = () => {
                 <TableCell className="font-medium">Message Quality</TableCell>
                 <TableCell>
                   <ul className="list-disc list-inside">
-                    <li>Detailed message (200+ chars): 7 points</li>
-                    <li>Basic message (50+ chars): 4 points</li>
-                    <li>No/short message: 0 points</li>
+                    <li>Detailed message (AI-verified high quality): 7 points</li>
+                    <li>Basic message (AI-verified medium quality): 4 points</li>
+                    <li>Low quality or no message: 0 points</li>
                   </ul>
                 </TableCell>
                 <TableCell>7</TableCell>
@@ -164,6 +182,9 @@ const ScoringGuide = () => {
           <h2 className="text-2xl font-semibold mb-4">
             Account Score (25 points)
           </h2>
+          <p className="mb-4 text-muted-foreground">
+            AI analysis enriches account scoring through automated company research and validation.
+          </p>
           <Table>
             <TableHeader>
               <TableRow>
@@ -197,14 +218,13 @@ const ScoringGuide = () => {
                 <TableCell>8</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Annual Revenue</TableCell>
+                <TableCell className="font-medium">Company Profile</TableCell>
                 <TableCell>
                   <ul className="list-disc list-inside">
-                    <li>$100M+: 7 points</li>
-                    <li>$50M-$100M: 5 points</li>
-                    <li>$10M-$50M: 3 points</li>
-                    <li>$1M-$10M: 2 points</li>
-                    <li>Under $1M: 1 point</li>
+                    <li>AI-verified strong fit: 7 points</li>
+                    <li>AI-verified moderate fit: 5 points</li>
+                    <li>AI-verified basic fit: 3 points</li>
+                    <li>Unverified: 1 point</li>
                   </ul>
                 </TableCell>
                 <TableCell>7</TableCell>
@@ -216,6 +236,9 @@ const ScoringGuide = () => {
         {/* Market Score */}
         <Card className="p-6">
           <h2 className="text-2xl font-semibold mb-4">Market Score (25 points)</h2>
+          <p className="mb-4 text-muted-foreground">
+            AI analysis enhances market scoring through technical stack analysis and opportunity assessment.
+          </p>
           <Table>
             <TableHeader>
               <TableRow>
@@ -238,23 +261,25 @@ const ScoringGuide = () => {
                 <TableCell>10</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Contact Completeness</TableCell>
+                <TableCell className="font-medium">Technical Fit</TableCell>
                 <TableCell>
                   <ul className="list-disc list-inside">
-                    <li>Has phone number: 4 points</li>
-                    <li>Has complete address: 4 points</li>
+                    <li>AI-verified strong technical alignment: 8 points</li>
+                    <li>AI-verified moderate alignment: 5 points</li>
+                    <li>Basic alignment: 3 points</li>
+                    <li>Unknown/No alignment: 0 points</li>
                   </ul>
                 </TableCell>
                 <TableCell>8</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Technology Stack</TableCell>
+                <TableCell className="font-medium">Opportunity Quality</TableCell>
                 <TableCell>
                   <ul className="list-disc list-inside">
-                    <li>5+ technologies: 7 points</li>
-                    <li>3-4 technologies: 5 points</li>
-                    <li>1-2 technologies: 3 points</li>
-                    <li>No technologies: 0 points</li>
+                    <li>AI-verified high potential: 7 points</li>
+                    <li>AI-verified medium potential: 5 points</li>
+                    <li>Basic potential: 3 points</li>
+                    <li>Low/Unknown potential: 1 point</li>
                   </ul>
                 </TableCell>
                 <TableCell>7</TableCell>
@@ -263,48 +288,34 @@ const ScoringGuide = () => {
           </Table>
         </Card>
 
-        {/* Score Interpretation */}
+        {/* AI Analysis Impact */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Score Interpretation</h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Score Range</TableHead>
-                <TableHead>Classification</TableHead>
-                <TableHead>Recommended Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell>80-100</TableCell>
-                <TableCell>Hot Lead</TableCell>
-                <TableCell>
-                  Immediate follow-up, high-touch engagement
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>60-79</TableCell>
-                <TableCell>Warm Lead</TableCell>
-                <TableCell>
-                  Regular follow-up, relationship building
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>40-59</TableCell>
-                <TableCell>Nurture Lead</TableCell>
-                <TableCell>
-                  Educational content, periodic check-ins
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>0-39</TableCell>
-                <TableCell>Cold Lead</TableCell>
-                <TableCell>
-                  Automated nurturing, reassess fit
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+          <h2 className="text-2xl font-semibold mb-4">AI Analysis Impact</h2>
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              Our AI system analyzes leads across multiple dimensions to provide accurate scoring and insights:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Message Analysis</h3>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  <li>Evaluates communication quality and professionalism</li>
+                  <li>Identifies specific pain points and requirements</li>
+                  <li>Assesses project scope and complexity</li>
+                  <li>Influences engagement and BANT scores</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Company Research</h3>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  <li>Validates company information</li>
+                  <li>Analyzes market presence and potential</li>
+                  <li>Evaluates technical compatibility</li>
+                  <li>Influences account and market scores</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </Card>
       </div>
     </div>
