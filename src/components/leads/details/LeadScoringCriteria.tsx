@@ -6,7 +6,6 @@ import {
   DECISION_MAKER_LEVELS,
   NEED_URGENCY,
   PROJECT_TIMELINES,
-  ANNUAL_REVENUE_RANGES,
 } from "@/constants/leadOptions";
 import { TechnologyStack } from "./scoring/TechnologyStack";
 import { ScoringSelect } from "./scoring/ScoringSelect";
