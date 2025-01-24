@@ -51,6 +51,95 @@ export type Database = {
           },
         ]
       }
+      lead_activity_analysis: {
+        Row: {
+          active_job_postings: number | null
+          activity_status:
+            | Database["public"]["Enums"]["business_activity_status"]
+            | null
+          analysis_version: number | null
+          confidence_level: string | null
+          created_at: string | null
+          digital_footprint_details: Json | null
+          digital_footprint_score: number | null
+          id: string
+          job_posting_platforms: Json | null
+          last_analyzed_at: string | null
+          latest_job_posting_date: string | null
+          latest_news_date: string | null
+          lead_id: string | null
+          news_mentions_count: number | null
+          news_sources: Json | null
+          social_media_last_activity: string | null
+          social_media_notes: string | null
+          social_media_platforms: Json | null
+          updated_at: string | null
+          website_analysis_notes: string | null
+          website_last_updated: string | null
+          website_status: boolean | null
+        }
+        Insert: {
+          active_job_postings?: number | null
+          activity_status?:
+            | Database["public"]["Enums"]["business_activity_status"]
+            | null
+          analysis_version?: number | null
+          confidence_level?: string | null
+          created_at?: string | null
+          digital_footprint_details?: Json | null
+          digital_footprint_score?: number | null
+          id?: string
+          job_posting_platforms?: Json | null
+          last_analyzed_at?: string | null
+          latest_job_posting_date?: string | null
+          latest_news_date?: string | null
+          lead_id?: string | null
+          news_mentions_count?: number | null
+          news_sources?: Json | null
+          social_media_last_activity?: string | null
+          social_media_notes?: string | null
+          social_media_platforms?: Json | null
+          updated_at?: string | null
+          website_analysis_notes?: string | null
+          website_last_updated?: string | null
+          website_status?: boolean | null
+        }
+        Update: {
+          active_job_postings?: number | null
+          activity_status?:
+            | Database["public"]["Enums"]["business_activity_status"]
+            | null
+          analysis_version?: number | null
+          confidence_level?: string | null
+          created_at?: string | null
+          digital_footprint_details?: Json | null
+          digital_footprint_score?: number | null
+          id?: string
+          job_posting_platforms?: Json | null
+          last_analyzed_at?: string | null
+          latest_job_posting_date?: string | null
+          latest_news_date?: string | null
+          lead_id?: string | null
+          news_mentions_count?: number | null
+          news_sources?: Json | null
+          social_media_last_activity?: string | null
+          social_media_notes?: string | null
+          social_media_platforms?: Json | null
+          updated_at?: string | null
+          website_analysis_notes?: string | null
+          website_last_updated?: string | null
+          website_status?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activity_analysis_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_discoveries: {
         Row: {
           applied: boolean | null
@@ -414,6 +503,12 @@ export type Database = {
         | "note_added"
         | "note_updated"
         | "note_deleted"
+      business_activity_status:
+        | "active"
+        | "semi_active"
+        | "dormant"
+        | "inactive"
+        | "uncertain"
       discovery_confidence: "high" | "medium" | "low"
       email_domain_type: "public" | "business"
       lead_status:

@@ -1,6 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
+import { getSystemPrompt } from './analysis-prompts.ts';
+import { LeadContext, AnalysisResponse } from './types.ts';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -22,6 +24,7 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
+    // Fetch lead data
     const { data: lead, error: leadError } = await supabase
       .from('leads')
       .select(`
@@ -40,41 +43,31 @@ serve(async (req) => {
       throw new Error('Lead not found');
     }
 
-    // Enhanced lead context for better analysis
-    const leadContext = {
-      // Message content analysis
+    // Prepare lead context for analysis
+    const leadContext: LeadContext = {
       message: lead.message,
       subject: lead.subject,
-      
-      // Contact information
       email: lead.email,
       emails: lead.emails,
       phone_numbers: lead.phone_numbers,
       domain: lead.domain,
       domain_type: lead.domain_type,
-      
-      // Company information
       website: lead.website,
       domains: lead.domains,
       company_size: lead.company_size,
       industry_vertical: lead.industry_vertical,
       annual_revenue_range: lead.annual_revenue_range,
       technology_stack: lead.technology_stack,
-      
-      // Project details
       budget_range: lead.budget_range,
       need_urgency: lead.need_urgency,
       project_timeline: lead.project_timeline,
-      
-      // Location information
       country: lead.country,
       city: lead.city,
       state: lead.state,
-      
-      // Historical context
       previous_activities: lead.lead_activities
     };
 
+    // Get AI analysis
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -86,66 +79,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant specialized in analyzing sales leads. Analyze the provided information in detail, focusing on these key areas:
-
-            1. Email Message Analysis (Score: 1-5)
-            - Analyze message content quality, depth, and clarity
-            - Identify specific pain points and requirements
-            - Evaluate communication style and professionalism
-            - Extract budget mentions and timeline indicators
-            - Assess decision-maker level from writing style
-            
-            2. Contact Quality Assessment (Score: 1-5)
-            - Evaluate email domain quality and business relevance
-            - Analyze completeness of contact information
-            - Assess validity and reliability of provided details
-            - Check for multiple contact points and consistency
-            - Determine decision-maker level from contact details
-            
-            3. Company Research & Analysis (Score: 1-5)
-            - Analyze company size and market presence
-            - Evaluate industry vertical and sector potential
-            - Assess technology stack and technical maturity
-            - Identify growth indicators and company stage
-            - Research competitive positioning
-            
-            4. Opportunity Evaluation (Score: 1-5)
-            - Calculate project scope and complexity
-            - Assess budget range and resource requirements
-            - Evaluate timeline urgency and implementation factors
-            - Determine technical feasibility and challenges
-            - Estimate conversion probability
-            
-            For each section:
-            1. Provide a detailed analysis with specific evidence
-            2. Assign a score (1-5) with clear justification
-            3. List key findings and insights
-            4. Add specific recommendations
-            
-            Format the response as:
-            
-            1. Email Message Analysis
-            Score: X/5
-            Analysis: [detailed analysis with specific quotes/evidence]
-            Key Findings:
-            - [bullet points]
-            Recommendations:
-            - [bullet points]
-            
-            [Repeat format for each section]
-            
-            Also extract any discoveries in this JSON format at the end:
-            {
-              "discoveries": [
-                {
-                  "field_name": "string",
-                  "discovered_value": "string",
-                  "confidence_level": "high|medium|low",
-                  "source": "string",
-                  "metadata": {}
-                }
-              ]
-            }`
+            content: getSystemPrompt()
           },
           {
             role: 'user',
@@ -158,28 +92,45 @@ serve(async (req) => {
     const aiData = await response.json();
     const analysis = aiData.choices[0].message.content;
     
-    // Extract discoveries from the analysis
-    const discoveryMatch = analysis.match(/\{[\s\S]*\}/);
-    if (discoveryMatch) {
+    // Extract discoveries and activity analysis
+    const jsonMatch = analysis.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
       try {
-        const { discoveries } = JSON.parse(discoveryMatch[0]);
-        console.log('Extracted discoveries:', discoveries);
+        const parsedData: AnalysisResponse = JSON.parse(jsonMatch[0]);
+        console.log('Extracted data:', parsedData);
 
-        // Store discoveries in the database
-        for (const discovery of discoveries) {
-          const { error: discoveryError } = await supabase
-            .from('lead_discoveries')
-            .insert({
+        // Store discoveries
+        if (parsedData.discoveries) {
+          for (const discovery of parsedData.discoveries) {
+            const { error: discoveryError } = await supabase
+              .from('lead_discoveries')
+              .insert({
+                lead_id: leadId,
+                ...discovery
+              });
+
+            if (discoveryError) {
+              console.error('Error storing discovery:', discoveryError);
+            }
+          }
+        }
+
+        // Store activity analysis
+        if (parsedData.activity_analysis) {
+          const { error: analysisError } = await supabase
+            .from('lead_activity_analysis')
+            .upsert({
               lead_id: leadId,
-              ...discovery
+              ...parsedData.activity_analysis,
+              last_analyzed_at: new Date().toISOString()
             });
 
-          if (discoveryError) {
-            console.error('Error storing discovery:', discoveryError);
+          if (analysisError) {
+            console.error('Error storing activity analysis:', analysisError);
           }
         }
       } catch (error) {
-        console.error('Error parsing discoveries:', error);
+        console.error('Error parsing analysis data:', error);
       }
     }
 
@@ -199,7 +150,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         analysis,
-        message: 'Analysis completed and discoveries stored'
+        message: 'Analysis completed and data stored'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
