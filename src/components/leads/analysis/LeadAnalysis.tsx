@@ -1,6 +1,8 @@
 import { Lead } from "@/types/lead";
 import { useLeadAnalysis } from "@/hooks/use-lead-analysis";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 interface LeadAnalysisProps {
   lead: Lead;
@@ -45,7 +47,7 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
 
     // Extract score value and clean it up
     const scoreValue = score 
-      ? score.split(':')[1]?.trim().replace(/\/.*$/, '').trim()
+      ? score.split(':')[1]?.trim().replace(/\/.*$/, '').replace(/\*+/g, '').trim()
       : undefined;
 
     return {
@@ -59,25 +61,34 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
     <div className="space-y-6 p-6">
       <h3 className="text-xl font-semibold text-gray-900">AI Analysis Results</h3>
       
-      <div className="space-y-8">
+      <div className="space-y-4">
         {sections.map((section, index) => (
-          <div key={index} className="bg-white rounded-lg border border-gray-200 p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-medium text-gray-900">{section.title}</h4>
-              {section.score && (
-                <Badge variant="secondary" className="text-sm px-3">
-                  Score: {section.score}
-                </Badge>
-              )}
+          <Collapsible key={index}>
+            <div className="bg-white rounded-lg border border-gray-200">
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between p-5">
+                  <h4 className="text-lg font-medium text-gray-900">{section.title}</h4>
+                  <div className="flex items-center gap-2">
+                    {section.score && (
+                      <Badge variant="secondary" className="text-sm px-3">
+                        Score {section.score}
+                      </Badge>
+                    )}
+                    <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200 ease-in-out transform group-data-[state=open]:rotate-180" />
+                  </div>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="px-5 pb-5 space-y-3 border-t border-gray-100">
+                  {section.content.map((line, i) => (
+                    <p key={i} className="text-gray-600 leading-relaxed">
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              </CollapsibleContent>
             </div>
-            <div className="space-y-3">
-              {section.content.map((line, i) => (
-                <p key={i} className="text-gray-600 leading-relaxed">
-                  {line}
-                </p>
-              ))}
-            </div>
-          </div>
+          </Collapsible>
         ))}
       </div>
     </div>
