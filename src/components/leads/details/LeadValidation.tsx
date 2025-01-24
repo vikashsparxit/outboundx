@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const websiteSchema = z
   .string()
-  .regex(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/, {
+  .regex(/^(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,})(?:\/\S*)?$/, {
     message: "Please enter a valid URL (e.g., example.com or https://example.com)",
   })
   .optional()
@@ -24,8 +24,8 @@ export const domainSchema = z
 
 export const phoneSchema = z
   .string()
-  .regex(/^\+?[1-9]\d{1,14}$/, {
-    message: "Please enter a valid phone number",
+  .regex(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, {
+    message: "Please enter a valid phone number (e.g., 123-456-7890 or 1234567890)",
   })
   .optional()
   .or(z.literal(""));
@@ -58,11 +58,13 @@ export const validateLead = (lead: any) => {
   // Validate domains
   if (lead.domains) {
     lead.domains.forEach((domain: string, index: number) => {
-      try {
-        domainSchema.parse(domain);
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          errors[`domains.${index}`] = error.errors[0].message;
+      if (domain) {  // Only validate non-empty domains
+        try {
+          websiteSchema.parse(domain);  // Use the same schema as website
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            errors[`domains.${index}`] = error.errors[0].message;
+          }
         }
       }
     });
@@ -71,11 +73,13 @@ export const validateLead = (lead: any) => {
   // Validate phone numbers
   if (lead.phone_numbers) {
     lead.phone_numbers.forEach((phone: string, index: number) => {
-      try {
-        phoneSchema.parse(phone);
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          errors[`phone_numbers.${index}`] = error.errors[0].message;
+      if (phone) {  // Only validate non-empty phone numbers
+        try {
+          phoneSchema.parse(phone);
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            errors[`phone_numbers.${index}`] = error.errors[0].message;
+          }
         }
       }
     });
