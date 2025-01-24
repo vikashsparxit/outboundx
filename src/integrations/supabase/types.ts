@@ -230,6 +230,7 @@ export type Database = {
           ip_region: string | null
           lead_source_website: string | null
           lead_type: string | null
+          location: string | null
           market_score: number | null
           message: string | null
           need_urgency: string | null
@@ -274,6 +275,7 @@ export type Database = {
           ip_region?: string | null
           lead_source_website?: string | null
           lead_type?: string | null
+          location?: string | null
           market_score?: number | null
           message?: string | null
           need_urgency?: string | null
@@ -318,6 +320,7 @@ export type Database = {
           ip_region?: string | null
           lead_source_website?: string | null
           lead_type?: string | null
+          location?: string | null
           market_score?: number | null
           message?: string | null
           need_urgency?: string | null

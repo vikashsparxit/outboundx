@@ -55,6 +55,18 @@ export const LeadIdentification = ({
           )}
         </div>
         <div>
+          <label className="text-sm text-muted-foreground">Company Name</label>
+          {isEditing ? (
+            <Input
+              value={editedLead.company_name || ''}
+              onChange={(e) => setEditedLead({ ...editedLead, company_name: e.target.value })}
+              className="mt-1"
+            />
+          ) : (
+            <p>{lead.company_name || "-"}</p>
+          )}
+        </div>
+        <div>
           <label className="text-sm text-muted-foreground">Status</label>
           {isEditing ? (
             <Select
@@ -74,6 +86,18 @@ export const LeadIdentification = ({
             </Select>
           ) : (
             <p>{lead.status}</p>
+          )}
+        </div>
+        <div>
+          <label className="text-sm text-muted-foreground">Location</label>
+          {isEditing ? (
+            <Input
+              value={editedLead.location || ''}
+              onChange={(e) => setEditedLead({ ...editedLead, location: e.target.value })}
+              className="mt-1"
+            />
+          ) : (
+            <p>{lead.location || "-"}</p>
           )}
         </div>
         <div>
