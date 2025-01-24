@@ -11,20 +11,30 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedLead, setEditedLead] = useState<Partial<Lead>>({});
+  const [editedLead, setEditedLead] = useState<Lead>({} as Lead);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (lead) {
+      console.log('Initializing editedLead with:', lead);
       setEditedLead(lead);
     }
   }, [lead]);
 
   const handleEdit = async () => {
-    if (!lead || !editedLead) return;
+    if (!lead?.id || !editedLead) {
+      console.error('Invalid lead data:', { leadId: lead?.id, editedLead });
+      toast({
+        title: "Error",
+        description: "Invalid lead data. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     const errors = validateLead(editedLead);
     if (Object.keys(errors).length > 0) {
+      console.log('Validation errors:', errors);
       setValidationErrors(errors);
       toast({
         title: "Validation Error",
@@ -44,7 +54,10 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
         .update(dbLead)
         .eq("id", lead.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating lead:', error);
+        throw error;
+      }
 
       await calculateBeamScore(editedLead);
       console.log("BEAM Score recalculated after edit");
