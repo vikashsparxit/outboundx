@@ -77,7 +77,7 @@ export const LeadDetailsContent = ({
       />
 
       <LeadContact 
-        lead={lead}
+        lead={isEditing ? editedLead as Lead : lead}
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
@@ -94,7 +94,7 @@ export const LeadDetailsContent = ({
       />
 
       <LeadOnlinePresence 
-        lead={lead}
+        lead={isEditing ? editedLead as Lead : lead}
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
@@ -106,14 +106,14 @@ export const LeadDetailsContent = ({
       />
 
       <LeadLocation 
-        lead={lead}
+        lead={isEditing ? editedLead as Lead : lead}
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
       />
 
       <LeadScoringCriteria
-        lead={lead}
+        lead={isEditing ? editedLead as Lead : lead}
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
