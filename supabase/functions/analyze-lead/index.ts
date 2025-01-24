@@ -51,12 +51,14 @@ serve(async (req) => {
       );
     }
 
-    // Prepare comprehensive lead context
+    // Enhanced lead context for better analysis
     const leadContext = {
       // Basic Information
       email: lead.email,
       message: lead.message,
       subject: lead.subject,
+      domain: lead.domain,
+      website: lead.website,
       
       // Company Details
       company_size: lead.company_size,
@@ -72,6 +74,11 @@ serve(async (req) => {
       need_urgency: lead.need_urgency,
       project_timeline: lead.project_timeline,
       
+      // Location Information
+      country: lead.country,
+      city: lead.city,
+      state: lead.state,
+      
       // Previous Activities
       previous_activities: lead.lead_activities
     };
@@ -84,40 +91,57 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: `You are an AI sales assistant that analyzes business leads. 
-            Provide a structured analysis in the following format:
+            content: `You are an AI sales assistant specializing in B2B lead analysis and company research.
+            Analyze the lead data and provide a comprehensive analysis in the following format:
 
             1. Message Quality Analysis:
-            - Evaluate the clarity and specificity of the inquiry
+            - Evaluate inquiry clarity and specificity
             - Identify key pain points and requirements
+            - Assess communication style and professionalism
             - Rate message quality (1-10)
 
-            2. Company Profile:
-            - Analyze company size and industry fit
-            - Evaluate technology alignment
-            - Assess growth potential
-            
-            3. Project Evaluation:
-            - Budget appropriateness
+            2. Company Research:
+            - Company size and market position
+            - Industry analysis and market trends
+            - Key business challenges and opportunities
+            - Technology landscape and requirements
+            - Competitive analysis
+            - Growth indicators and potential
+
+            3. BEAM Score Components:
+            - Budget Range Assessment (suggest if not provided)
+            - Decision Maker Level Analysis (infer from communication)
+            - Need Urgency Evaluation (based on message context)
+            - Project Timeline Analysis
+            - Company Size Verification
+            - Industry Vertical Confirmation
+            - Technology Stack Recommendations
+
+            4. Project Evaluation:
+            - Budget appropriateness and ROI potential
             - Timeline feasibility
             - Technical complexity assessment
+            - Resource requirements
+            - Risk factors and mitigation strategies
             
-            4. Engagement Recommendations:
-            - Suggested approach
+            5. Engagement Strategy:
+            - Recommended approach
             - Key talking points
-            - Risk factors to consider
+            - Value proposition alignment
+            - Next steps and action items
 
-            5. Opportunity Score:
+            6. Opportunity Score:
             - Provide a score (1-100) based on all factors
-            - List top 3 reasons for the score`
+            - List top 3 reasons for the score
+            - Highlight key differentiators`
           },
           {
             role: 'user',
-            content: `Analyze this lead:\n${JSON.stringify(leadContext, null, 2)}`
+            content: `Analyze this lead and provide recommendations:\n${JSON.stringify(leadContext, null, 2)}`
           }
         ],
       }),
