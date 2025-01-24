@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { Lead } from "@/types/lead";
+import { Lead, convertToDatabaseLead } from "@/types/lead";
 
 interface Discovery {
   id: string;
@@ -82,9 +82,13 @@ const LeadDiscoveries = ({ leadId, onLeadUpdate }: LeadDiscoveriesProps) => {
         [discovery.field_name]: discovery.discovered_value,
       };
 
+      // Convert the lead data to database format before sending to Supabase
+      const dbPayload = convertToDatabaseLead(updatePayload);
+      console.log('Converted payload for database:', dbPayload);
+
       const { error: updateError } = await supabase
         .from('leads')
-        .update(updatePayload)
+        .update(dbPayload)
         .eq('id', leadId);
 
       if (updateError) throw updateError;
