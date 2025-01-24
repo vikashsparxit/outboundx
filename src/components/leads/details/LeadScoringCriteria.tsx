@@ -39,8 +39,29 @@ export const LeadScoringCriteria = ({
 
   const handleAddTech = () => {
     if (newTech.trim()) {
-      onAddTechnology(newTech.trim());
+      const techToAdd = newTech.trim();
+      // Update the editedLead directly with the new technology
+      const updatedTechStack = [...(editedLead.technology_stack || [])];
+      if (!updatedTechStack.includes(techToAdd)) {
+        updatedTechStack.push(techToAdd);
+        setEditedLead({ ...editedLead, technology_stack: updatedTechStack });
+      }
       setNewTech("");
+    }
+  };
+
+  const handleRemoveTech = (techToRemove: string) => {
+    const updatedTechStack = (editedLead.technology_stack || []).filter(
+      tech => tech !== techToRemove
+    );
+    setEditedLead({ ...editedLead, technology_stack: updatedTechStack });
+  };
+
+  const handlePresetTech = (tech: string) => {
+    const updatedTechStack = [...(editedLead.technology_stack || [])];
+    if (!updatedTechStack.includes(tech)) {
+      updatedTechStack.push(tech);
+      setEditedLead({ ...editedLead, technology_stack: updatedTechStack });
     }
   };
 
@@ -228,14 +249,30 @@ export const LeadScoringCriteria = ({
           {isEditing ? (
             <div className="space-y-2">
               <div className="flex flex-wrap gap-2">
+                {editedLead.technology_stack?.map((tech) => (
+                  <div
+                    key={tech}
+                    className="flex items-center gap-1 px-3 py-1 rounded-full bg-primary text-primary-foreground"
+                  >
+                    <span>{tech}</span>
+                    <button
+                      onClick={() => handleRemoveTech(tech)}
+                      className="ml-1 hover:text-red-300"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2 mb-2">
                 {TECHNOLOGY_STACK_OPTIONS.map((tech) => (
                   <button
                     key={tech}
-                    onClick={() => onAddTechnology(tech)}
+                    onClick={() => handlePresetTech(tech)}
                     className={`px-3 py-1 rounded-full text-sm ${
                       editedLead.technology_stack?.includes(tech)
                         ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                     }`}
                   >
                     {tech}
@@ -248,8 +285,17 @@ export const LeadScoringCriteria = ({
                   onChange={(e) => setNewTech(e.target.value)}
                   placeholder="Add custom technology..."
                   className="flex-1"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTech();
+                    }
+                  }}
                 />
-                <Button onClick={handleAddTech} disabled={!newTech.trim()}>
+                <Button 
+                  onClick={handleAddTech} 
+                  disabled={!newTech.trim()}
+                >
                   Add
                 </Button>
               </div>
