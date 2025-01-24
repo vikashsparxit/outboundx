@@ -37,7 +37,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     onPhoneNumberChange,
     formatEmails,
     formatPhoneNumbers,
-  } = useLeadContact(editedLead, setEditedLead);
+  } = useLeadContact(editedLead, (updatedLead: Lead) => setEditedLead(updatedLead));
 
   const renderField = (label: string, value: string | null, field: keyof Lead) => (
     <LeadFormField

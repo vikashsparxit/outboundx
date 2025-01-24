@@ -22,8 +22,8 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
   }, [lead]);
 
   const handleEdit = async () => {
-    if (!lead?.id || !editedLead) {
-      console.error('Invalid lead data:', { leadId: lead?.id, editedLead });
+    if (!lead?.id || !editedLead?.id) {
+      console.error('Invalid lead data:', { leadId: lead?.id, editedLeadId: editedLead?.id });
       toast({
         title: "Error",
         description: "Invalid lead data. Please try again.",
@@ -46,8 +46,8 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
     
     setIsUpdating(true);
     try {
+      console.log('Converting lead for database:', editedLead);
       const dbLead = convertToDatabaseLead(editedLead);
-      console.log('Converting lead for database:', dbLead);
       
       const { error } = await supabase
         .from("leads")
