@@ -73,6 +73,13 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
+  // Initialize editedLead when entering edit mode
+  const handleStartEditing = () => {
+    console.log('Starting edit mode with lead:', lead);
+    setEditedLead(lead || {});
+    setIsEditing(true);
+  };
+
   if (!lead) return null;
 
   return (
@@ -83,7 +90,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
         <LeadDetailsHeader
           isEditing={isEditing}
           isUpdating={isUpdating}
-          onEdit={() => setIsEditing(true)}
+          onEdit={handleStartEditing}
           onSave={handleEdit}
           onCancel={() => {
             setIsEditing(false);

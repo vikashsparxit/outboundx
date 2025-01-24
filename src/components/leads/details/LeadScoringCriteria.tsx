@@ -40,7 +40,6 @@ export const LeadScoringCriteria = ({
   const handleAddTech = () => {
     if (newTech.trim()) {
       const techToAdd = newTech.trim();
-      // Update the editedLead directly with the new technology
       const updatedTechStack = [...(editedLead.technology_stack || [])];
       if (!updatedTechStack.includes(techToAdd)) {
         updatedTechStack.push(techToAdd);
@@ -301,7 +300,16 @@ export const LeadScoringCriteria = ({
               </div>
             </div>
           ) : (
-            <p>{lead.technology_stack?.join(", ") || "-"}</p>
+            <div className="flex flex-wrap gap-2">
+              {lead.technology_stack?.map((tech) => (
+                <span
+                  key={tech}
+                  className="px-3 py-1 rounded-full bg-secondary text-secondary-foreground"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
           )}
         </div>
       </div>
