@@ -63,6 +63,14 @@ export const LeadDetailsContent = ({
   
   return (
     <div className="mt-6 space-y-6">
+      {!isEditing && (
+        <LeadStatusUpdate 
+          lead={lead}
+          isUpdating={isUpdating}
+          onStatusUpdate={onStatusUpdate}
+        />
+      )}
+      
       <ScoreBreakdown lead={lead} />
       
       {lead.domain_type === 'business' && (
@@ -126,14 +134,6 @@ export const LeadDetailsContent = ({
       <ScoreHistory leadId={lead.id} />
       
       <ActivityLog leadId={lead.id} />
-
-      {!isEditing && (
-        <LeadStatusUpdate 
-          lead={lead}
-          isUpdating={isUpdating}
-          onStatusUpdate={onStatusUpdate}
-        />
-      )}
     </div>
   );
 };

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useLeadAnalysis = (leadId?: string) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [hasBeenAnalyzed, setHasBeenAnalyzed] = useState(false);
@@ -62,6 +64,9 @@ export const useLeadAnalysis = (leadId?: string) => {
           title: "Analysis Complete",
           description: "Lead analysis has been added to activities",
         });
+        
+        // Invalidate both queries to refresh the data
+        queryClient.invalidateQueries({ queryKey: ['activities', id] });
         await checkAndFetchAnalysis(id);
         return data.analysis;
       }
