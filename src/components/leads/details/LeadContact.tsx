@@ -1,6 +1,7 @@
 import { Lead } from "@/types/lead";
 import { EmailManagement } from "./EmailManagement";
 import { PhoneManagement } from "./PhoneManagement";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface LeadContactProps {
   lead: Lead;
@@ -23,6 +24,7 @@ export const LeadContact = ({
   lead,
   isEditing,
   editedLead,
+  setEditedLead,
   renderField,
   formatEmails,
   formatPhoneNumbers,
@@ -47,7 +49,36 @@ export const LeadContact = ({
           formatEmails={formatEmails}
           validationErrors={validationErrors}
         />
-        {renderField("Primary Email", lead.email, "email")}
+        <div>
+          <label className="text-sm text-muted-foreground">Primary Email</label>
+          {isEditing ? (
+            <div className="flex gap-2 items-start mt-1">
+              <Select
+                value={editedLead.email_type || "business"}
+                onValueChange={(value) => setEditedLead({ ...editedLead, email_type: value })}
+              >
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="business">Business</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex-1">
+                <input
+                  type="email"
+                  value={editedLead.email || ''}
+                  onChange={(e) => setEditedLead({ ...editedLead, email: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+            </div>
+          ) : (
+            <p>{lead.email || "-"} ({lead.email_type || "business"})</p>
+          )}
+        </div>
         <PhoneManagement
           isEditing={isEditing}
           editedLead={editedLead}

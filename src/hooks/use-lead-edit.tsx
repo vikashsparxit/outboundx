@@ -17,13 +17,16 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
   useEffect(() => {
     if (lead) {
       console.log('Initializing editedLead with:', lead);
-      setEditedLead(lead);
+      setEditedLead({
+        ...lead,
+        email_type: lead.email_type || "business" // Ensure email_type is set
+      });
     }
   }, [lead]);
 
   const handleEdit = async () => {
-    if (!lead?.id || !editedLead?.id) {
-      console.error('Invalid lead data:', { leadId: lead?.id, editedLeadId: editedLead?.id });
+    if (!lead?.id || !editedLead) {
+      console.error('Invalid lead data:', { leadId: lead?.id, editedLead });
       toast({
         title: "Error",
         description: "Invalid lead data. Please try again.",
@@ -93,7 +96,7 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
     editedLead,
     validationErrors,
     setIsEditing,
-    setEditedLead: (lead: Lead) => setEditedLead(lead), // Ensure we're accepting a full Lead type
+    setEditedLead,
     handleEdit,
     setValidationErrors,
   };

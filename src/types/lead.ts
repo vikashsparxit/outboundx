@@ -12,6 +12,7 @@ export interface Lead {
   ticket_id: string | null;
   website: string | null;
   email: string | null;
+  email_type?: "personal" | "business" | "other";
   domain: string | null;
   domains: string[] | null;
   lead_source_website: string | null;
@@ -34,7 +35,6 @@ export interface Lead {
   ip_region: string | null;
   handled: boolean | null;
   emails: EmailAddress[] | null;
-  // Adding missing properties for BEAM scoring
   budget_range: string | null;
   decision_maker_level: string | null;
   need_urgency: string | null;
@@ -43,7 +43,6 @@ export interface Lead {
   industry_vertical: string | null;
   annual_revenue_range: string | null;
   technology_stack: string[] | null;
-  // Scoring fields
   bant_score: number | null;
   engagement_score: number | null;
   account_score: number | null;
