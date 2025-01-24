@@ -96,6 +96,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
         <LeadSubscription lead={lead} onLeadUpdate={onLeadUpdate} />
         
         <LeadDetailsHeader
+          lead={lead}
           isEditing={isEditing}
           isUpdating={isUpdating}
           onEdit={handleStartEditing}
