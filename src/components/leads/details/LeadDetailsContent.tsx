@@ -59,7 +59,11 @@ export const LeadDetailsContent = ({
     <div className="mt-6 space-y-6">
       <ScoreBreakdown lead={lead} />
       
-      {lead.domain_type === 'business' && <LeadAnalysis lead={lead} />}
+      {lead.domain_type === 'business' && (
+        <div className="lead-analysis-section">
+          <LeadAnalysis lead={lead} />
+        </div>
+      )}
 
       <LeadIdentification 
         lead={lead}

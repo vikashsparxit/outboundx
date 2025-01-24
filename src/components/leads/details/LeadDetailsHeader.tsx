@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Edit, Save, X, Brain, Eye } from "lucide-react";
 import { Lead } from "@/types/lead";
 import { useLeadAnalysis } from "@/hooks/use-lead-analysis";
-import { useRef } from "react";
 
 interface LeadDetailsHeaderProps {
   lead: Lead;
@@ -23,23 +22,25 @@ export const LeadDetailsHeader = ({
 }: LeadDetailsHeaderProps) => {
   const { analyzeLead, isAnalyzing } = useLeadAnalysis();
 
+  // Check if lead has been analyzed
+  const hasAnalysis = lead.lead_activities?.some(
+    activity => activity.activity_type === 'ai_analysis'
+  ) ?? false;
+
   const handleAnalyzeClick = async () => {
     if (lead.domain_type !== 'business') return;
     
     const analysis = await analyzeLead(lead.id);
     if (analysis) {
-      // Find and scroll to analysis section
-      const analysisElement = document.querySelector(`[data-analysis-id="${lead.id}"]`);
-      if (analysisElement) {
-        analysisElement.scrollIntoView({ behavior: 'smooth' });
-      }
+      // Find and scroll to analysis section after a short delay to ensure it's rendered
+      setTimeout(() => {
+        const analysisSection = document.querySelector('.lead-analysis-section');
+        if (analysisSection) {
+          analysisSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
-
-  // Check if lead has been analyzed
-  const hasAnalysis = lead.lead_activities?.some(
-    activity => activity.activity_type === 'ai_analysis'
-  ) ?? false;
 
   return (
     <div className="flex items-center justify-between pb-4 border-b">
@@ -61,9 +62,9 @@ export const LeadDetailsHeader = ({
             variant="outline"
             size="sm"
             onClick={() => {
-              const analysisElement = document.querySelector(`[data-analysis-id="${lead.id}"]`);
-              if (analysisElement) {
-                analysisElement.scrollIntoView({ behavior: 'smooth' });
+              const analysisSection = document.querySelector('.lead-analysis-section');
+              if (analysisSection) {
+                analysisSection.scrollIntoView({ behavior: 'smooth' });
               }
             }}
           >
