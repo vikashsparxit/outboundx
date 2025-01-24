@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Edit, Save, X, Brain } from "lucide-react";
+import { Edit, Save, X, Brain, Eye } from "lucide-react";
 import { Lead } from "@/types/lead";
 import { useLeadAnalysis } from "@/hooks/use-lead-analysis";
 import { useRef } from "react";
@@ -45,7 +45,7 @@ export const LeadDetailsHeader = ({
     <div className="flex items-center justify-between pb-4 border-b">
       <h2 className="text-lg font-semibold">Lead Details</h2>
       <div className="flex items-center gap-2">
-        {!isEditing && lead.domain_type === 'business' && (
+        {!isEditing && lead.domain_type === 'business' && !hasAnalysis && (
           <Button
             variant="outline"
             size="sm"
@@ -53,7 +53,22 @@ export const LeadDetailsHeader = ({
             disabled={isAnalyzing}
           >
             <Brain className="h-4 w-4 mr-2" />
-            {isAnalyzing ? 'Analyzing...' : hasAnalysis ? 'View Analysis' : 'Analyze'}
+            {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+          </Button>
+        )}
+        {!isEditing && lead.domain_type === 'business' && hasAnalysis && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const analysisElement = document.querySelector(`[data-analysis-id="${lead.id}"]`);
+              if (analysisElement) {
+                analysisElement.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            View Analysis
           </Button>
         )}
         {isEditing ? (

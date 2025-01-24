@@ -8,6 +8,7 @@ import { LeadStatusUpdate } from "./LeadStatusUpdate";
 import ScoreBreakdown from "../scoring/ScoreBreakdown";
 import ScoreHistory from "../scoring/ScoreHistory";
 import ActivityLog from "../ActivityLog";
+import LeadAnalysis from "../analysis/LeadAnalysis";
 
 interface LeadDetailsContentProps {
   lead: Lead;
@@ -58,6 +59,8 @@ export const LeadDetailsContent = ({
     <div className="mt-6 space-y-6">
       <ScoreBreakdown lead={lead} />
       
+      {lead.domain_type === 'business' && <LeadAnalysis lead={lead} />}
+
       <LeadIdentification 
         lead={lead}
         isEditing={isEditing}
