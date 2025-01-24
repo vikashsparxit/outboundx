@@ -2,7 +2,8 @@ import { Lead } from "@/types/lead";
 import { useLeadAnalysis } from "@/hooks/use-lead-analysis";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Star, AlertCircle, Info } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChevronDown, MessageSquare, Building, DollarSign, Percent } from "lucide-react";
 
 interface LeadAnalysisProps {
   lead: Lead;
@@ -29,14 +30,12 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
       line.toLowerCase().includes('rating:')
     );
     
-    // Clean up the title by removing numbers, asterisks and colons
     const cleanTitle = title
       .replace(/^\d+\.\s*/, '')
       .replace(/\*+/g, '')
       .replace(/:/g, '')
       .trim();
     
-    // Clean up and structure the content
     const cleanContent = content
       .filter(line => line.trim() && !line.includes('score:') && !line.includes('rating:'))
       .map(line => 
@@ -48,7 +47,6 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
           .trim()
       );
 
-    // Extract score value and clean it up
     const scoreValue = score 
       ? score.split(':')[1]?.trim().replace(/\/.*$/, '').replace(/\*+/g, '').trim()
       : undefined;
@@ -60,30 +58,50 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
     };
   });
 
+  const getIcon = (title: string) => {
+    if (title.toLowerCase().includes('message')) return <MessageSquare className="h-5 w-5" />;
+    if (title.toLowerCase().includes('company')) return <Building className="h-5 w-5" />;
+    if (title.toLowerCase().includes('opportunity')) return <DollarSign className="h-5 w-5" />;
+    return <Percent className="h-5 w-5" />;
+  };
+
+  const getScoreColor = (score: string) => {
+    const numScore = parseInt(score);
+    if (numScore >= 4) return "success";
+    if (numScore <= 2) return "warning";
+    return "secondary";
+  };
+
   return (
     <div className="space-y-6 p-6">
-      <h3 className="text-xl font-semibold text-gray-900">AI Analysis Results</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-semibold text-gray-900">AI Analysis Results</h3>
+        <Badge variant="outline" className="text-sm">
+          {new Date(lead.updated_at || "").toLocaleDateString()}
+        </Badge>
+      </div>
       
-      <div className="space-y-4">
+      <div className="grid gap-4">
         {sections.map((section, index) => (
-          <Collapsible key={index}>
-            <div className="bg-white rounded-lg border border-gray-200">
+          <Card key={index} className="overflow-hidden">
+            <Collapsible>
               <CollapsibleTrigger className="w-full">
-                <div className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-2">
-                    {section.score && section.score >= "4" ? (
-                      <Star className="h-5 w-5 text-green-500" />
-                    ) : section.score && section.score <= "2" ? (
-                      <AlertCircle className="h-5 w-5 text-yellow-500" />
-                    ) : (
-                      <Info className="h-5 w-5 text-blue-500" />
-                    )}
-                    <h4 className="text-lg font-medium text-gray-900">{section.title}</h4>
+                <div className="flex items-center justify-between p-4 hover:bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    {getIcon(section.title)}
+                    <div>
+                      <h4 className="font-medium text-gray-900">{section.title}</h4>
+                      {section.score && (
+                        <p className="text-sm text-muted-foreground">
+                          Confidence Score: {section.score}/5
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {section.score && (
                       <Badge 
-                        variant={section.score >= "4" ? "success" : section.score <= "2" ? "warning" : "secondary"}
+                        variant={getScoreColor(section.score)}
                         className="text-sm px-3"
                       >
                         Score: {section.score}
@@ -94,16 +112,17 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <div className="px-4 pb-4 space-y-3 border-t border-gray-100">
-                  {section.content.map((line, i) => (
-                    <p key={i} className="text-gray-600 leading-relaxed py-1">
-                      {line}
-                    </p>
+                <CardContent className="border-t border-gray-100 space-y-2 pb-4">
+                  {section.content.map((point, i) => (
+                    <div key={i} className="flex items-start gap-2 py-1">
+                      <span className="text-gray-400 mt-1.5">•</span>
+                      <p className="text-gray-600 leading-relaxed">{point}</p>
+                    </div>
                   ))}
-                </div>
+                </CardContent>
               </CollapsibleContent>
-            </div>
-          </Collapsible>
+            </Collapsible>
+          </Card>
         ))}
       </div>
     </div>
