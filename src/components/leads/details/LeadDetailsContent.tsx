@@ -9,6 +9,7 @@ import ScoreBreakdown from "../scoring/ScoreBreakdown";
 import ScoreHistory from "../scoring/ScoreHistory";
 import ActivityLog from "../ActivityLog";
 import LeadAnalysis from "../analysis/LeadAnalysis";
+import LeadDiscoveries from "../discoveries/LeadDiscoveries";
 
 interface LeadDetailsContentProps {
   lead: Lead;
@@ -74,9 +75,12 @@ export const LeadDetailsContent = ({
       <ScoreBreakdown lead={lead} />
       
       {lead.domain_type === 'business' && (
-        <div id="lead-analysis-section" className="lead-analysis-section">
-          <LeadAnalysis lead={lead} />
-        </div>
+        <>
+          <div id="lead-analysis-section" className="lead-analysis-section">
+            <LeadAnalysis lead={lead} />
+          </div>
+          <LeadDiscoveries leadId={lead.id} onLeadUpdate={() => window.location.reload()} />
+        </>
       )}
 
       <LeadIdentification 

@@ -40,50 +40,27 @@ serve(async (req) => {
       throw new Error('Lead not found');
     }
 
-    if (lead.domain_type !== 'business') {
-      console.log('Skipping analysis for non-business email domain');
-      return new Response(
-        JSON.stringify({ 
-          message: 'Skipped analysis - not a business email',
-          analysis: null 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     // Enhanced lead context for better analysis
     const leadContext = {
-      // Basic Information
       email: lead.email,
       message: lead.message,
       subject: lead.subject,
       domain: lead.domain,
       website: lead.website,
-      
-      // Company Details
       company_size: lead.company_size,
       industry_vertical: lead.industry_vertical,
       annual_revenue_range: lead.annual_revenue_range,
-      
-      // Technical Context
       technology_stack: lead.technology_stack,
       domains: lead.domains,
-      
-      // Project Details
       budget_range: lead.budget_range,
       need_urgency: lead.need_urgency,
       project_timeline: lead.project_timeline,
-      
-      // Location Information
       country: lead.country,
       city: lead.city,
       state: lead.state,
-      
-      // Previous Activities
       previous_activities: lead.lead_activities
     };
 
-    // Call OpenAI API with enhanced prompt
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -95,65 +72,30 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an AI sales assistant specializing in B2B lead analysis and company research.
-            Analyze the lead data and provide a comprehensive analysis in the following format:
-
-            1. Message Quality Analysis:
-            - Evaluate inquiry clarity and specificity
-            - Identify key pain points and requirements
-            - Assess communication style and professionalism
-            - Rate message quality (1-10)
-
-            2. Company Research:
-            - Company size and market position
-            - Industry analysis and market trends
-            - Key business challenges and opportunities
-            - Technology landscape and requirements
-            - Competitive analysis
-            - Growth indicators and potential
-
-            3. BEAM Score Components:
-            - Budget Range Assessment (suggest if not provided)
-            - Decision Maker Level Analysis (infer from communication)
-            - Need Urgency Evaluation (based on message context)
-            - Project Timeline Analysis
-            - Company Size Verification
-            - Industry Vertical Confirmation
-            - Technology Stack Recommendations
-
-            4. Project Evaluation:
-            - Budget appropriateness and ROI potential
-            - Timeline feasibility
-            - Technical complexity assessment
-            - Resource requirements
-            - Risk factors and mitigation strategies
+            content: `You are an AI assistant specialized in analyzing business leads and discovering additional information. 
+            Extract and validate information from the provided context, assigning confidence levels (high, medium, low) based on certainty.
+            Focus on discovering:
+            1. Additional contact information (phone numbers, email addresses)
+            2. Company details (size, industry, revenue)
+            3. Technology stack
+            4. Location information
             
-            5. Engagement Strategy:
-            - Recommended approach
-            - Key talking points
-            - Value proposition alignment
-            - Next steps and action items
-
-            6. Opportunity Score:
-            - Provide a score (1-100) based on all factors
-            - List top 3 reasons for the score
-            - Highlight key differentiators
-
-            Additionally, extract and provide the following data points in a structured JSON format:
+            Return the discoveries in this JSON format:
             {
-              "budget_range": "string (Enterprise ($100k+), Mid-Market ($50k-$100k), Small Business ($10k-$50k), Startup (Under $10k))",
-              "decision_maker_level": "string (C-Level Executive, VP / Director, Senior Manager, Manager, Individual Contributor)",
-              "need_urgency": "string (Immediate Need, Next Quarter, Within 6 Months, Future Consideration)",
-              "project_timeline": "string (Immediate Start, 1-3 Months, 3-6 Months, 6+ Months)",
-              "company_size": "string (Enterprise (1000+ employees), Mid-Market (100-999 employees), Small Business (10-99 employees), Startup (1-9 employees))",
-              "industry_vertical": "string",
-              "annual_revenue_range": "string ($100M+, $50M-$100M, $10M-$50M, $1M-$10M, Under $1M)",
-              "technology_stack": "string[]"
+              "discoveries": [
+                {
+                  "field_name": "string (e.g., phone_numbers, email, company_size)",
+                  "discovered_value": "string",
+                  "confidence_level": "high|medium|low",
+                  "source": "string (where this information was found)",
+                  "metadata": {}
+                }
+              ]
             }`
           },
           {
             role: 'user',
-            content: `Analyze this lead and provide recommendations:\n${JSON.stringify(leadContext, null, 2)}`
+            content: `Analyze this lead and discover additional information:\n${JSON.stringify(leadContext, null, 2)}`
           }
         ],
       }),
@@ -161,32 +103,29 @@ serve(async (req) => {
 
     const aiData = await response.json();
     const analysis = aiData.choices[0].message.content;
-    console.log('AI Analysis completed:', analysis);
-
-    // Extract JSON data from the analysis
-    const jsonMatch = analysis.match(/\{[\s\S]*?\}/);
-    let extractedData = {};
-    if (jsonMatch) {
+    
+    // Extract discoveries from the analysis
+    const discoveryMatch = analysis.match(/\{[\s\S]*\}/);
+    if (discoveryMatch) {
       try {
-        extractedData = JSON.parse(jsonMatch[0]);
-        console.log('Extracted BEAM data:', extractedData);
+        const { discoveries } = JSON.parse(discoveryMatch[0]);
+        console.log('Extracted discoveries:', discoveries);
 
-        // Update lead with extracted data
-        const { error: updateError } = await supabase
-          .from('leads')
-          .update({
-            ...extractedData,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', leadId);
+        // Store discoveries in the database
+        for (const discovery of discoveries) {
+          const { error: discoveryError } = await supabase
+            .from('lead_discoveries')
+            .insert({
+              lead_id: leadId,
+              ...discovery
+            });
 
-        if (updateError) {
-          console.error('Error updating lead with extracted data:', updateError);
-        } else {
-          console.log('Successfully updated lead with extracted data');
+          if (discoveryError) {
+            console.error('Error storing discovery:', discoveryError);
+          }
         }
       } catch (error) {
-        console.error('Error parsing extracted data:', error);
+        console.error('Error parsing discoveries:', error);
       }
     }
 
@@ -203,29 +142,10 @@ serve(async (req) => {
       console.error('Error storing analysis:', activityError);
     }
 
-    // Extract opportunity score from analysis
-    const opportunityScoreMatch = analysis.match(/Opportunity Score:[\s\S]*?(\d+)/);
-    const opportunityScore = opportunityScoreMatch ? parseInt(opportunityScoreMatch[1]) : null;
-
-    // Update lead with opportunity score if found
-    if (opportunityScore !== null) {
-      const { error: updateError } = await supabase
-        .from('leads')
-        .update({ 
-          market_score: Math.round(opportunityScore * 0.25) // Convert to 25-point scale
-        })
-        .eq('id', leadId);
-
-      if (updateError) {
-        console.error('Error updating lead score:', updateError);
-      }
-    }
-
     return new Response(
       JSON.stringify({ 
-        analysis, 
-        opportunityScore,
-        extractedData 
+        analysis,
+        message: 'Analysis completed and discoveries stored'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -51,6 +51,63 @@ export type Database = {
           },
         ]
       }
+      lead_discoveries: {
+        Row: {
+          applied: boolean | null
+          applied_at: string | null
+          applied_by: string | null
+          confidence_level: Database["public"]["Enums"]["discovery_confidence"]
+          created_at: string | null
+          discovered_value: string
+          field_name: string
+          id: string
+          lead_id: string | null
+          metadata: Json | null
+          source: string | null
+        }
+        Insert: {
+          applied?: boolean | null
+          applied_at?: string | null
+          applied_by?: string | null
+          confidence_level: Database["public"]["Enums"]["discovery_confidence"]
+          created_at?: string | null
+          discovered_value: string
+          field_name: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          source?: string | null
+        }
+        Update: {
+          applied?: boolean | null
+          applied_at?: string | null
+          applied_by?: string | null
+          confidence_level?: Database["public"]["Enums"]["discovery_confidence"]
+          created_at?: string | null
+          discovered_value?: string
+          field_name?: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_discoveries_applied_by_fkey"
+            columns: ["applied_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_discoveries_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_notes: {
         Row: {
           content: string
@@ -345,6 +402,7 @@ export type Database = {
         | "note_added"
         | "note_updated"
         | "note_deleted"
+      discovery_confidence: "high" | "medium" | "low"
       email_domain_type: "public" | "business"
       lead_status:
         | "new"
