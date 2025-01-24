@@ -13,6 +13,21 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+function extractBusinessDomain(email: string): string | null {
+  if (!email) return null;
+  
+  const domain = email.split('@')[1];
+  if (!domain) return null;
+
+  // Remove common email provider domains
+  const commonProviders = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'ymail.com'];
+  if (commonProviders.includes(domain.toLowerCase())) {
+    return null;
+  }
+
+  return domain;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -41,6 +56,42 @@ serve(async (req) => {
     if (leadError || !lead) {
       console.error('Error fetching lead:', leadError);
       throw new Error('Lead not found');
+    }
+
+    // Extract business domain from email if available
+    if (lead.email && lead.domain_type === 'business') {
+      const businessDomain = extractBusinessDomain(lead.email);
+      console.log('Extracted business domain:', businessDomain);
+      
+      if (businessDomain && businessDomain !== lead.domain) {
+        // Update the lead's domain
+        const { error: updateError } = await supabase
+          .from('leads')
+          .update({ domain: businessDomain })
+          .eq('id', leadId);
+
+        if (updateError) {
+          console.error('Error updating lead domain:', updateError);
+        } else {
+          console.log('Updated lead domain to:', businessDomain);
+          
+          // Add a discovery for the business domain
+          const { error: discoveryError } = await supabase
+            .from('lead_discoveries')
+            .insert({
+              lead_id: leadId,
+              field_name: 'business_domain',
+              discovered_value: businessDomain,
+              confidence_level: 'high',
+              source: 'email_analysis',
+              metadata: { extracted_from: lead.email }
+            });
+
+          if (discoveryError) {
+            console.error('Error creating domain discovery:', discoveryError);
+          }
+        }
+      }
     }
 
     // Prepare lead context for analysis
