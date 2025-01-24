@@ -1,39 +1,19 @@
 import { Lead } from "@/types/lead";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { COUNTRIES } from "@/constants/leadOptions";
+import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-
-// This would ideally come from an API or a complete dataset
-const CITIES_BY_COUNTRY: Record<string, string[]> = {
-  "United States": ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia"],
-  "United Kingdom": ["London", "Manchester", "Birmingham", "Leeds", "Liverpool", "Glasgow"],
-  "Canada": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Edmonton"],
-  // Add more countries and cities as needed
-};
-
-const STATES_BY_COUNTRY: Record<string, string[]> = {
-  "United States": [
-    "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
-    "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
-    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan",
-    "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
-    "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
-    "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee",
-    "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
-  ],
-  "Canada": [
-    "Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador",
-    "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan"
-  ],
-  // Add more countries and states as needed
-};
+import { getCountries, getStates } from "@/utils/locationData";
 
 interface LeadLocationProps {
   lead: Lead;
   isEditing: boolean;
   editedLead: Partial<Lead>;
   setEditedLead: (lead: Partial<Lead>) => void;
-  renderField: (label: string, value: string | null, field: keyof Lead) => JSX.Element;
+}
+
+interface LocationOption {
+  name: string;
+  isoCode: string;
 }
 
 export const LeadLocation = ({ 
@@ -42,31 +22,43 @@ export const LeadLocation = ({
   editedLead,
   setEditedLead
 }: LeadLocationProps) => {
-  const [availableCities, setAvailableCities] = useState<string[]>([]);
-  const [availableStates, setAvailableStates] = useState<string[]>([]);
+  const [countries, setCountries] = useState<LocationOption[]>([]);
+  const [states, setStates] = useState<LocationOption[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<LocationOption | null>(null);
 
+  // Load countries on component mount
   useEffect(() => {
+    const loadedCountries = getCountries();
+    setCountries(loadedCountries);
+    
+    // If there's a country selected, find it in the loaded countries
     if (editedLead.country) {
-      setAvailableCities(CITIES_BY_COUNTRY[editedLead.country] || []);
-      setAvailableStates(STATES_BY_COUNTRY[editedLead.country] || []);
+      const country = loadedCountries.find(c => c.name === editedLead.country);
+      setSelectedCountry(country || null);
+    }
+  }, []);
+
+  // Load states when country changes
+  useEffect(() => {
+    if (selectedCountry) {
+      const loadedStates = getStates(selectedCountry.isoCode);
+      setStates(loadedStates);
       
-      // Reset city and state if they're not valid for the new country
-      if (!CITIES_BY_COUNTRY[editedLead.country]?.includes(editedLead.city || '')) {
-        setEditedLead({ ...editedLead, city: null });
-      }
-      if (!STATES_BY_COUNTRY[editedLead.country]?.includes(editedLead.state || '')) {
+      // Reset state if it's not valid for the new country
+      if (!loadedStates.some(s => s.name === editedLead.state)) {
         setEditedLead({ ...editedLead, state: null });
       }
+    } else {
+      setStates([]);
+      setEditedLead({ ...editedLead, state: null });
     }
-  }, [editedLead.country]);
+  }, [selectedCountry]);
 
-  console.log('Location Update:', {
-    country: editedLead.country,
-    city: editedLead.city,
-    state: editedLead.state,
-    availableCities,
-    availableStates
-  });
+  const handleCountryChange = (countryName: string) => {
+    const country = countries.find(c => c.name === countryName);
+    setSelectedCountry(country || null);
+    setEditedLead({ ...editedLead, country: countryName });
+  };
 
   return (
     <div className="space-y-2">
@@ -77,15 +69,15 @@ export const LeadLocation = ({
           {isEditing ? (
             <Select
               value={editedLead.country || ""}
-              onValueChange={(value) => setEditedLead({ ...editedLead, country: value })}
+              onValueChange={handleCountryChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select country" />
               </SelectTrigger>
               <SelectContent>
-                {COUNTRIES.map((country) => (
-                  <SelectItem key={country} value={country}>
-                    {country}
+                {countries.map((country) => (
+                  <SelectItem key={country.isoCode} value={country.name}>
+                    {country.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -96,50 +88,39 @@ export const LeadLocation = ({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm text-muted-foreground">City</label>
-          {isEditing ? (
-            <Select
-              value={editedLead.city || ""}
-              onValueChange={(value) => setEditedLead({ ...editedLead, city: value })}
-              disabled={!editedLead.country || availableCities.length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select city" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableCities.map((city) => (
-                  <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <p>{lead.city || "-"}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm text-muted-foreground">State</label>
+          <label className="text-sm text-muted-foreground">State/Province</label>
           {isEditing ? (
             <Select
               value={editedLead.state || ""}
               onValueChange={(value) => setEditedLead({ ...editedLead, state: value })}
-              disabled={!editedLead.country || availableStates.length === 0}
+              disabled={!selectedCountry}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select state" />
               </SelectTrigger>
               <SelectContent>
-                {availableStates.map((state) => (
-                  <SelectItem key={state} value={state}>
-                    {state}
+                {states.map((state) => (
+                  <SelectItem key={state.isoCode} value={state.name}>
+                    {state.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           ) : (
             <p>{lead.state || "-"}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm text-muted-foreground">City</label>
+          {isEditing ? (
+            <Input
+              value={editedLead.city || ''}
+              onChange={(e) => setEditedLead({ ...editedLead, city: e.target.value })}
+              placeholder="Enter city name"
+            />
+          ) : (
+            <p>{lead.city || "-"}</p>
           )}
         </div>
 
