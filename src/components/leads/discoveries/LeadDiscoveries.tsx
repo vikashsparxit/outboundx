@@ -67,7 +67,13 @@ const LeadDiscoveries = ({ leadId, onLeadUpdate }: LeadDiscoveriesProps) => {
       return;
     }
 
-    setDiscoveries(data || []);
+    // Cast the verification_status to the correct type
+    const typedData = data?.map(discovery => ({
+      ...discovery,
+      verification_status: (discovery.verification_status || 'pending') as "pending" | "verified" | "rejected"
+    })) || [];
+
+    setDiscoveries(typedData);
   };
 
   const handleVerification = async (discoveryId: string, status: 'verified' | 'rejected') => {
