@@ -46,30 +46,29 @@ export const LeadDetailsHeader = ({
     <div className="flex items-center justify-between pb-4 border-b">
       <h2 className="text-lg font-semibold">Lead Details</h2>
       <div className="flex items-center gap-2">
-        {!isEditing && lead.domain_type === 'business' && !hasAnalysis && (
+        {!isEditing && lead.domain_type === 'business' && (
           <Button
             variant="outline"
             size="sm"
-            onClick={handleAnalyzeClick}
-            disabled={isAnalyzing}
-          >
-            <Brain className="h-4 w-4 mr-2" />
-            {isAnalyzing ? 'Analyzing...' : 'Analyze'}
-          </Button>
-        )}
-        {!isEditing && lead.domain_type === 'business' && hasAnalysis && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
+            onClick={hasAnalysis ? () => {
               const analysisSection = document.querySelector('.lead-analysis-section');
               if (analysisSection) {
                 analysisSection.scrollIntoView({ behavior: 'smooth' });
               }
-            }}
+            } : handleAnalyzeClick}
+            disabled={isAnalyzing}
           >
-            <Eye className="h-4 w-4 mr-2" />
-            View Analysis
+            {hasAnalysis ? (
+              <>
+                <Eye className="h-4 w-4 mr-2" />
+                View Analysis
+              </>
+            ) : (
+              <>
+                <Brain className="h-4 w-4 mr-2" />
+                {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+              </>
+            )}
           </Button>
         )}
         {isEditing ? (
