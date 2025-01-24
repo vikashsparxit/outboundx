@@ -24,6 +24,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     setIsEditing,
     setEditedLead,
     handleEdit,
+    resetEditState
   } = useLeadEdit(lead, onLeadUpdate);
 
   const { handleStatusUpdate } = useLeadStatus(lead, onLeadUpdate);
@@ -80,10 +81,17 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     setIsEditing(true);
   };
 
+  // Handle sheet close
+  const handleSheetClose = () => {
+    console.log('Closing sheet, resetting edit state');
+    resetEditState();
+    onClose();
+  };
+
   if (!lead) return null;
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
+    <Sheet open={isOpen} onOpenChange={handleSheetClose}>
       <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto pb-20">
         <LeadSubscription lead={lead} onLeadUpdate={onLeadUpdate} />
         

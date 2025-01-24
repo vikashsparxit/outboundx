@@ -14,6 +14,15 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
   const [editedLead, setEditedLead] = useState<Partial<Lead>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
+  // Reset all edit states
+  const resetEditState = () => {
+    console.log('Resetting edit state');
+    setIsEditing(false);
+    setEditedLead({});
+    setValidationErrors({});
+    setIsUpdating(false);
+  };
+
   useEffect(() => {
     if (lead) {
       console.log('Initializing editedLead with:', lead);
@@ -80,8 +89,7 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
       });
       
       onLeadUpdate();
-      setIsEditing(false);
-      setValidationErrors({});
+      resetEditState();
     } catch (error) {
       console.error("Error updating lead:", error);
       toast({
@@ -103,5 +111,6 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
     setEditedLead,
     handleEdit,
     setValidationErrors,
+    resetEditState,
   };
 };
