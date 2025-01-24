@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertCircle, Building, CheckCircle, Globe, Info, Mail, MapPin, Phone, User } from "lucide-react";
+import { AlertCircle, Building, CheckCircle, Globe, Info, Mail, MapPin, Phone, Star, User } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -75,7 +75,7 @@ const LeadDiscoveries = ({ leadId, onLeadUpdate }: LeadDiscoveriesProps) => {
   const getConfidenceIcon = (level: string) => {
     switch (level) {
       case 'high':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <Star className="h-4 w-4 text-green-500" />;
       case 'low':
         return <AlertCircle className="h-4 w-4 text-yellow-500" />;
       default:
