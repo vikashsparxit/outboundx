@@ -55,12 +55,15 @@ export const LeadDetailsContent = ({
   onAddTechnology,
   onStatusUpdate,
 }: LeadDetailsContentProps) => {
+  console.log('Rendering LeadDetailsContent with lead:', lead);
+  console.log('Domain type:', lead.domain_type);
+  
   return (
     <div className="mt-6 space-y-6">
       <ScoreBreakdown lead={lead} />
       
       {lead.domain_type === 'business' && (
-        <div className="lead-analysis-section">
+        <div id="lead-analysis-section" className="lead-analysis-section bg-white rounded-lg p-4 shadow-sm">
           <LeadAnalysis lead={lead} />
         </div>
       )}
