@@ -2,7 +2,6 @@ import { Lead } from "@/types/lead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLeadAnalysis } from "@/hooks/use-lead-analysis";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ChevronDown } from "lucide-react";
 
 interface LeadAnalysisProps {
   lead: Lead;
@@ -24,11 +23,11 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
     let currentSection: AnalysisSection | null = null;
 
     content.split('\n').forEach(line => {
-      // Remove asterisks and numbers at the start of lines
+      // Clean the line by removing asterisks, numbers, and extra whitespace
       const cleanLine = line.replace(/^\d*\**\s*/, '').trim();
       if (!cleanLine) return;
 
-      // Check if it's a section header
+      // Check if it's a section header (ends with ':')
       if (cleanLine.endsWith(':')) {
         if (currentSection) {
           sections.push(currentSection);
@@ -38,11 +37,17 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
           content: [],
         };
       } 
-      // Check if it's a score line
+      // Check if it's a score/rating line
       else if (cleanLine.includes('Score:') || cleanLine.toLowerCase().includes('rating:')) {
         const [label, score] = cleanLine.split(/:\s*/).map(s => s.trim());
         if (currentSection) {
           currentSection.score = score;
+        }
+      }
+      // Check if it's a subsection (starts with a dash or bullet)
+      else if (cleanLine.startsWith('-')) {
+        if (currentSection) {
+          currentSection.content.push(cleanLine.substring(1).trim());
         }
       }
       // Regular content line

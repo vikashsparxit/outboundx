@@ -6,15 +6,16 @@ export const useLeadAnalysis = (leadId?: string) => {
   const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<string | null>(null);
+  const [hasBeenAnalyzed, setHasBeenAnalyzed] = useState(false);
 
   useEffect(() => {
     if (leadId) {
-      fetchAnalysis(leadId);
+      checkAndFetchAnalysis(leadId);
     }
   }, [leadId]);
 
-  const fetchAnalysis = async (id: string) => {
-    console.log('Fetching analysis for lead:', id);
+  const checkAndFetchAnalysis = async (id: string) => {
+    console.log('Checking analysis status for lead:', id);
     const { data, error } = await supabase
       .from('lead_activities')
       .select('description')
@@ -24,14 +25,17 @@ export const useLeadAnalysis = (leadId?: string) => {
       .limit(1)
       .single();
 
-    if (error) {
-      console.error('Error fetching analysis:', error);
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error checking analysis:', error);
       return;
     }
 
     if (data) {
-      console.log('Found analysis:', data.description);
+      console.log('Found existing analysis');
       setAnalysis(data.description);
+      setHasBeenAnalyzed(true);
+    } else {
+      setHasBeenAnalyzed(false);
     }
   };
 
@@ -58,13 +62,8 @@ export const useLeadAnalysis = (leadId?: string) => {
           title: "Analysis Complete",
           description: "Lead analysis has been added to activities",
         });
-        await fetchAnalysis(id);
+        await checkAndFetchAnalysis(id);
         return data.analysis;
-      } else {
-        toast({
-          title: "Analysis Skipped",
-          description: "Analysis is only performed for business email domains",
-        });
       }
 
       return null;
@@ -84,6 +83,7 @@ export const useLeadAnalysis = (leadId?: string) => {
   return {
     analyzeLead,
     isAnalyzing,
-    analysis
+    analysis,
+    hasBeenAnalyzed
   };
 };

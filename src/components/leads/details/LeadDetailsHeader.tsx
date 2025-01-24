@@ -20,19 +20,23 @@ export const LeadDetailsHeader = ({
   onSave,
   onCancel,
 }: LeadDetailsHeaderProps) => {
-  const { analyzeLead, isAnalyzing } = useLeadAnalysis();
-
-  // Check if lead has been analyzed
-  const hasAnalysis = lead.lead_activities?.some(
-    activity => activity.activity_type === 'ai_analysis'
-  ) ?? false;
+  const { analyzeLead, isAnalyzing, hasBeenAnalyzed } = useLeadAnalysis(lead.id);
 
   const handleAnalyzeClick = async () => {
     if (lead.domain_type !== 'business') return;
     
+    if (hasBeenAnalyzed) {
+      // If already analyzed, scroll to analysis section
+      const analysisSection = document.querySelector('.lead-analysis-section');
+      if (analysisSection) {
+        analysisSection.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+
     const analysis = await analyzeLead(lead.id);
     if (analysis) {
-      // Find and scroll to analysis section after a short delay to ensure it's rendered
+      // Find and scroll to analysis section after a short delay
       setTimeout(() => {
         const analysisSection = document.querySelector('.lead-analysis-section');
         if (analysisSection) {
@@ -50,15 +54,10 @@ export const LeadDetailsHeader = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={hasAnalysis ? () => {
-              const analysisSection = document.querySelector('.lead-analysis-section');
-              if (analysisSection) {
-                analysisSection.scrollIntoView({ behavior: 'smooth' });
-              }
-            } : handleAnalyzeClick}
+            onClick={handleAnalyzeClick}
             disabled={isAnalyzing}
           >
-            {hasAnalysis ? (
+            {hasBeenAnalyzed ? (
               <>
                 <Eye className="h-4 w-4 mr-2" />
                 View Analysis
