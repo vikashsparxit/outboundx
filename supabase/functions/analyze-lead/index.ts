@@ -12,7 +12,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -21,13 +20,18 @@ serve(async (req) => {
     const { leadId } = await req.json();
     console.log('Analyzing lead:', leadId);
 
-    // Initialize Supabase client
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
-    // Fetch lead data
     const { data: lead, error: leadError } = await supabase
       .from('leads')
-      .select('*')
+      .select(`
+        *,
+        lead_activities (
+          activity_type,
+          description,
+          created_at
+        )
+      `)
       .eq('id', leadId)
       .single();
 
@@ -36,7 +40,6 @@ serve(async (req) => {
       throw new Error('Lead not found');
     }
 
-    // Only analyze business email domains
     if (lead.domain_type !== 'business') {
       console.log('Skipping analysis for non-business email domain');
       return new Response(
@@ -44,25 +47,36 @@ serve(async (req) => {
           message: 'Skipped analysis - not a business email',
           analysis: null 
         }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Prepare lead data for analysis
+    // Prepare comprehensive lead context
     const leadContext = {
+      // Basic Information
       email: lead.email,
       message: lead.message,
+      subject: lead.subject,
+      
+      // Company Details
       company_size: lead.company_size,
       industry_vertical: lead.industry_vertical,
+      annual_revenue_range: lead.annual_revenue_range,
+      
+      // Technical Context
       technology_stack: lead.technology_stack,
+      domains: lead.domains,
+      
+      // Project Details
       budget_range: lead.budget_range,
       need_urgency: lead.need_urgency,
-      project_timeline: lead.project_timeline
+      project_timeline: lead.project_timeline,
+      
+      // Previous Activities
+      previous_activities: lead.lead_activities
     };
 
-    // Call OpenAI API
+    // Call OpenAI API with enhanced prompt
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -74,14 +88,32 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant that analyzes business leads. 
-            Evaluate the lead's potential based on their message content, company details, and technical requirements.
-            Focus on identifying key indicators of lead quality such as:
-            1. Message quality and specificity
-            2. Technology alignment
-            3. Budget appropriateness
-            4. Project timeline feasibility
-            Provide a structured analysis with specific recommendations for engagement.`
+            content: `You are an AI sales assistant that analyzes business leads. 
+            Provide a structured analysis in the following format:
+
+            1. Message Quality Analysis:
+            - Evaluate the clarity and specificity of the inquiry
+            - Identify key pain points and requirements
+            - Rate message quality (1-10)
+
+            2. Company Profile:
+            - Analyze company size and industry fit
+            - Evaluate technology alignment
+            - Assess growth potential
+            
+            3. Project Evaluation:
+            - Budget appropriateness
+            - Timeline feasibility
+            - Technical complexity assessment
+            
+            4. Engagement Recommendations:
+            - Suggested approach
+            - Key talking points
+            - Risk factors to consider
+
+            5. Opportunity Score:
+            - Provide a score (1-100) based on all factors
+            - List top 3 reasons for the score`
           },
           {
             role: 'user',
@@ -108,20 +140,33 @@ serve(async (req) => {
       console.error('Error storing analysis:', activityError);
     }
 
-    return new Response(
-      JSON.stringify({ analysis }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    // Extract opportunity score from analysis
+    const opportunityScoreMatch = analysis.match(/Opportunity Score:[\s\S]*?(\d+)/);
+    const opportunityScore = opportunityScoreMatch ? parseInt(opportunityScoreMatch[1]) : null;
+
+    // Update lead with opportunity score if found
+    if (opportunityScore !== null) {
+      const { error: updateError } = await supabase
+        .from('leads')
+        .update({ 
+          market_score: Math.round(opportunityScore * 0.25) // Convert to 25-point scale
+        })
+        .eq('id', leadId);
+
+      if (updateError) {
+        console.error('Error updating lead score:', updateError);
       }
+    }
+
+    return new Response(
+      JSON.stringify({ analysis, opportunityScore }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error in analyze-lead function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

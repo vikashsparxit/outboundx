@@ -1,8 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { Clock, History } from "lucide-react";
+import { Clock, History, Brain } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface ActivityLogProps {
   leadId: string;
@@ -42,6 +48,17 @@ const ActivityLog = ({ leadId }: ActivityLogProps) => {
     },
   });
 
+  const formatAnalysis = (description: string) => {
+    const sections = description.split(/\d+\./);
+    return sections.filter(Boolean).map(section => {
+      const [title, ...content] = section.split('\n');
+      return {
+        title: title.trim(),
+        content: content.filter(Boolean).map(line => line.trim())
+      };
+    });
+  };
+
   if (isLoading) {
     return <div>Loading activities...</div>;
   }
@@ -52,24 +69,58 @@ const ActivityLog = ({ leadId }: ActivityLogProps) => {
         <History className="h-5 w-5" />
         <h3 className="text-lg font-semibold">Activity Log</h3>
       </div>
-      <ScrollArea className="h-[200px] rounded-md border p-4">
+      <ScrollArea className="h-[400px] rounded-md border p-4">
         {activities && activities.length > 0 ? (
           <div className="space-y-4">
             {activities.map((activity) => (
-              <div key={activity.id} className="flex gap-3">
-                <Clock className="h-4 w-4 mt-1 flex-shrink-0" />
-                <div className="space-y-1">
-                  <p className="text-sm">
-                    {activity.description}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>
-                      {activity.profiles?.full_name || activity.profiles?.email || "Unknown user"}
-                    </span>
-                    <span>•</span>
-                    <span>{format(new Date(activity.created_at), "PPp")}</span>
+              <div key={activity.id} className="space-y-2">
+                {activity.activity_type === 'ai_analysis' ? (
+                  <Accordion type="single" collapsible>
+                    <AccordionItem value="analysis">
+                      <AccordionTrigger className="text-sm hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <Brain className="h-4 w-4" />
+                          <span>AI Analysis</span>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(activity.created_at), "PPp")}
+                          </span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-4 pt-2">
+                          {formatAnalysis(activity.description).map((section, index) => (
+                            <div key={index} className="space-y-2">
+                              <h4 className="font-medium">{section.title}</h4>
+                              <ul className="list-disc list-inside space-y-1">
+                                {section.content.map((line, lineIndex) => (
+                                  <li key={lineIndex} className="text-sm text-muted-foreground">
+                                    {line}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                ) : (
+                  <div className="flex gap-3">
+                    <Clock className="h-4 w-4 mt-1 flex-shrink-0" />
+                    <div className="space-y-1">
+                      <p className="text-sm">
+                        {activity.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>
+                          {activity.profiles?.full_name || activity.profiles?.email || "Unknown user"}
+                        </span>
+                        <span>•</span>
+                        <span>{format(new Date(activity.created_at), "PPp")}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
