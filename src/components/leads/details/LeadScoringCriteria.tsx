@@ -44,6 +44,7 @@ export const LeadScoringCriteria = ({
       if (!updatedTechStack.includes(techToAdd)) {
         updatedTechStack.push(techToAdd);
         setEditedLead({ ...editedLead, technology_stack: updatedTechStack });
+        console.log('Updated technology stack:', updatedTechStack);
       }
       setNewTech("");
     }
@@ -53,6 +54,7 @@ export const LeadScoringCriteria = ({
     const updatedTechStack = (editedLead.technology_stack || []).filter(
       tech => tech !== techToRemove
     );
+    console.log('Removing tech:', techToRemove, 'New stack:', updatedTechStack);
     setEditedLead({ ...editedLead, technology_stack: updatedTechStack });
   };
 
@@ -60,6 +62,7 @@ export const LeadScoringCriteria = ({
     const updatedTechStack = [...(editedLead.technology_stack || [])];
     if (!updatedTechStack.includes(tech)) {
       updatedTechStack.push(tech);
+      console.log('Adding preset tech:', tech, 'New stack:', updatedTechStack);
       setEditedLead({ ...editedLead, technology_stack: updatedTechStack });
     }
   };
@@ -301,7 +304,7 @@ export const LeadScoringCriteria = ({
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {lead.technology_stack?.map((tech) => (
+              {(lead.technology_stack || []).map((tech) => (
                 <span
                   key={tech}
                   className="px-3 py-1 rounded-full bg-secondary text-secondary-foreground"
@@ -309,6 +312,9 @@ export const LeadScoringCriteria = ({
                   {tech}
                 </span>
               ))}
+              {(!lead.technology_stack || lead.technology_stack.length === 0) && (
+                <span className="text-muted-foreground">-</span>
+              )}
             </div>
           )}
         </div>
