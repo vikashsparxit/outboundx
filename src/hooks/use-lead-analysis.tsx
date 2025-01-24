@@ -1,17 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-export const useLeadAnalysis = () => {
+export const useLeadAnalysis = (leadId?: string) => {
   const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<string | null>(null);
 
-  const analyzeLead = async (leadId: string) => {
+  useEffect(() => {
+    if (leadId) {
+      fetchAnalysis(leadId);
+    }
+  }, [leadId]);
+
+  const fetchAnalysis = async (id: string) => {
+    console.log('Fetching analysis for lead:', id);
+    const { data, error } = await supabase
+      .from('lead_activities')
+      .select('description')
+      .eq('lead_id', id)
+      .eq('activity_type', 'ai_analysis')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) {
+      console.error('Error fetching analysis:', error);
+      return;
+    }
+
+    if (data) {
+      console.log('Found analysis:', data.description);
+      setAnalysis(data.description);
+    }
+  };
+
+  const analyzeLead = async (id: string) => {
     setIsAnalyzing(true);
     try {
-      console.log('Starting lead analysis for:', leadId);
+      console.log('Starting lead analysis for:', id);
       const { data, error } = await supabase.functions.invoke('analyze-lead', {
-        body: { leadId }
+        body: { leadId: id }
       });
 
       if (error) {
@@ -29,6 +58,8 @@ export const useLeadAnalysis = () => {
           title: "Analysis Complete",
           description: "Lead analysis has been added to activities",
         });
+        await fetchAnalysis(id);
+        return data.analysis;
       } else {
         toast({
           title: "Analysis Skipped",
@@ -36,7 +67,7 @@ export const useLeadAnalysis = () => {
         });
       }
 
-      return data.analysis;
+      return null;
     } catch (error) {
       console.error('Error in analyzeLead:', error);
       toast({
@@ -52,6 +83,7 @@ export const useLeadAnalysis = () => {
 
   return {
     analyzeLead,
-    isAnalyzing
+    isAnalyzing,
+    analysis
   };
 };
