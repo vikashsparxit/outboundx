@@ -90,7 +90,7 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
     editedLead,
     validationErrors,
     setIsEditing,
-    setEditedLead,
+    setEditedLead: (lead: Lead) => setEditedLead(lead), // Ensure we're accepting a full Lead type
     handleEdit,
     setValidationErrors,
   };
