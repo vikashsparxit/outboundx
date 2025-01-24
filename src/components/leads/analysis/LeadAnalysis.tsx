@@ -28,39 +28,40 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
     let currentSection: AnalysisSection | null = null;
 
     content.split('\n').forEach(line => {
-      // Clean the line by removing asterisks, numbers, and extra whitespace
-      const cleanLine = line.replace(/^\d*\**\s*/, '').trim();
+      const cleanLine = line.trim();
       if (!cleanLine) return;
 
+      // Remove asterisks and numbers from the start of the line
+      const processedLine = cleanLine.replace(/^[\d.*\s]+/, '').trim();
+      
       // Check if it's a section header (ends with ':')
-      if (cleanLine.endsWith(':')) {
+      if (processedLine.endsWith(':')) {
         if (currentSection) {
           sections.push(currentSection);
         }
         currentSection = {
-          title: cleanLine.slice(0, -1),
+          title: processedLine.slice(0, -1),
           content: [],
         };
       } 
-      // Check if it's a score/rating line
-      else if (cleanLine.includes('Score:') || cleanLine.toLowerCase().includes('rating:')) {
-        const [label, score] = cleanLine.split(/:\s*/).map(s => s.trim());
+      // Check if it's a score line
+      else if (processedLine.toLowerCase().includes('score:') || processedLine.toLowerCase().includes('rating:')) {
         if (currentSection) {
-          currentSection.score = score;
-        }
-      }
-      // Check if it's a subsection (starts with a dash or bullet)
-      else if (cleanLine.startsWith('-')) {
-        if (currentSection) {
-          currentSection.content.push(cleanLine.substring(1).trim());
+          const [, score] = processedLine.split(/:\s*/);
+          currentSection.score = score?.trim();
         }
       }
       // Regular content line
       else if (currentSection) {
-        currentSection.content.push(cleanLine);
+        // Remove bullet points and clean the line
+        const contentLine = processedLine.replace(/^[-•]\s*/, '').trim();
+        if (contentLine) {
+          currentSection.content.push(contentLine);
+        }
       }
     });
 
+    // Don't forget to add the last section
     if (currentSection) {
       sections.push(currentSection);
     }
@@ -72,21 +73,21 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
   console.log('Parsed sections:', sections);
 
   return (
-    <Card className="mt-6">
-      <CardHeader>
+    <Card className="mt-6 bg-white">
+      <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold">AI Analysis</CardTitle>
       </CardHeader>
       <CardContent>
-        <Accordion type="single" collapsible className="space-y-2">
+        <Accordion type="single" collapsible className="w-full space-y-4">
           {sections.map((section, index) => (
             <AccordionItem 
               key={index} 
               value={`section-${index}`}
-              className="border rounded-lg px-4"
+              className="border rounded-lg px-4 py-2 bg-white shadow-sm"
             >
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center justify-between w-full">
-                  <span className="font-medium">{section.title}</span>
+                  <span className="font-medium text-left">{section.title}</span>
                   {section.score && (
                     <span className="text-blue-600 font-semibold ml-2">
                       {section.score}
@@ -94,10 +95,10 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
                   )}
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="pt-2 pb-4">
+              <AccordionContent className="pt-2">
                 <div className="space-y-2 text-sm text-muted-foreground">
                   {section.content.map((line, i) => (
-                    <p key={i}>{line}</p>
+                    <p key={i} className="leading-relaxed">{line}</p>
                   ))}
                 </div>
               </AccordionContent>
