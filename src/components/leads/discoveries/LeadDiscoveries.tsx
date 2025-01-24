@@ -27,7 +27,7 @@ interface LeadDiscovery {
   applied_by: string | null;
   created_at: string;
   metadata: Json;
-  verification_status: 'pending' | 'verified' | 'rejected';
+  verification_status: "pending" | "verified" | "rejected";
   verified_at: string | null;
   verified_by: string | null;
   verification_notes: string | null;
