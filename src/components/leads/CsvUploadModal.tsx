@@ -8,6 +8,7 @@ import { convertToDatabaseLead } from "@/types/lead";
 import UploadZone from "./csv-upload/UploadZone";
 import { validateAndTransformLead } from "./csv-upload/leadValidation";
 import FieldMapping from "./csv-upload/FieldMapping";
+import { calculateBeamScore } from "@/utils/scoring";
 
 interface CsvUploadModalProps {
   isOpen: boolean;
@@ -141,14 +142,28 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
               }
 
               const databaseLead = convertToDatabaseLead(transformedLead);
-              const { error } = await supabase
+              const { data: insertedLead, error: insertError } = await supabase
                 .from("leads")
-                .insert([databaseLead]);
+                .insert([databaseLead])
+                .select()
+                .single();
               
-              if (error) {
-                console.error('Error uploading lead:', error);
+              if (insertError) {
+                console.error('Error uploading lead:', insertError);
                 setErrorCount(prev => prev + 1);
                 continue;
+              }
+
+              // Calculate BEAM score for the newly inserted lead
+              if (insertedLead) {
+                console.log('Calculating initial BEAM score for lead:', insertedLead.id);
+                try {
+                  await calculateBeamScore(insertedLead);
+                  console.log('BEAM score calculated successfully');
+                } catch (scoreError) {
+                  console.error('Error calculating BEAM score:', scoreError);
+                  // Don't increment error count as the lead was still inserted successfully
+                }
               }
               
               setSuccessCount(prev => prev + 1);
