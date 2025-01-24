@@ -1,16 +1,7 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Lead } from "@/types/lead";
-
 interface ScoringSelectProps {
   label: string;
-  value: string | null | undefined;
-  options: string[];
+  value: string | null;
+  options: readonly string[];
   onChange: (value: string) => void;
   isEditing: boolean;
 }
@@ -26,23 +17,22 @@ export const ScoringSelect = ({
     <div className="space-y-2">
       <label className="text-sm text-muted-foreground">{label}</label>
       {isEditing ? (
-        <Select
+        <select
           value={value || ""}
-          onValueChange={onChange}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full rounded-md border border-input bg-background px-3 py-2"
         >
-          <SelectTrigger>
-            <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <option value="">Select {label}</option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
       ) : (
-        <p>{value || "-"}</p>
+        <div className="text-sm">
+          {value || <span className="text-muted-foreground">-</span>}
+        </div>
       )}
     </div>
   );
