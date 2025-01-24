@@ -63,7 +63,7 @@ export const LeadDetailsContent = ({
       <ScoreBreakdown lead={lead} />
       
       {lead.domain_type === 'business' && (
-        <div id="lead-analysis-section" className="lead-analysis-section bg-white rounded-lg p-4 shadow-sm">
+        <div id="lead-analysis-section" className="lead-analysis-section">
           <LeadAnalysis lead={lead} />
         </div>
       )}

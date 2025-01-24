@@ -1,9 +1,17 @@
 import { Lead } from "@/types/lead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLeadAnalysis } from "@/hooks/use-lead-analysis";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ChevronDown } from "lucide-react";
 
 interface LeadAnalysisProps {
   lead: Lead;
+}
+
+interface AnalysisSection {
+  title: string;
+  content: string[];
+  score?: string;
 }
 
 const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
@@ -11,44 +19,80 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
   
   if (!analysis) return null;
 
-  const formatContent = (content: string) => {
-    return content
-      .split('\n')
-      .map((line, index) => {
-        // Remove asterisks and numbers at the start of lines
-        const cleanLine = line.replace(/^[\d.*\s]+/, '').trim();
-        if (!cleanLine) return null;
+  const parseAnalysis = (content: string): AnalysisSection[] => {
+    const sections: AnalysisSection[] = [];
+    let currentSection: AnalysisSection | null = null;
 
-        // Check if it's a score line
-        if (cleanLine.toLowerCase().includes('score:')) {
-          const [label, score] = cleanLine.split(':').map(s => s.trim());
-          return (
-            <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="font-medium">{label}</span>
-              <span className="text-blue-600 font-semibold">{score}</span>
-            </div>
-          );
+    content.split('\n').forEach(line => {
+      // Remove asterisks and numbers at the start of lines
+      const cleanLine = line.replace(/^\d*\**\s*/, '').trim();
+      if (!cleanLine) return;
+
+      // Check if it's a section header
+      if (cleanLine.endsWith(':')) {
+        if (currentSection) {
+          sections.push(currentSection);
         }
+        currentSection = {
+          title: cleanLine.slice(0, -1),
+          content: [],
+        };
+      } 
+      // Check if it's a score line
+      else if (cleanLine.includes('Score:') || cleanLine.toLowerCase().includes('rating:')) {
+        const [label, score] = cleanLine.split(/:\s*/).map(s => s.trim());
+        if (currentSection) {
+          currentSection.score = score;
+        }
+      }
+      // Regular content line
+      else if (currentSection) {
+        currentSection.content.push(cleanLine);
+      }
+    });
 
-        // Regular content line
-        return (
-          <p key={index} className="py-2">
-            {cleanLine}
-          </p>
-        );
-      })
-      .filter(Boolean);
+    if (currentSection) {
+      sections.push(currentSection);
+    }
+
+    return sections;
   };
 
+  const sections = parseAnalysis(analysis);
+
   return (
-    <Card>
+    <Card className="mt-6">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">AI Analysis</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="prose prose-sm max-w-none">
-          {formatContent(analysis)}
-        </div>
+      <CardContent>
+        <Accordion type="single" collapsible className="space-y-2">
+          {sections.map((section, index) => (
+            <AccordionItem 
+              key={index} 
+              value={`section-${index}`}
+              className="border rounded-lg px-4"
+            >
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-medium">{section.title}</span>
+                  {section.score && (
+                    <span className="text-blue-600 font-semibold ml-2">
+                      {section.score}
+                    </span>
+                  )}
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pt-2 pb-4">
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  {section.content.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </CardContent>
     </Card>
   );
