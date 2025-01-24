@@ -8,6 +8,13 @@ export interface EmailAddress {
   email: string;
 }
 
+export interface LeadActivity {
+  id: string;
+  activity_type: string;
+  description: string;
+  created_at: string;
+}
+
 export interface Lead {
   id: string;
   ticket_id: string | null;
@@ -50,6 +57,7 @@ export interface Lead {
   market_score: number | null;
   beam_score: number | null;
   domain_type: EmailDomainType | null;
+  lead_activities?: LeadActivity[] | null;
 }
 
 export type DatabaseLead = Omit<Lead, 'emails'> & {

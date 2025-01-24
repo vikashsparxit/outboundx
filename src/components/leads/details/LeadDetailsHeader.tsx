@@ -39,7 +39,7 @@ export const LeadDetailsHeader = ({
   // Check if lead has been analyzed
   const hasAnalysis = lead.lead_activities?.some(
     activity => activity.activity_type === 'ai_analysis'
-  );
+  ) ?? false;
 
   return (
     <div className="flex items-center justify-between pb-4 border-b">
