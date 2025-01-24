@@ -56,10 +56,9 @@ export const LeadDetailsContent = ({
   onStatusUpdate,
 }: LeadDetailsContentProps) => {
   console.log('Rendering LeadDetailsContent with lead:', lead);
-  console.log('Domain type:', lead.domain_type);
   console.log('Current lead data:', { lead, editedLead, isEditing });
   
-  // Use editedLead for both view and edit mode to ensure consistency
+  // Use the appropriate lead data based on edit state
   const displayLead = isEditing ? editedLead as Lead : lead;
   
   return (

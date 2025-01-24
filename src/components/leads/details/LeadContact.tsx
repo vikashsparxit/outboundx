@@ -36,6 +36,9 @@ export const LeadContact = ({
   onPhoneNumberChange,
   validationErrors
 }: LeadContactProps) => {
+  // Use the correct data source based on edit state
+  const displayLead = isEditing ? editedLead : lead;
+
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-semibold">Contact Information</h3>
@@ -69,7 +72,7 @@ export const LeadContact = ({
               </div>
             </div>
           ) : (
-            <p>{lead.email || "-"} ({lead.email_type || "business"})</p>
+            <p>{displayLead.email || "-"} ({displayLead.email_type || "business"})</p>
           )}
         </div>
         <EmailManagement

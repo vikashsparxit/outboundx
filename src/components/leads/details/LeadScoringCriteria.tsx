@@ -24,70 +24,108 @@ export const LeadScoringCriteria = ({
   isEditing,
   editedLead,
   setEditedLead,
+  onAddTechnology,
 }: LeadScoringCriteriaProps) => {
+  // Use the correct data source based on edit state
+  const displayLead = isEditing ? editedLead : lead;
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">BEAM Scoring Criteria</h3>
       <div className="grid grid-cols-2 gap-4">
-        <ScoringSelect
-          label="Budget Range"
-          value={editedLead.budget_range}
-          options={BUDGET_RANGES}
-          onChange={(value) => setEditedLead({ ...editedLead, budget_range: value })}
-          isEditing={isEditing}
-        />
+        <div>
+          <label className="text-sm text-muted-foreground">Budget Range</label>
+          {isEditing ? (
+            <ScoringSelect
+              label="Budget Range"
+              value={editedLead.budget_range}
+              options={BUDGET_RANGES}
+              onChange={(value) => setEditedLead({ ...editedLead, budget_range: value })}
+              isEditing={isEditing}
+            />
+          ) : (
+            <p>{displayLead.budget_range || "-"}</p>
+          )}
+        </div>
 
-        <ScoringSelect
-          label="Company Size"
-          value={editedLead.company_size}
-          options={COMPANY_SIZES}
-          onChange={(value) => setEditedLead({ ...editedLead, company_size: value })}
-          isEditing={isEditing}
-        />
+        <div>
+          <label className="text-sm text-muted-foreground">Company Size</label>
+          {isEditing ? (
+            <ScoringSelect
+              label="Company Size"
+              value={editedLead.company_size}
+              options={COMPANY_SIZES}
+              onChange={(value) => setEditedLead({ ...editedLead, company_size: value })}
+              isEditing={isEditing}
+            />
+          ) : (
+            <p>{displayLead.company_size || "-"}</p>
+          )}
+        </div>
 
-        <ScoringSelect
-          label="Industry Vertical"
-          value={editedLead.industry_vertical}
-          options={INDUSTRY_VERTICALS}
-          onChange={(value) => setEditedLead({ ...editedLead, industry_vertical: value })}
-          isEditing={isEditing}
-        />
+        <div>
+          <label className="text-sm text-muted-foreground">Industry Vertical</label>
+          {isEditing ? (
+            <ScoringSelect
+              label="Industry Vertical"
+              value={editedLead.industry_vertical}
+              options={INDUSTRY_VERTICALS}
+              onChange={(value) => setEditedLead({ ...editedLead, industry_vertical: value })}
+              isEditing={isEditing}
+            />
+          ) : (
+            <p>{displayLead.industry_vertical || "-"}</p>
+          )}
+        </div>
 
-        <ScoringSelect
-          label="Decision Maker Level"
-          value={editedLead.decision_maker_level}
-          options={DECISION_MAKER_LEVELS}
-          onChange={(value) => setEditedLead({ ...editedLead, decision_maker_level: value })}
-          isEditing={isEditing}
-        />
+        <div>
+          <label className="text-sm text-muted-foreground">Decision Maker Level</label>
+          {isEditing ? (
+            <ScoringSelect
+              label="Decision Maker Level"
+              value={editedLead.decision_maker_level}
+              options={DECISION_MAKER_LEVELS}
+              onChange={(value) => setEditedLead({ ...editedLead, decision_maker_level: value })}
+              isEditing={isEditing}
+            />
+          ) : (
+            <p>{displayLead.decision_maker_level || "-"}</p>
+          )}
+        </div>
 
-        <ScoringSelect
-          label="Need Urgency"
-          value={editedLead.need_urgency}
-          options={NEED_URGENCY}
-          onChange={(value) => setEditedLead({ ...editedLead, need_urgency: value })}
-          isEditing={isEditing}
-        />
+        <div>
+          <label className="text-sm text-muted-foreground">Need Urgency</label>
+          {isEditing ? (
+            <ScoringSelect
+              label="Need Urgency"
+              value={editedLead.need_urgency}
+              options={NEED_URGENCY}
+              onChange={(value) => setEditedLead({ ...editedLead, need_urgency: value })}
+              isEditing={isEditing}
+            />
+          ) : (
+            <p>{displayLead.need_urgency || "-"}</p>
+          )}
+        </div>
 
-        <ScoringSelect
-          label="Project Timeline"
-          value={editedLead.project_timeline}
-          options={PROJECT_TIMELINES}
-          onChange={(value) => setEditedLead({ ...editedLead, project_timeline: value })}
-          isEditing={isEditing}
-        />
-
-        <ScoringSelect
-          label="Annual Revenue Range"
-          value={editedLead.annual_revenue_range}
-          options={ANNUAL_REVENUE_RANGES}
-          onChange={(value) => setEditedLead({ ...editedLead, annual_revenue_range: value })}
-          isEditing={isEditing}
-        />
+        <div>
+          <label className="text-sm text-muted-foreground">Project Timeline</label>
+          {isEditing ? (
+            <ScoringSelect
+              label="Project Timeline"
+              value={editedLead.project_timeline}
+              options={PROJECT_TIMELINES}
+              onChange={(value) => setEditedLead({ ...editedLead, project_timeline: value })}
+              isEditing={isEditing}
+            />
+          ) : (
+            <p>{displayLead.project_timeline || "-"}</p>
+          )}
+        </div>
 
         <div className="col-span-2">
           <TechnologyStack
-            lead={lead}
+            lead={displayLead}
             isEditing={isEditing}
             editedLead={editedLead}
             setEditedLead={setEditedLead}
