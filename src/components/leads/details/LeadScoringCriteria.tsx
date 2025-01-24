@@ -12,7 +12,7 @@ import { TechnologyStack } from "./scoring/TechnologyStack";
 import { ScoringSelect } from "./scoring/ScoringSelect";
 
 interface LeadScoringCriteriaProps {
-  lead: Lead;
+  lead: Lead | Partial<Lead>;
   isEditing: boolean;
   editedLead: Partial<Lead>;
   setEditedLead: (lead: Partial<Lead>) => void;
@@ -28,6 +28,8 @@ export const LeadScoringCriteria = ({
 }: LeadScoringCriteriaProps) => {
   // Use the correct data source based on edit state
   const displayLead = isEditing ? editedLead : lead;
+
+  console.log('LeadScoringCriteria - displayLead:', displayLead);
 
   return (
     <div className="space-y-4">
