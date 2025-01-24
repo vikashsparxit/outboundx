@@ -7,7 +7,6 @@ import { LeadFormField } from "./details/LeadFormField";
 import { LeadSubscription } from "./details/LeadSubscription";
 import { LeadDetailsHeader } from "./details/LeadDetailsHeader";
 import { LeadDetailsContent } from "./details/LeadDetailsContent";
-import { LeadIdentification } from "./details/LeadIdentification";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -90,14 +89,6 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
             setIsEditing(false);
             setEditedLead(lead);
           }}
-        />
-
-        <LeadIdentification
-          lead={lead}
-          isEditing={isEditing}
-          editedLead={editedLead}
-          setEditedLead={setEditedLead}
-          renderField={renderField}
         />
         
         <LeadDetailsContent
