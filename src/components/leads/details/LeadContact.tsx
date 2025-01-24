@@ -55,7 +55,9 @@ export const LeadContact = ({
             <div className="flex gap-2 items-start mt-1">
               <Select
                 value={editedLead.email_type || "business"}
-                onValueChange={(value) => setEditedLead({ ...editedLead, email_type: value })}
+                onValueChange={(value: "personal" | "business" | "other") => 
+                  setEditedLead({ ...editedLead, email_type: value })
+                }
               >
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Select type" />

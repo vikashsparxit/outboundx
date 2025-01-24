@@ -11,7 +11,7 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedLead, setEditedLead] = useState<Lead>({} as Lead);
+  const [editedLead, setEditedLead] = useState<Partial<Lead>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
       console.log('Initializing editedLead with:', lead);
       setEditedLead({
         ...lead,
-        email_type: lead.email_type || "business" // Ensure email_type is set
+        email_type: lead.email_type || "business"
       });
     }
   }, [lead]);
@@ -35,7 +35,7 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
       return;
     }
     
-    const errors = validateLead(editedLead);
+    const errors = validateLead(editedLead as Lead);
     if (Object.keys(errors).length > 0) {
       console.log('Validation errors:', errors);
       setValidationErrors(errors);
@@ -65,7 +65,7 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
         throw error;
       }
 
-      await calculateBeamScore(editedLead);
+      await calculateBeamScore(editedLead as Lead);
       console.log("BEAM Score recalculated after edit");
 
       await logActivity(lead.id, "lead_updated", "Lead details were updated");
