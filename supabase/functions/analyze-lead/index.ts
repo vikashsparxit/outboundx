@@ -42,9 +42,10 @@ serve(async (req) => {
 
     // Enhanced lead context for better analysis
     const leadContext = {
-      email: lead.email,
       message: lead.message,
       subject: lead.subject,
+      email: lead.email,
+      emails: lead.emails,
       domain: lead.domain,
       website: lead.website,
       company_size: lead.company_size,
@@ -72,30 +73,51 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant specialized in analyzing business leads and discovering additional information. 
-            Extract and validate information from the provided context, assigning confidence levels (high, medium, low) based on certainty.
-            Focus on discovering:
-            1. Additional contact information (phone numbers, email addresses)
-            2. Company details (size, industry, revenue)
-            3. Technology stack
-            4. Location information
+            content: `You are an AI assistant specialized in analyzing sales leads and discovering business opportunities. 
+            Analyze the provided lead information in detail, focusing on these key areas:
+
+            1. Message Analysis (Score: 1-5)
+            - Analyze email message content, tone, and quality
+            - Identify key requirements and pain points
+            - Extract timeline and budget indicators
+            - Assess communication style and professionalism
+
+            2. Contact Quality (Score: 1-5)
+            - Evaluate email domain quality (business vs personal)
+            - Assess contact information completeness
+            - Determine decision-maker level
+            - Check for multiple contact points
+
+            3. Company Assessment (Score: 1-5)
+            - Analyze company size and market position
+            - Evaluate industry vertical and market potential
+            - Review technology stack and technical sophistication
+            - Identify growth indicators and company maturity
+
+            4. Opportunity Evaluation (Score: 1-5)
+            - Assess project scope and complexity
+            - Evaluate budget potential and resource requirements
+            - Analyze timeline and urgency factors
+            - Calculate conversion probability
+
+            For each section:
+            - Provide a detailed analysis
+            - Include specific evidence from the data
+            - Assign a score (1-5)
+            - List key findings and recommendations
+
+            Return the analysis in this format:
+            1. Message Analysis
+            Score: X/5
+            Analysis: [detailed analysis]
+            Key Findings:
+            - [bullet points]
             
-            Return the discoveries in this JSON format:
-            {
-              "discoveries": [
-                {
-                  "field_name": "string (e.g., phone_numbers, email, company_size)",
-                  "discovered_value": "string",
-                  "confidence_level": "high|medium|low",
-                  "source": "string (where this information was found)",
-                  "metadata": {}
-                }
-              ]
-            }`
+            [Repeat for each section]`
           },
           {
             role: 'user',
-            content: `Analyze this lead and discover additional information:\n${JSON.stringify(leadContext, null, 2)}`
+            content: `Analyze this lead and provide detailed insights:\n${JSON.stringify(leadContext, null, 2)}`
           }
         ],
       }),
