@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Json } from "@/integrations/supabase/types";
 
 interface LeadDiscovery {
   id: string;
@@ -23,7 +24,7 @@ interface LeadDiscovery {
   applied_at: string | null;
   applied_by: string | null;
   created_at: string;
-  metadata: Record<string, any>;
+  metadata: Json;
 }
 
 interface LeadDiscoveriesProps {
@@ -51,32 +52,33 @@ const LeadDiscoveries = ({ leadId, onLeadUpdate }: LeadDiscoveriesProps) => {
 
   const handleApplyDiscovery = async (discovery: LeadDiscovery) => {
     try {
+      console.log("Applying discovery:", discovery);
+      
       // Convert the value based on field type
-      let convertedValue = discovery.discovered_value;
+      let convertedValue: any = discovery.discovered_value;
       
       // Handle array fields
       if (discovery.field_name === "technology_stack") {
         // Split the comma-separated string and trim whitespace
-        convertedValue = JSON.stringify(
-          discovery.discovered_value.split(",").map(item => item.trim())
-        );
+        const techArray = discovery.discovered_value.split(",").map(item => item.trim());
+        console.log("Converting technology stack to array:", techArray);
+        convertedValue = techArray;
       }
 
-      console.log("Converted payload for database:", {
-        [discovery.field_name]: convertedValue,
-      });
+      const updatePayload = {
+        [discovery.field_name]: convertedValue
+      };
+      
+      console.log("Update payload:", updatePayload);
 
-      // Update the lead with the converted value
+      // Update the lead
       const { error: updateError } = await supabase
         .from("leads")
-        .update({
-          [discovery.field_name]: discovery.field_name === "technology_stack" 
-            ? JSON.parse(convertedValue) 
-            : convertedValue
-        })
+        .update(updatePayload)
         .eq("id", leadId);
 
       if (updateError) {
+        console.error("Error updating lead:", updateError);
         throw updateError;
       }
 
@@ -91,6 +93,7 @@ const LeadDiscoveries = ({ leadId, onLeadUpdate }: LeadDiscoveriesProps) => {
         .eq("id", discovery.id);
 
       if (discoveryError) {
+        console.error("Error updating discovery:", discoveryError);
         throw discoveryError;
       }
 
