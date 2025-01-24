@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Papa from "papaparse";
-import { convertToDatabaseLead } from "@/types/lead";
+import { convertToDatabaseLead, Lead } from "@/types/lead";
 import UploadZone from "./csv-upload/UploadZone";
 import { validateAndTransformLead } from "./csv-upload/leadValidation";
 import FieldMapping from "./csv-upload/FieldMapping";
@@ -158,7 +158,9 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
               if (insertedLead) {
                 console.log('Calculating initial BEAM score for lead:', insertedLead.id);
                 try {
-                  await calculateBeamScore(insertedLead);
+                  // Cast the insertedLead to Lead type to ensure type safety
+                  const typedLead = insertedLead as unknown as Lead;
+                  await calculateBeamScore(typedLead);
                   console.log('BEAM score calculated successfully');
                 } catch (scoreError) {
                   console.error('Error calculating BEAM score:', scoreError);
