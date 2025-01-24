@@ -69,9 +69,11 @@ const ScoringGuide = () => {
                 <TableCell className="font-medium">Authority Level</TableCell>
                 <TableCell>
                   <ul className="list-disc list-inside">
-                    <li>C-Level: 6 points</li>
+                    <li>C-Level Executive: 6 points</li>
                     <li>VP/Director: 4 points</li>
+                    <li>Senior Manager: 3 points</li>
                     <li>Manager: 2 points</li>
+                    <li>Individual Contributor: 1 point</li>
                   </ul>
                 </TableCell>
                 <TableCell>6</TableCell>
@@ -82,7 +84,8 @@ const ScoringGuide = () => {
                   <ul className="list-disc list-inside">
                     <li>Immediate Need: 6 points</li>
                     <li>Next Quarter: 4 points</li>
-                    <li>Future: 2 points</li>
+                    <li>Within 6 Months: 2 points</li>
+                    <li>Future Consideration: 1 point</li>
                   </ul>
                 </TableCell>
                 <TableCell>6</TableCell>
@@ -93,7 +96,8 @@ const ScoringGuide = () => {
                   <ul className="list-disc list-inside">
                     <li>Immediate Start: 6 points</li>
                     <li>1-3 Months: 4 points</li>
-                    <li>3+ Months: 2 points</li>
+                    <li>3-6 Months: 2 points</li>
+                    <li>6+ Months: 1 point</li>
                   </ul>
                 </TableCell>
                 <TableCell>6</TableCell>
@@ -144,9 +148,9 @@ const ScoringGuide = () => {
                 <TableCell className="font-medium">Message Quality</TableCell>
                 <TableCell>
                   <ul className="list-disc list-inside">
-                    <li>Detailed message: 7 points</li>
-                    <li>Basic message: 4 points</li>
-                    <li>No message: 0 points</li>
+                    <li>Detailed message (200+ chars): 7 points</li>
+                    <li>Basic message (50+ chars): 4 points</li>
+                    <li>No/short message: 0 points</li>
                   </ul>
                 </TableCell>
                 <TableCell>7</TableCell>
@@ -173,10 +177,10 @@ const ScoringGuide = () => {
                 <TableCell className="font-medium">Company Size</TableCell>
                 <TableCell>
                   <ul className="list-disc list-inside">
-                    <li>Enterprise: 10 points</li>
-                    <li>Mid-Market: 7 points</li>
-                    <li>Small Business: 4 points</li>
-                    <li>Startup: 2 points</li>
+                    <li>Enterprise (1000+ employees): 10 points</li>
+                    <li>Mid-Market (100-999 employees): 7 points</li>
+                    <li>Small Business (10-99 employees): 4 points</li>
+                    <li>Startup (1-9 employees): 2 points</li>
                   </ul>
                 </TableCell>
                 <TableCell>10</TableCell>
@@ -199,7 +203,8 @@ const ScoringGuide = () => {
                     <li>$100M+: 7 points</li>
                     <li>$50M-$100M: 5 points</li>
                     <li>$10M-$50M: 3 points</li>
-                    <li>Under $10M: 1 point</li>
+                    <li>$1M-$10M: 2 points</li>
+                    <li>Under $1M: 1 point</li>
                   </ul>
                 </TableCell>
                 <TableCell>7</TableCell>
