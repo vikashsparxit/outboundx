@@ -57,6 +57,10 @@ export const LeadDetailsContent = ({
 }: LeadDetailsContentProps) => {
   console.log('Rendering LeadDetailsContent with lead:', lead);
   console.log('Domain type:', lead.domain_type);
+  console.log('Current lead data:', { lead, editedLead, isEditing });
+  
+  // Use editedLead for both view and edit mode to ensure consistency
+  const displayLead = isEditing ? editedLead as Lead : lead;
   
   return (
     <div className="mt-6 space-y-6">
@@ -69,7 +73,7 @@ export const LeadDetailsContent = ({
       )}
 
       <LeadIdentification 
-        lead={lead}
+        lead={displayLead}
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
@@ -77,7 +81,7 @@ export const LeadDetailsContent = ({
       />
 
       <LeadContact 
-        lead={isEditing ? editedLead as Lead : lead}
+        lead={displayLead}
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
@@ -94,7 +98,7 @@ export const LeadDetailsContent = ({
       />
 
       <LeadOnlinePresence 
-        lead={isEditing ? editedLead as Lead : lead}
+        lead={displayLead}
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
@@ -106,14 +110,14 @@ export const LeadDetailsContent = ({
       />
 
       <LeadLocation 
-        lead={isEditing ? editedLead as Lead : lead}
+        lead={displayLead}
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
       />
 
       <LeadScoringCriteria
-        lead={isEditing ? editedLead as Lead : lead}
+        lead={displayLead}
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
