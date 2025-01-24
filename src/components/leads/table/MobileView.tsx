@@ -15,9 +15,8 @@ import BeamScoreCell from "../scoring/BeamScoreCell";
 import LeadsTableHeader from "./LeadsTableHeader";
 import StatusBadge from "./StatusBadge";
 import LeadRowActions from "./LeadRowActions";
-import { formatEmails, formatPhoneNumbers } from "./utils";
+import { formatEmails, formatPhoneNumbers, getCountryCode } from "./utils";
 import EmailTypeTag from "./EmailTypeTag";
-import { MapPin } from "lucide-react";
 
 interface MobileViewProps {
   leads: Lead[];
@@ -32,20 +31,6 @@ interface MobileViewProps {
 }
 
 const PRIORITY_COLUMNS = ["email", "phone_numbers", "country", "beam_score", "status", "website", "actions"];
-
-const COUNTRY_CODES: Record<string, string> = {
-  "United States": "us",
-  "United Kingdom": "gb",
-  "Canada": "ca",
-  // Add more mappings as needed
-};
-
-const getCountryFlag = (country: string | null) => {
-  if (!country) return null;
-  const code = COUNTRY_CODES[country];
-  if (!code) return null;
-  return `https://flagcdn.com/${code}.svg`;
-};
 
 const MobileView = ({
   leads,
@@ -89,9 +74,9 @@ const MobileView = ({
                 <Tooltip>
                   <TooltipTrigger>
                     {lead.country ? (
-                      getCountryFlag(lead.country) ? (
+                      getCountryCode(lead.country) ? (
                         <img 
-                          src={getCountryFlag(lead.country)} 
+                          src={`https://flagcdn.com/${getCountryCode(lead.country)}.svg`}
                           alt={lead.country}
                           className="w-4 h-4 rounded-sm object-cover"
                         />
