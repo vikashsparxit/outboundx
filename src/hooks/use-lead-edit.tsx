@@ -17,9 +17,13 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
   useEffect(() => {
     if (lead) {
       console.log('Initializing editedLead with:', lead);
+      // Initialize with empty arrays if null to prevent undefined errors
       setEditedLead({
         ...lead,
-        email_type: lead.email_type || "business"
+        email_type: lead.email_type || "business",
+        emails: lead.emails || [],
+        phone_numbers: lead.phone_numbers || [],
+        domains: lead.domains || []
       });
     }
   }, [lead]);

@@ -161,6 +161,7 @@ export type Database = {
           domain: string | null
           domains: string[] | null
           email: string | null
+          email_type: string | null
           emails: Json | null
           engagement_score: number | null
           handled: boolean | null
@@ -202,6 +203,7 @@ export type Database = {
           domain?: string | null
           domains?: string[] | null
           email?: string | null
+          email_type?: string | null
           emails?: Json | null
           engagement_score?: number | null
           handled?: boolean | null
@@ -243,6 +245,7 @@ export type Database = {
           domain?: string | null
           domains?: string[] | null
           email?: string | null
+          email_type?: string | null
           emails?: Json | null
           engagement_score?: number | null
           handled?: boolean | null

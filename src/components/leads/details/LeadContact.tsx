@@ -40,15 +40,6 @@ export const LeadContact = ({
     <div className="space-y-2">
       <h3 className="text-lg font-semibold">Contact Information</h3>
       <div className="space-y-4">
-        <EmailManagement
-          isEditing={isEditing}
-          editedLead={editedLead}
-          onAddEmail={onAddEmail}
-          onRemoveEmail={onRemoveEmail}
-          onEmailChange={onEmailChange}
-          formatEmails={formatEmails}
-          validationErrors={validationErrors}
-        />
         <div>
           <label className="text-sm text-muted-foreground">Primary Email</label>
           {isEditing ? (
@@ -81,6 +72,15 @@ export const LeadContact = ({
             <p>{lead.email || "-"} ({lead.email_type || "business"})</p>
           )}
         </div>
+        <EmailManagement
+          isEditing={isEditing}
+          editedLead={editedLead}
+          onAddEmail={onAddEmail}
+          onRemoveEmail={onRemoveEmail}
+          onEmailChange={onEmailChange}
+          formatEmails={formatEmails}
+          validationErrors={validationErrors}
+        />
         <PhoneManagement
           isEditing={isEditing}
           editedLead={editedLead}
