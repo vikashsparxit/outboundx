@@ -16,7 +16,12 @@ interface AnalysisSection {
 const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
   const { analysis } = useLeadAnalysis(lead.id);
   
-  if (!analysis) return null;
+  if (!analysis) {
+    console.log('No analysis found for lead:', lead.id);
+    return null;
+  }
+
+  console.log('Rendering analysis:', analysis);
 
   const parseAnalysis = (content: string): AnalysisSection[] => {
     const sections: AnalysisSection[] = [];
@@ -64,6 +69,7 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
   };
 
   const sections = parseAnalysis(analysis);
+  console.log('Parsed sections:', sections);
 
   return (
     <Card className="mt-6">
