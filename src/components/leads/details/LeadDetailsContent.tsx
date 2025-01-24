@@ -100,7 +100,6 @@ export const LeadDetailsContent = ({
         isEditing={isEditing}
         editedLead={editedLead}
         setEditedLead={setEditedLead}
-        renderField={renderField}
       />
 
       <LeadScoringCriteria
