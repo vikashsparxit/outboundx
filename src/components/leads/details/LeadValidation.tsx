@@ -2,7 +2,9 @@ import { z } from "zod";
 
 export const websiteSchema = z
   .string()
-  .url("Please enter a valid URL (e.g., https://example.com)")
+  .regex(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/, {
+    message: "Please enter a valid URL (e.g., example.com or https://example.com)",
+  })
   .optional()
   .or(z.literal(""));
 
