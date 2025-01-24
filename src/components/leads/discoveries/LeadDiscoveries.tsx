@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Lead } from "@/types/lead";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -97,9 +97,13 @@ const LeadDiscoveries = ({ leadId, onLeadUpdate }: LeadDiscoveriesProps) => {
         throw discoveryError;
       }
 
+      // Update local state to remove the applied discovery
+      setDiscoveries(prevDiscoveries => 
+        prevDiscoveries.filter(d => d.id !== discovery.id)
+      );
+
       toast.success("Discovery applied successfully");
       onLeadUpdate();
-      await fetchDiscoveries();
     } catch (error) {
       console.error("Error applying discovery:", error);
       toast.error("Failed to apply discovery");
@@ -107,9 +111,9 @@ const LeadDiscoveries = ({ leadId, onLeadUpdate }: LeadDiscoveriesProps) => {
   };
 
   // Fetch discoveries on mount
-  useState(() => {
+  useEffect(() => {
     fetchDiscoveries();
-  });
+  }, [leadId]);
 
   if (discoveries.length === 0) return null;
 
