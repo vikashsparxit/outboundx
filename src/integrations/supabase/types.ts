@@ -153,6 +153,10 @@ export type Database = {
           lead_id: string | null
           metadata: Json | null
           source: string | null
+          verification_notes: string | null
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           applied?: boolean | null
@@ -166,6 +170,10 @@ export type Database = {
           lead_id?: string | null
           metadata?: Json | null
           source?: string | null
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           applied?: boolean | null
@@ -179,6 +187,10 @@ export type Database = {
           lead_id?: string | null
           metadata?: Json | null
           source?: string | null
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
@@ -193,6 +205,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_discoveries_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
