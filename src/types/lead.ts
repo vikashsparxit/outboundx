@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types";
+
 export type LeadStatus = "new" | "contacted" | "in_progress" | "closed_won" | "closed_lost";
 export type EmailDomainType = "public" | "business";
 
