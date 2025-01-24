@@ -49,9 +49,12 @@ export const useLeadEdit = (lead: Lead | null, onLeadUpdate: () => void) => {
       console.log('Converting lead for database:', editedLead);
       const dbLead = convertToDatabaseLead(editedLead);
       
+      // Remove the id from the update payload to prevent primary key conflicts
+      const { id, ...updatePayload } = dbLead;
+      
       const { error } = await supabase
         .from("leads")
-        .update(dbLead)
+        .update(updatePayload)
         .eq("id", lead.id);
 
       if (error) {
