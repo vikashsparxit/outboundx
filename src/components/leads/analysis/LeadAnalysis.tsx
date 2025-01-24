@@ -31,37 +31,29 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
       const cleanLine = line.trim();
       if (!cleanLine) return;
 
-      // Remove asterisks and numbers from the start of the line
-      const processedLine = cleanLine.replace(/^[\d.*\s]+/, '').trim();
-      
-      // Check if it's a section header (ends with ':')
-      if (processedLine.endsWith(':')) {
+      if (cleanLine.endsWith(':')) {
         if (currentSection) {
           sections.push(currentSection);
         }
         currentSection = {
-          title: processedLine.slice(0, -1),
+          title: cleanLine.slice(0, -1),
           content: [],
         };
-      } 
-      // Check if it's a score line
-      else if (processedLine.toLowerCase().includes('score:') || processedLine.toLowerCase().includes('rating:')) {
-        if (currentSection) {
-          const [, score] = processedLine.split(/:\s*/);
+      } else if (currentSection) {
+        // Handle score lines
+        if (cleanLine.toLowerCase().includes('score:') || cleanLine.toLowerCase().includes('rating:')) {
+          const [, score] = cleanLine.split(/:\s*/);
           currentSection.score = score?.trim();
-        }
-      }
-      // Regular content line
-      else if (currentSection) {
-        // Remove bullet points and clean the line
-        const contentLine = processedLine.replace(/^[-•]\s*/, '').trim();
-        if (contentLine) {
-          currentSection.content.push(contentLine);
+        } else {
+          // Clean up bullet points and other markers
+          const contentLine = cleanLine.replace(/^[-•*]\s*/, '').trim();
+          if (contentLine) {
+            currentSection.content.push(contentLine);
+          }
         }
       }
     });
 
-    // Don't forget to add the last section
     if (currentSection) {
       sections.push(currentSection);
     }
@@ -73,40 +65,46 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
   console.log('Parsed sections:', sections);
 
   return (
-    <Card className="mt-6 bg-white">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold">AI Analysis</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Accordion type="single" collapsible className="w-full space-y-4">
+    <div className="mt-6 space-y-4">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-lg font-semibold">AI Analysis Results</h3>
+      </div>
+      
+      <div className="bg-white rounded-lg border shadow-sm">
+        <Accordion type="single" collapsible className="w-full">
           {sections.map((section, index) => (
             <AccordionItem 
               key={index} 
               value={`section-${index}`}
-              className="border rounded-lg px-4 py-2 bg-white shadow-sm"
+              className="px-4"
             >
-              <AccordionTrigger className="hover:no-underline">
+              <AccordionTrigger className="py-4 hover:no-underline">
                 <div className="flex items-center justify-between w-full">
                   <span className="font-medium text-left">{section.title}</span>
                   {section.score && (
-                    <span className="text-blue-600 font-semibold ml-2">
+                    <span className="text-blue-600 font-semibold ml-2 px-2 py-1 bg-blue-50 rounded">
                       {section.score}
                     </span>
                   )}
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="pt-2">
-                <div className="space-y-2 text-sm text-muted-foreground">
+              <AccordionContent>
+                <div className="py-3 space-y-2">
                   {section.content.map((line, i) => (
-                    <p key={i} className="leading-relaxed">{line}</p>
+                    <p 
+                      key={i} 
+                      className="text-gray-700 leading-relaxed pl-2 border-l-2 border-gray-200"
+                    >
+                      {line}
+                    </p>
                   ))}
                 </div>
               </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
