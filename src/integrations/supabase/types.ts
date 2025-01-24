@@ -394,6 +394,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_engagement_score: {
+        Args: {
+          lead_record: unknown
+        }
+        Returns: number
+      }
       recalculate_all_beam_scores: {
         Args: Record<PropertyKey, never>
         Returns: undefined

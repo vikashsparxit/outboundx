@@ -155,8 +155,7 @@ const ScoringGuide = () => {
                 <TableCell>
                   <ul className="list-disc list-inside">
                     <li>Business email: 8 points</li>
-                    <li>Personal email: 4 points</li>
-                    <li>Other: 2 points</li>
+                    <li>Personal or other email: 1 point</li>
                     <li>No email: 0 points</li>
                   </ul>
                 </TableCell>
@@ -166,8 +165,8 @@ const ScoringGuide = () => {
                 <TableCell className="font-medium">Message Quality</TableCell>
                 <TableCell>
                   <ul className="list-disc list-inside">
-                    <li>Detailed message (AI-verified high quality): 7 points</li>
-                    <li>Basic message (AI-verified medium quality): 4 points</li>
+                    <li>Detailed message (200+ characters): 7 points</li>
+                    <li>Basic message (50-200 characters): 4 points</li>
                     <li>Low quality or no message: 0 points</li>
                   </ul>
                 </TableCell>
