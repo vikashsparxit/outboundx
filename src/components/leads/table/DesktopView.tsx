@@ -56,12 +56,10 @@ const DesktopView = ({
             <TableCell className="font-medium">{index + 1}</TableCell>
             <TableCell className="max-w-[250px]">
               <div className="flex flex-col gap-0.5">
-                {lead.emails?.map((email, i) => (
-                  <div key={i} className="flex flex-col gap-0.5">
-                    <span className="truncate">{email.email}</span>
-                    <EmailTypeTag type={email.type} />
-                  </div>
-                ))}
+                <div className="flex flex-col gap-0.5">
+                  <span className="truncate">{lead.email}</span>
+                  <EmailTypeTag type={lead.email_type || 'business'} />
+                </div>
               </div>
             </TableCell>
             <TableCell className="max-w-[200px] truncate">
