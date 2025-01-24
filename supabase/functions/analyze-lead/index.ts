@@ -137,7 +137,19 @@ serve(async (req) => {
             6. Opportunity Score:
             - Provide a score (1-100) based on all factors
             - List top 3 reasons for the score
-            - Highlight key differentiators`
+            - Highlight key differentiators
+
+            Additionally, extract and provide the following data points in a structured JSON format:
+            {
+              "budget_range": "string (Enterprise ($100k+), Mid-Market ($50k-$100k), Small Business ($10k-$50k), Startup (Under $10k))",
+              "decision_maker_level": "string (C-Level Executive, VP / Director, Senior Manager, Manager, Individual Contributor)",
+              "need_urgency": "string (Immediate Need, Next Quarter, Within 6 Months, Future Consideration)",
+              "project_timeline": "string (Immediate Start, 1-3 Months, 3-6 Months, 6+ Months)",
+              "company_size": "string (Enterprise (1000+ employees), Mid-Market (100-999 employees), Small Business (10-99 employees), Startup (1-9 employees))",
+              "industry_vertical": "string",
+              "annual_revenue_range": "string ($100M+, $50M-$100M, $10M-$50M, $1M-$10M, Under $1M)",
+              "technology_stack": "string[]"
+            }`
           },
           {
             role: 'user',
@@ -150,6 +162,33 @@ serve(async (req) => {
     const aiData = await response.json();
     const analysis = aiData.choices[0].message.content;
     console.log('AI Analysis completed:', analysis);
+
+    // Extract JSON data from the analysis
+    const jsonMatch = analysis.match(/\{[\s\S]*?\}/);
+    let extractedData = {};
+    if (jsonMatch) {
+      try {
+        extractedData = JSON.parse(jsonMatch[0]);
+        console.log('Extracted BEAM data:', extractedData);
+
+        // Update lead with extracted data
+        const { error: updateError } = await supabase
+          .from('leads')
+          .update({
+            ...extractedData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', leadId);
+
+        if (updateError) {
+          console.error('Error updating lead with extracted data:', updateError);
+        } else {
+          console.log('Successfully updated lead with extracted data');
+        }
+      } catch (error) {
+        console.error('Error parsing extracted data:', error);
+      }
+    }
 
     // Store analysis in lead_activities
     const { error: activityError } = await supabase
@@ -183,7 +222,11 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ analysis, opportunityScore }),
+      JSON.stringify({ 
+        analysis, 
+        opportunityScore,
+        extractedData 
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
