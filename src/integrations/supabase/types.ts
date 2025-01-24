@@ -159,6 +159,7 @@ export type Database = {
           created_at: string | null
           decision_maker_level: string | null
           domain: string | null
+          domain_type: Database["public"]["Enums"]["email_domain_type"] | null
           domains: string[] | null
           email: string | null
           email_type: string | null
@@ -201,6 +202,7 @@ export type Database = {
           created_at?: string | null
           decision_maker_level?: string | null
           domain?: string | null
+          domain_type?: Database["public"]["Enums"]["email_domain_type"] | null
           domains?: string[] | null
           email?: string | null
           email_type?: string | null
@@ -243,6 +245,7 @@ export type Database = {
           created_at?: string | null
           decision_maker_level?: string | null
           domain?: string | null
+          domain_type?: Database["public"]["Enums"]["email_domain_type"] | null
           domains?: string[] | null
           email?: string | null
           email_type?: string | null
@@ -305,6 +308,24 @@ export type Database = {
         }
         Relationships: []
       }
+      public_email_domains: {
+        Row: {
+          created_at: string | null
+          domain: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -324,6 +345,7 @@ export type Database = {
         | "note_added"
         | "note_updated"
         | "note_deleted"
+      email_domain_type: "public" | "business"
       lead_status:
         | "new"
         | "contacted"

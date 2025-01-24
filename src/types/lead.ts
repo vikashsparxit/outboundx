@@ -1,6 +1,5 @@
-import { Json } from "@/integrations/supabase/types";
-
 export type LeadStatus = "new" | "contacted" | "in_progress" | "closed_won" | "closed_lost";
+export type EmailDomainType = "public" | "business";
 
 export interface EmailAddress {
   type: "personal" | "business" | "other";
@@ -48,6 +47,7 @@ export interface Lead {
   account_score: number | null;
   market_score: number | null;
   beam_score: number | null;
+  domain_type: EmailDomainType | null;
 }
 
 export type DatabaseLead = Omit<Lead, 'emails'> & {
