@@ -8,6 +8,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Copy } from "lucide-react";
+import { toast } from "sonner";
 
 export default function UsersList() {
   const { data: users, isLoading } = useQuery({
@@ -21,6 +24,11 @@ export default function UsersList() {
       return data;
     },
   });
+
+  const handleCopy = (text: string, type: "email" | "password") => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${type === "email" ? "Email" : "Password"} copied to clipboard`);
+  };
 
   if (isLoading) {
     return <div>Loading users...</div>;
@@ -39,9 +47,20 @@ export default function UsersList() {
               key={user.id}
               className="flex items-center justify-between p-4 border rounded-lg"
             >
-              <div>
+              <div className="flex-grow">
                 <h3 className="font-medium">{user.full_name || "Unnamed User"}</h3>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => handleCopy(user.email || "", "email")}
+                    title="Copy email"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
               <Badge>{user.role}</Badge>
             </div>
