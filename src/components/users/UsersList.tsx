@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
+import { Copy, Key } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
@@ -51,9 +51,30 @@ export default function UsersList() {
     };
   }, [queryClient]);
 
-  const handleCopy = (text: string) => {
+  const handleCopy = (text: string, type: "email" | "password") => {
     navigator.clipboard.writeText(text);
-    toast.success("Email copied to clipboard");
+    toast.success(`${type === "email" ? "Email" : "Password"} copied to clipboard`);
+  };
+
+  const handleResetPassword = async (userId: string) => {
+    try {
+      const response = await supabase.functions.invoke('reset-user-password', {
+        body: { userId },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to reset password');
+      }
+
+      // Copy the new password to clipboard
+      if (response.data?.password) {
+        navigator.clipboard.writeText(response.data.password);
+        toast.success("New password copied to clipboard");
+      }
+    } catch (error: any) {
+      console.error("Error resetting password:", error);
+      toast.error(error.message || "Failed to reset password");
+    }
   };
 
   if (isLoading) {
@@ -71,30 +92,50 @@ export default function UsersList() {
           {users?.map((user) => (
             <div
               key={user.id}
-              className="flex flex-col p-6 border rounded-lg space-y-3"
+              className="flex items-center justify-between p-4 border rounded-lg"
             >
-              <h3 className="text-xl font-semibold">
-                {user.full_name || "Unnamed User"}
-              </h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">Email:</span>
-                  <span className="text-sm">{user.email}</span>
+              <div className="flex-grow">
+                <h3 className="font-medium">{user.full_name || "Unnamed User"}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6 hover:bg-secondary"
-                    onClick={() => handleCopy(user.email || "")}
+                    onClick={() => handleCopy(user.email || "", "email")}
                     title="Copy email"
                   >
                     <Copy className="h-3 w-3" />
                   </Button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">Type:</span>
-                  <Badge variant="secondary">{user.role}</Badge>
-                </div>
+                {/* Show current password if it exists */}
+                {(user as any).password && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-sm text-muted-foreground font-mono">
+                      Password: {(user as any).password}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 hover:bg-secondary"
+                      onClick={() => handleCopy((user as any).password, "password")}
+                      title="Copy current password"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 hover:bg-secondary"
+                      onClick={() => handleResetPassword(user.id)}
+                      title="Change password and copy new one"
+                    >
+                      <Key className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
+              <Badge>{user.role}</Badge>
             </div>
           ))}
         </div>
