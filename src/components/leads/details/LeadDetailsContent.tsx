@@ -81,6 +81,7 @@ export const LeadDetailsContent = ({
         "grid gap-6",
         isFullScreen ? "grid-cols-2" : "grid-cols-1"
       )}>
+        {/* Left Column */}
         <div className="space-y-6">
           <ScoreBreakdown lead={lead} />
           
@@ -110,6 +111,7 @@ export const LeadDetailsContent = ({
           />
         </div>
 
+        {/* Right Column */}
         <div className="space-y-6">
           <LeadOnlinePresence 
             lead={displayLead}
@@ -140,13 +142,14 @@ export const LeadDetailsContent = ({
         </div>
       </div>
 
+      {/* Full Width Sections */}
       {lead.domain_type === 'business' && (
-        <>
-          <div id="lead-analysis-section" className="lead-analysis-section mt-6">
+        <div className={cn("mt-6", isFullScreen && "space-y-6")}>
+          <div id="lead-analysis-section" className="lead-analysis-section">
             <LeadAnalysis lead={lead} />
           </div>
           <LeadDiscoveries leadId={lead.id} onLeadUpdate={() => window.location.reload()} />
-        </>
+        </div>
       )}
 
       <div className={cn(
