@@ -18,8 +18,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Activity, Users, Target, TrendingUp } from "lucide-react";
+import CreateUserModal from "@/components/users/CreateUserModal";
+import UsersList from "@/components/users/UsersList";
+import { useAuth } from "@/providers/AuthProvider";
 
 const Index = () => {
+  const { user } = useAuth();
   // Fetch dashboard statistics
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats"],
@@ -65,11 +69,31 @@ const Index = () => {
       }))
     : [];
 
+  // Check if user is admin
+  const { data: userProfile } = useQuery({
+    queryKey: ["userProfile", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user?.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const isAdmin = userProfile?.role === "admin";
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        {isAdmin && <CreateUserModal />}
+      </div>
       
-      {/* Key Metrics */}
+      {/* Existing Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -148,6 +172,13 @@ const Index = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Users List (only visible to admins) */}
+      {isAdmin && (
+        <div className="mt-8">
+          <UsersList />
+        </div>
+      )}
 
       {/* Recent Activities */}
       <Card>
