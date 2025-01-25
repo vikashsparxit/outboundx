@@ -31,13 +31,15 @@ export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionForm
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from("lead_status_actions").insert({
-        lead_id: leadId,
-        action_type: actionType,
-        outcome: outcome,
-        notes: notes,
-        duration_minutes: duration ? parseInt(duration) : null,
-      });
+      const { error } = await supabase
+        .from("lead_status_actions")
+        .insert([{  // Wrap the object in an array
+          lead_id: leadId,
+          action_type: actionType,
+          outcome: outcome,
+          notes: notes,
+          duration_minutes: duration ? parseInt(duration) : null,
+        }]);
 
       if (error) throw error;
 
