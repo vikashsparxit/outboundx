@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
+import { Copy, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
@@ -56,6 +56,29 @@ export default function UsersList() {
     toast.success(`${type === "email" ? "Email" : "Password"} copied to clipboard`);
   };
 
+  const handleResetPassword = async (userId: string, email: string) => {
+    try {
+      const { error } = await supabase.auth.admin.updateUserById(
+        userId,
+        { password: Math.random().toString(36).slice(-12) }
+      );
+
+      if (error) throw error;
+
+      // Send password reset email to user
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (resetError) throw resetError;
+
+      toast.success("Password reset email sent successfully");
+    } catch (error: any) {
+      console.error("Error resetting password:", error);
+      toast.error(error.message || "Failed to reset password");
+    }
+  };
+
   if (isLoading) {
     return <div>Loading users...</div>;
   }
@@ -98,6 +121,15 @@ export default function UsersList() {
                       <Copy className="h-3 w-3" />
                     </Button>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 hover:bg-secondary"
+                    onClick={() => handleResetPassword(user.id, user.email || "")}
+                    title="Reset password"
+                  >
+                    <KeyRound className="h-3 w-3" />
+                  </Button>
                 </div>
               </div>
               <Badge>{user.role}</Badge>
