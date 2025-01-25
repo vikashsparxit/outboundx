@@ -86,6 +86,18 @@ export default function UsersList() {
                   >
                     <Copy className="h-3 w-3" />
                   </Button>
+                  {/* Only show password copy button for newly created users that still have their password in memory */}
+                  {(user as any).password && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => handleCopy((user as any).password, "password")}
+                      title="Copy password"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
               </div>
               <Badge>{user.role}</Badge>
