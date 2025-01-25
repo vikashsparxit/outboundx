@@ -107,24 +107,25 @@ export default function UsersList() {
                   >
                     <Copy className="h-3 w-3" />
                   </Button>
-                  {/* Only show password copy button for newly created users that still have their password in memory */}
+                  {/* Show copy password button for existing password */}
                   {(user as any).password && (
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6 hover:bg-secondary"
                       onClick={() => handleCopy((user as any).password, "password")}
-                      title="Copy password"
+                      title="Copy current password"
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
                   )}
+                  {/* Change password button */}
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6 hover:bg-secondary"
                     onClick={() => handleResetPassword(user.id)}
-                    title="Reset and copy new password"
+                    title="Change password and copy new one"
                   >
                     <KeyRound className="h-3 w-3" />
                   </Button>
