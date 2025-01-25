@@ -107,8 +107,13 @@ export default function UsersList() {
                   >
                     <Copy className="h-3 w-3" />
                   </Button>
-                  {/* Show copy password button for existing password */}
-                  {(user as any).password && (
+                </div>
+                {/* Show current password if it exists */}
+                {(user as any).password && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-sm text-muted-foreground font-mono">
+                      Password: {(user as any).password}
+                    </p>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -118,18 +123,17 @@ export default function UsersList() {
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
-                  )}
-                  {/* Change password button */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 hover:bg-secondary"
-                    onClick={() => handleResetPassword(user.id)}
-                    title="Change password and copy new one"
-                  >
-                    <Key className="h-3 w-3" />
-                  </Button>
-                </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 hover:bg-secondary"
+                      onClick={() => handleResetPassword(user.id)}
+                      title="Change password and copy new one"
+                    >
+                      <Key className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
               <Badge>{user.role}</Badge>
             </div>
