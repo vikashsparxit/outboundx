@@ -39,6 +39,8 @@ const ActivityLogPage = () => {
     queryKey: ["all-activities", searchTerm, activityType],
     queryFn: async () => {
       console.log("Fetching activities with filters:", { searchTerm, activityType });
+      
+      // First, fetch activities with profiles
       let query = supabase
         .from("lead_activities")
         .select(`
@@ -46,25 +48,43 @@ const ActivityLogPage = () => {
           profiles (
             full_name,
             email
-          ),
-          leads (
-            ticket_id,
-            email
           )
         `)
         .order("created_at", { ascending: false });
 
       if (searchTerm) {
-        query = query.or(`description.ilike.%${searchTerm}%,leads.ticket_id.ilike.%${searchTerm}%`);
+        query = query.or(`description.ilike.%${searchTerm}%`);
       }
 
       if (activityType !== "all") {
         query = query.eq("activity_type", activityType);
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as ActivityLogEntry[];
+      const { data: activitiesData, error: activitiesError } = await query;
+      
+      if (activitiesError) throw activitiesError;
+
+      // Then, fetch lead information separately for each activity
+      const activitiesWithLeads = await Promise.all(
+        (activitiesData || []).map(async (activity) => {
+          if (!activity.lead_id) return { ...activity, leads: null };
+
+          const { data: leadData, error: leadError } = await supabase
+            .from("leads")
+            .select("ticket_id, email")
+            .eq("id", activity.lead_id)
+            .single();
+
+          if (leadError) {
+            console.error("Error fetching lead:", leadError);
+            return { ...activity, leads: null };
+          }
+
+          return { ...activity, leads: leadData };
+        })
+      );
+
+      return activitiesWithLeads as ActivityLogEntry[];
     },
   });
 
