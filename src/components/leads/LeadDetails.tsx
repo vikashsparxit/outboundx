@@ -7,6 +7,8 @@ import { LeadFormField } from "./details/LeadFormField";
 import { LeadSubscription } from "./details/LeadSubscription";
 import { LeadDetailsHeader } from "./details/LeadDetailsHeader";
 import { LeadDetailsContent } from "./details/LeadDetailsContent";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface LeadDetailsProps {
   lead: Lead | null;
@@ -16,6 +18,8 @@ interface LeadDetailsProps {
 }
 
 const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) => {
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  
   const {
     isUpdating,
     isEditing,
@@ -74,17 +78,16 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
     }
   };
 
-  // Initialize editedLead when entering edit mode
   const handleStartEditing = () => {
     console.log('Starting edit mode with lead:', lead);
     setEditedLead(lead || {});
     setIsEditing(true);
   };
 
-  // Handle sheet close
   const handleSheetClose = () => {
     console.log('Closing sheet, resetting edit state');
     resetEditState();
+    setIsFullScreen(false);
     onClose();
   };
 
@@ -92,19 +95,28 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
 
   return (
     <Sheet open={isOpen} onOpenChange={handleSheetClose}>
-      <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto pb-20">
+      <SheetContent 
+        className={cn(
+          "transition-all duration-300 ease-in-out overflow-y-auto pb-20",
+          isFullScreen 
+            ? "w-full h-full max-w-none !right-0" 
+            : "w-[400px] sm:w-[540px]"
+        )}
+      >
         <LeadSubscription lead={lead} onLeadUpdate={onLeadUpdate} />
         
         <LeadDetailsHeader
           lead={lead}
           isEditing={isEditing}
           isUpdating={isUpdating}
+          isFullScreen={isFullScreen}
           onEdit={handleStartEditing}
           onSave={handleEdit}
           onCancel={() => {
             setIsEditing(false);
             setEditedLead(lead);
           }}
+          onToggleFullScreen={() => setIsFullScreen(!isFullScreen)}
         />
         
         <LeadDetailsContent
@@ -128,6 +140,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
           onDomainChange={onDomainChange}
           onAddTechnology={onAddTechnology}
           onStatusUpdate={handleStatusUpdate}
+          isFullScreen={isFullScreen}
         />
       </SheetContent>
     </Sheet>

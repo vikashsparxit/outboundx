@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Edit, Save, X, Brain, Eye } from "lucide-react";
+import { Edit, Save, X, Brain, Eye, Maximize2, Minimize2 } from "lucide-react";
 import { Lead } from "@/types/lead";
 import { useLeadAnalysis } from "@/hooks/use-lead-analysis";
 
@@ -7,18 +7,22 @@ interface LeadDetailsHeaderProps {
   lead: Lead;
   isEditing: boolean;
   isUpdating: boolean;
+  isFullScreen: boolean;
   onEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
+  onToggleFullScreen: () => void;
 }
 
 export const LeadDetailsHeader = ({
   lead,
   isEditing,
   isUpdating,
+  isFullScreen,
   onEdit,
   onSave,
   onCancel,
+  onToggleFullScreen,
 }: LeadDetailsHeaderProps) => {
   const { analyzeLead, isAnalyzing, hasBeenAnalyzed } = useLeadAnalysis(lead.id);
 
@@ -26,7 +30,6 @@ export const LeadDetailsHeader = ({
     if (lead.domain_type !== 'business') return;
     
     if (hasBeenAnalyzed) {
-      // If already analyzed, scroll to analysis section
       const analysisSection = document.querySelector('.lead-analysis-section');
       if (analysisSection) {
         analysisSection.scrollIntoView({ behavior: 'smooth' });
@@ -36,7 +39,6 @@ export const LeadDetailsHeader = ({
 
     const analysis = await analyzeLead(lead.id);
     if (analysis) {
-      // Find and scroll to analysis section after a short delay
       setTimeout(() => {
         const analysisSection = document.querySelector('.lead-analysis-section');
         if (analysisSection) {
@@ -50,6 +52,19 @@ export const LeadDetailsHeader = ({
     <div className="flex items-center justify-between pb-4 border-b">
       <h2 className="text-lg font-semibold">Lead Details</h2>
       <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggleFullScreen}
+          className="hidden sm:flex"
+        >
+          {isFullScreen ? (
+            <Minimize2 className="h-4 w-4" />
+          ) : (
+            <Maximize2 className="h-4 w-4" />
+          )}
+        </Button>
+        
         {!isEditing && lead.domain_type === 'business' && (
           <Button
             variant="outline"
@@ -70,6 +85,7 @@ export const LeadDetailsHeader = ({
             )}
           </Button>
         )}
+        
         {isEditing ? (
           <>
             <Button
