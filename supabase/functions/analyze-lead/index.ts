@@ -19,7 +19,6 @@ function extractBusinessDomain(email: string): string | null {
   const domain = email.split('@')[1];
   if (!domain) return null;
 
-  // Remove common email provider domains
   const commonProviders = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'ymail.com'];
   if (commonProviders.includes(domain.toLowerCase())) {
     return null;
@@ -34,10 +33,18 @@ serve(async (req) => {
   }
 
   try {
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Supabase configuration is missing');
+    }
+
     const { leadId } = await req.json();
     console.log('Analyzing lead:', leadId);
 
-    const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Fetch lead data
     const { data: lead, error: leadError } = await supabase
@@ -51,10 +58,14 @@ serve(async (req) => {
         )
       `)
       .eq('id', leadId)
-      .single();
+      .maybeSingle();
 
-    if (leadError || !lead) {
+    if (leadError) {
       console.error('Error fetching lead:', leadError);
+      throw new Error('Failed to fetch lead data');
+    }
+
+    if (!lead) {
       throw new Error('Lead not found');
     }
 
@@ -118,6 +129,7 @@ serve(async (req) => {
       previous_activities: lead.lead_activities
     };
 
+    console.log('Sending analysis request to OpenAI');
     // Get AI analysis
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -139,6 +151,12 @@ serve(async (req) => {
         ],
       }),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error('Failed to get analysis from OpenAI');
+    }
 
     const aiData = await response.json();
     const analysis = aiData.choices[0].message.content;
@@ -196,6 +214,7 @@ serve(async (req) => {
 
     if (activityError) {
       console.error('Error storing analysis:', activityError);
+      throw new Error('Failed to store analysis results');
     }
 
     return new Response(
@@ -208,8 +227,14 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in analyze-lead function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        error: error.message,
+        details: 'Check the function logs for more information'
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 });
