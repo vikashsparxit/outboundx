@@ -306,6 +306,57 @@ export type Database = {
           },
         ]
       }
+      lead_status_actions: {
+        Row: {
+          action_type: Database["public"]["Enums"]["lead_status_action_type"]
+          created_at: string | null
+          duration_minutes: number | null
+          id: string
+          lead_id: string | null
+          notes: string | null
+          outcome: Database["public"]["Enums"]["lead_status_outcome"]
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: Database["public"]["Enums"]["lead_status_action_type"]
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          outcome: Database["public"]["Enums"]["lead_status_outcome"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: Database["public"]["Enums"]["lead_status_action_type"]
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          outcome?: Database["public"]["Enums"]["lead_status_outcome"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_status_actions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_status_actions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           account_score: number | null
@@ -536,6 +587,21 @@ export type Database = {
         | "in_progress"
         | "closed_won"
         | "closed_lost"
+      lead_status_action_type: "call" | "email" | "meeting" | "proposal"
+      lead_status_outcome:
+        | "connected"
+        | "not_connected"
+        | "voicemail_left"
+        | "wrong_number"
+        | "email_sent"
+        | "email_received"
+        | "no_response"
+        | "meeting_scheduled"
+        | "meeting_completed"
+        | "meeting_cancelled"
+        | "proposal_sent"
+        | "proposal_accepted"
+        | "proposal_rejected"
       user_role: "admin" | "manager" | "executive"
     }
     CompositeTypes: {

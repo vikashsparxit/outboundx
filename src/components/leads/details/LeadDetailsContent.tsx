@@ -11,6 +11,7 @@ import ActivityLog from "../ActivityLog";
 import LeadAnalysis from "../analysis/LeadAnalysis";
 import LeadDiscoveries from "../discoveries/LeadDiscoveries";
 import { cn } from "@/lib/utils";
+import { LeadInteractions } from "./LeadInteractions";
 
 interface LeadDetailsContentProps {
   lead: Lead;
@@ -109,6 +110,8 @@ export const LeadDetailsContent = ({
             validationErrors={validationErrors}
             renderField={renderField}
           />
+
+          {!isEditing && <LeadInteractions leadId={lead.id} />}
         </div>
 
         {/* Right Column */}
