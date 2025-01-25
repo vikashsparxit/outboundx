@@ -58,19 +58,13 @@ export default function UsersList() {
 
   const handleResetPassword = async (userId: string, email: string) => {
     try {
-      const { error } = await supabase.auth.admin.updateUserById(
-        userId,
-        { password: Math.random().toString(36).slice(-12) }
-      );
-
-      if (error) throw error;
-
-      // Send password reset email to user
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+      const response = await supabase.functions.invoke('reset-user-password', {
+        body: { userId, email },
       });
 
-      if (resetError) throw resetError;
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to reset password');
+      }
 
       toast.success("Password reset email sent successfully");
     } catch (error: any) {
