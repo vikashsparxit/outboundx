@@ -2,7 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, User, Ticket } from "lucide-react";
+import { 
+  Clock, 
+  User, 
+  Ticket,
+  ArrowUp,
+  ArrowDown,
+  Edit,
+  RefreshCcw,
+  FileText,
+  UserPlus
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -29,6 +39,36 @@ interface ActivityLogEntry {
     email: string | null;
   };
 }
+
+const getActivityIcon = (activity: ActivityLogEntry) => {
+  const type = activity.activity_type;
+  const description = activity.description.toLowerCase();
+
+  if (type === 'beam_score_update') {
+    if (description.includes('increased') || description.includes('from 0 to')) {
+      return <ArrowUp className="h-5 w-5 mt-1 flex-shrink-0 text-green-500" />;
+    }
+    return <ArrowDown className="h-5 w-5 mt-1 flex-shrink-0 text-red-500" />;
+  }
+
+  if (type === 'lead_update' || description.includes('updated')) {
+    return <Edit className="h-5 w-5 mt-1 flex-shrink-0 text-blue-500" />;
+  }
+
+  if (type === 'status_update' || description.includes('status')) {
+    return <RefreshCcw className="h-5 w-5 mt-1 flex-shrink-0 text-orange-500" />;
+  }
+
+  if (type === 'note_added' || description.includes('note')) {
+    return <FileText className="h-5 w-5 mt-1 flex-shrink-0 text-purple-500" />;
+  }
+
+  if (type === 'lead_created' || description.includes('created')) {
+    return <UserPlus className="h-5 w-5 mt-1 flex-shrink-0 text-emerald-500" />;
+  }
+
+  return <Clock className="h-5 w-5 mt-1 flex-shrink-0 text-muted-foreground" />;
+};
 
 const ActivityLogPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -113,7 +153,7 @@ const ActivityLogPage = () => {
                 {activities.map((activity) => (
                   <div key={activity.id} className="p-4 hover:bg-muted/50">
                     <div className="flex gap-4">
-                      <Clock className="h-5 w-5 mt-1 flex-shrink-0 text-muted-foreground" />
+                      {getActivityIcon(activity)}
                       <div className="space-y-1 flex-1">
                         <p className="text-sm">
                           {activity.description}
