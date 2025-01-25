@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Copy, KeyRound } from "lucide-react";
+import { Copy, Key } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
@@ -127,7 +127,7 @@ export default function UsersList() {
                     onClick={() => handleResetPassword(user.id)}
                     title="Change password and copy new one"
                   >
-                    <KeyRound className="h-3 w-3" />
+                    <Key className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
