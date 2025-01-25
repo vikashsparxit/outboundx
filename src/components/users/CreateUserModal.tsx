@@ -49,25 +49,24 @@ export default function CreateUserModal() {
       setIsLoading(true);
       console.log("Creating user with data:", data);
 
-      // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: data.email,
-        password: data.password,
-        email_confirm: true,
+      // Create user using Edge Function
+      const response = await fetch('/api/create-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          fullName: data.fullName,
+          role: data.role,
+        }),
       });
 
-      if (authError) throw authError;
-
-      // Update profile with additional information
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({
-          full_name: data.fullName,
-          role: data.role,
-        })
-        .eq("id", authData.user.id);
-
-      if (profileError) throw profileError;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create user');
+      }
 
       toast.success("User created successfully");
       setIsOpen(false);
