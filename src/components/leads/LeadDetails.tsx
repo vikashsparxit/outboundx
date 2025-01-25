@@ -96,10 +96,11 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
   return (
     <Sheet open={isOpen} onOpenChange={handleSheetClose}>
       <SheetContent 
+        side="right"
         className={cn(
           "transition-all duration-300 ease-in-out overflow-y-auto pb-20",
           isFullScreen 
-            ? "w-full h-full max-w-none !right-0" 
+            ? "!w-screen !max-w-none !right-0" 
             : "w-[400px] sm:w-[540px]"
         )}
       >
