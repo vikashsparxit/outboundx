@@ -17,6 +17,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import BulkAssignmentModal from "../assignment/BulkAssignmentModal";
+import { Button } from "@/components/ui/button";
+import { Users } from "lucide-react";
 
 interface TableContainerProps {
   leads: Lead[];
@@ -44,6 +47,8 @@ const TableContainer = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null);
   const isMobile = useIsMobile();
+  const [selectedLeads, setSelectedLeads] = useState<Lead[]>([]);
+  const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -74,7 +79,6 @@ const TableContainer = ({
     try {
       console.log("Starting lead deletion process:", lead.id);
       
-      // First, log the activity
       await logActivity(
         lead.id,
         "lead_deleted",
@@ -83,7 +87,6 @@ const TableContainer = ({
       
       console.log("Activity logged, proceeding with deletion");
       
-      // Then delete the lead
       const { error } = await supabase
         .from("leads")
         .delete()
@@ -109,38 +112,84 @@ const TableContainer = ({
     }
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    setSelectedLeads(checked ? leads : []);
+  };
+
+  const handleSelectLead = (lead: Lead, checked: boolean) => {
+    setSelectedLeads(prev => 
+      checked 
+        ? [...prev, lead]
+        : prev.filter(l => l.id !== lead.id)
+    );
+  };
+
+  const handleAssignmentSuccess = () => {
+    setSelectedLeads([]);
+    setIsAssignmentModalOpen(false);
+    onLeadDeleted(); // Refresh the leads list
+    toast({
+      title: "Leads assigned successfully",
+      description: `${selectedLeads.length} leads have been assigned`,
+    });
+  };
+
   if (isLoading) {
     return <div className="w-full p-8 text-center text-muted-foreground">Loading...</div>;
   }
 
   return (
     <>
-      <div className="w-full overflow-x-auto">
-        {isMobile ? (
-          <MobileView
-            leads={leads}
-            sortConfig={sortConfig}
-            onSort={onSort}
-            onLeadSelect={onLeadSelect}
-            isAdmin={isAdmin}
-            onDelete={(lead) => {
-              setLeadToDelete(lead);
-              setDeleteDialogOpen(true);
-            }}
-          />
-        ) : (
-          <DesktopView
-            leads={leads}
-            sortConfig={sortConfig}
-            onSort={onSort}
-            onLeadSelect={onLeadSelect}
-            isAdmin={isAdmin}
-            onDelete={(lead) => {
-              setLeadToDelete(lead);
-              setDeleteDialogOpen(true);
-            }}
-          />
+      <div className="w-full space-y-4">
+        {isAdmin && selectedLeads.length > 0 && (
+          <div className="flex items-center justify-between bg-muted/50 p-2 rounded-md">
+            <span className="text-sm text-muted-foreground">
+              {selectedLeads.length} leads selected
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAssignmentModalOpen(true)}
+            >
+              <Users className="mr-2 h-4 w-4" />
+              Assign Leads
+            </Button>
+          </div>
         )}
+        
+        <div className="w-full overflow-x-auto">
+          {isMobile ? (
+            <MobileView
+              leads={leads}
+              sortConfig={sortConfig}
+              onSort={onSort}
+              onLeadSelect={onLeadSelect}
+              isAdmin={isAdmin}
+              onDelete={(lead) => {
+                setLeadToDelete(lead);
+                setDeleteDialogOpen(true);
+              }}
+              selectedLeads={selectedLeads}
+              onSelectLead={handleSelectLead}
+              onSelectAll={handleSelectAll}
+            />
+          ) : (
+            <DesktopView
+              leads={leads}
+              sortConfig={sortConfig}
+              onSort={onSort}
+              onLeadSelect={onLeadSelect}
+              isAdmin={isAdmin}
+              onDelete={(lead) => {
+                setLeadToDelete(lead);
+                setDeleteDialogOpen(true);
+              }}
+              selectedLeads={selectedLeads}
+              onSelectLead={handleSelectLead}
+              onSelectAll={handleSelectAll}
+            />
+          )}
+        </div>
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -168,6 +217,13 @@ const TableContainer = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BulkAssignmentModal
+        isOpen={isAssignmentModalOpen}
+        onClose={() => setIsAssignmentModalOpen(false)}
+        selectedLeads={selectedLeads}
+        onSuccess={handleAssignmentSuccess}
+      />
     </>
   );
 };

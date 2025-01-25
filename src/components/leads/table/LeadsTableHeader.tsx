@@ -4,6 +4,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface LeadsTableHeaderProps {
   sortConfig: {
@@ -13,9 +14,22 @@ interface LeadsTableHeaderProps {
   onSort: (key: string) => void;
   isMobile: boolean;
   priorityColumns: string[];
+  isAdmin?: boolean;
+  onSelectAll?: (checked: boolean) => void;
+  allSelected?: boolean;
+  someSelected?: boolean;
 }
 
-const LeadsTableHeader = ({ sortConfig, onSort, isMobile, priorityColumns }: LeadsTableHeaderProps) => {
+const LeadsTableHeader = ({ 
+  sortConfig, 
+  onSort, 
+  isMobile, 
+  priorityColumns,
+  isAdmin,
+  onSelectAll,
+  allSelected,
+  someSelected,
+}: LeadsTableHeaderProps) => {
   const getSortIcon = (key: string) => {
     if (sortConfig.key !== key) return null;
     return sortConfig.direction === "asc" ? (
@@ -28,6 +42,15 @@ const LeadsTableHeader = ({ sortConfig, onSort, isMobile, priorityColumns }: Lea
   return (
     <TableHeader>
       <TableRow>
+        {isAdmin && (
+          <TableHead className="w-[30px]">
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked) => onSelectAll?.(checked as boolean)}
+              className="translate-y-[2px]"
+            />
+          </TableHead>
+        )}
         <TableHead className="w-[60px] whitespace-nowrap">S.No.</TableHead>
         <TableHead onClick={() => onSort("email")} className="cursor-pointer whitespace-nowrap">
           Email {getSortIcon("email")}

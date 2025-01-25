@@ -11,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
 import BeamScoreCell from "../scoring/BeamScoreCell";
 import LeadsTableHeader from "./LeadsTableHeader";
 import StatusBadge from "./StatusBadge";
@@ -28,6 +29,9 @@ interface DesktopViewProps {
   onLeadSelect: (lead: Lead) => void;
   isAdmin: boolean;
   onDelete: (lead: Lead) => void;
+  selectedLeads: Lead[];
+  onSelectLead: (lead: Lead, checked: boolean) => void;
+  onSelectAll: (checked: boolean) => void;
 }
 
 const DesktopView = ({
@@ -37,7 +41,13 @@ const DesktopView = ({
   onLeadSelect,
   isAdmin,
   onDelete,
+  selectedLeads,
+  onSelectLead,
+  onSelectAll,
 }: DesktopViewProps) => {
+  const isSelected = (lead: Lead) => 
+    selectedLeads.some(selected => selected.id === lead.id);
+
   return (
     <Table>
       <LeadsTableHeader 
@@ -45,16 +55,29 @@ const DesktopView = ({
         onSort={onSort}
         isMobile={false}
         priorityColumns={[]}
+        isAdmin={isAdmin}
+        onSelectAll={onSelectAll}
+        allSelected={selectedLeads.length === leads.length}
+        someSelected={selectedLeads.length > 0 && selectedLeads.length < leads.length}
       />
       <TableBody>
         {leads.map((lead, index) => (
           <TableRow 
             key={lead.id}
-            className="group cursor-pointer transition-colors hover:bg-muted/50"
-            onClick={() => onLeadSelect(lead)}
+            className={`group cursor-pointer transition-colors hover:bg-muted/50 ${
+              isSelected(lead) ? "bg-muted" : ""
+            }`}
           >
+            {isAdmin && (
+              <TableCell onClick={(e) => e.stopPropagation()} className="w-0">
+                <Checkbox
+                  checked={isSelected(lead)}
+                  onCheckedChange={(checked) => onSelectLead(lead, checked as boolean)}
+                />
+              </TableCell>
+            )}
             <TableCell className="font-medium">{index + 1}</TableCell>
-            <TableCell className="max-w-[250px]">
+            <TableCell className="max-w-[250px]" onClick={() => onLeadSelect(lead)}>
               <div className="flex flex-col gap-0.5">
                 <div className="flex flex-col gap-0.5">
                   <span className="truncate">{lead.email}</span>
@@ -62,10 +85,10 @@ const DesktopView = ({
                 </div>
               </div>
             </TableCell>
-            <TableCell className="max-w-[200px] truncate">
+            <TableCell className="max-w-[200px] truncate" onClick={() => onLeadSelect(lead)}>
               {formatPhoneNumbers(lead.phone_numbers)}
             </TableCell>
-            <TableCell>
+            <TableCell onClick={() => onLeadSelect(lead)}>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
@@ -91,18 +114,18 @@ const DesktopView = ({
                 </Tooltip>
               </TooltipProvider>
             </TableCell>
-            <TableCell>
+            <TableCell onClick={() => onLeadSelect(lead)}>
               <BeamScoreCell lead={lead} />
             </TableCell>
-            <TableCell>
+            <TableCell onClick={() => onLeadSelect(lead)}>
               <StatusBadge status={lead.status} />
             </TableCell>
-            <TableCell className="max-w-[200px] truncate">
+            <TableCell className="max-w-[200px] truncate" onClick={() => onLeadSelect(lead)}>
               {lead.website || "-"}
             </TableCell>
-            <TableCell>{lead.lead_type || "-"}</TableCell>
-            <TableCell>{lead.client_type || "-"}</TableCell>
-            <TableCell className="whitespace-nowrap">
+            <TableCell onClick={() => onLeadSelect(lead)}>{lead.lead_type || "-"}</TableCell>
+            <TableCell onClick={() => onLeadSelect(lead)}>{lead.client_type || "-"}</TableCell>
+            <TableCell className="whitespace-nowrap" onClick={() => onLeadSelect(lead)}>
               {new Date(lead.created_at).toLocaleDateString()}
             </TableCell>
             <TableCell onClick={(e) => e.stopPropagation()}>
