@@ -1,17 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { 
-  History, 
-  ArrowUp, 
-  ArrowDown,
-  Edit,
-  RefreshCcw,
-  FileText,
-  UserPlus,
-  Clock
-} from "lucide-react";
+import { History } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getActivityIcon } from "@/utils/activity-icons";
 
 interface ActivityLogProps {
   leadId: string;
@@ -29,36 +21,6 @@ interface Activity {
     email: string | null;
   };
 }
-
-const getActivityIcon = (activity: Activity) => {
-  const type = activity.activity_type;
-  const description = activity.description.toLowerCase();
-
-  if (type === 'beam_score_update') {
-    if (description.includes('increased') || description.includes('from 0 to')) {
-      return <ArrowUp className="h-4 w-4 mt-1 flex-shrink-0 text-green-500" />;
-    }
-    return <ArrowDown className="h-4 w-4 mt-1 flex-shrink-0 text-red-500" />;
-  }
-
-  if (type === 'lead_update' || description.includes('updated')) {
-    return <Edit className="h-4 w-4 mt-1 flex-shrink-0 text-blue-500" />;
-  }
-
-  if (type === 'status_update' || description.includes('status')) {
-    return <RefreshCcw className="h-4 w-4 mt-1 flex-shrink-0 text-orange-500" />;
-  }
-
-  if (type === 'note_added' || description.includes('note')) {
-    return <FileText className="h-4 w-4 mt-1 flex-shrink-0 text-purple-500" />;
-  }
-
-  if (type === 'lead_created' || description.includes('created')) {
-    return <UserPlus className="h-4 w-4 mt-1 flex-shrink-0 text-emerald-500" />;
-  }
-
-  return <Clock className="h-4 w-4 mt-1 flex-shrink-0 text-muted-foreground" />;
-};
 
 const ActivityLog = ({ leadId }: ActivityLogProps) => {
   const { data: activities, isLoading } = useQuery({
@@ -96,7 +58,9 @@ const ActivityLog = ({ leadId }: ActivityLogProps) => {
           <div className="space-y-4">
             {activities.map((activity) => (
               <div key={activity.id} className="flex gap-3">
-                {getActivityIcon(activity)}
+                <div className="h-4 w-4 mt-1">
+                  {getActivityIcon(activity)}
+                </div>
                 <div className="space-y-1">
                   <p className="text-sm">
                     {activity.activity_type === 'ai_analysis' 
