@@ -13,6 +13,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/utils/activity-logger";
 
+type ActionType = "call" | "email" | "meeting" | "proposal";
+type ActionOutcome = 
+  | "connected"
+  | "not_connected"
+  | "voicemail_left"
+  | "wrong_number"
+  | "email_sent"
+  | "email_received"
+  | "no_response"
+  | "meeting_scheduled"
+  | "meeting_completed"
+  | "meeting_cancelled"
+  | "proposal_sent"
+  | "proposal_accepted"
+  | "proposal_rejected";
+
 interface LeadStatusActionFormProps {
   leadId: string;
   onSuccess: () => void;
@@ -20,8 +36,8 @@ interface LeadStatusActionFormProps {
 
 export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionFormProps) => {
   const { toast } = useToast();
-  const [actionType, setActionType] = useState<string>("");
-  const [outcome, setOutcome] = useState<string>("");
+  const [actionType, setActionType] = useState<ActionType | "">("");
+  const [outcome, setOutcome] = useState<ActionOutcome | "">("");
   const [notes, setNotes] = useState("");
   const [duration, setDuration] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,10 +49,10 @@ export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionForm
     try {
       const { error } = await supabase
         .from("lead_status_actions")
-        .insert([{  // Wrap the object in an array
+        .insert([{
           lead_id: leadId,
-          action_type: actionType,
-          outcome: outcome,
+          action_type: actionType as ActionType,
+          outcome: outcome as ActionOutcome,
           notes: notes,
           duration_minutes: duration ? parseInt(duration) : null,
         }]);
@@ -69,8 +85,8 @@ export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionForm
     }
   };
 
-  const getOutcomeOptions = () => {
-    switch (actionType) {
+  const getOutcomeOptions = (type: ActionType): ActionOutcome[] => {
+    switch (type) {
       case "call":
         return ["connected", "not_connected", "voicemail_left", "wrong_number"];
       case "email":
@@ -89,7 +105,7 @@ export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionForm
       <div className="space-y-2">
         <Select
           value={actionType}
-          onValueChange={setActionType}
+          onValueChange={(value: ActionType) => setActionType(value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select action type" />
@@ -107,13 +123,13 @@ export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionForm
         <div className="space-y-2">
           <Select
             value={outcome}
-            onValueChange={setOutcome}
+            onValueChange={(value: ActionOutcome) => setOutcome(value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select outcome" />
             </SelectTrigger>
             <SelectContent>
-              {getOutcomeOptions().map((option) => (
+              {getOutcomeOptions(actionType as ActionType).map((option) => (
                 <SelectItem key={option} value={option}>
                   {option.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
                 </SelectItem>
