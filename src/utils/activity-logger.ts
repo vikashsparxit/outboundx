@@ -7,7 +7,8 @@ export type ActivityType =
   | "lead_created"
   | "lead_updated"
   | "lead_deleted"
-  | "score_updated";
+  | "score_updated"
+  | "lead_assigned";  // Added this type
 
 export const logActivity = async (
   leadId: string,
