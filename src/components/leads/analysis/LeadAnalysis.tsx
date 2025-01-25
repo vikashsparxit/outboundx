@@ -1,3 +1,4 @@
+import React from "react";
 import { Lead } from "@/types/lead";
 import { useLeadAnalysis } from "@/hooks/use-lead-analysis";
 import { Badge } from "@/components/ui/badge";
@@ -106,8 +107,7 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
             </div>
             <Progress 
               value={parseInt(section.score) * 20} 
-              className="h-2 mb-2"
-              indicatorClassName={cn(getProgressColor(parseInt(section.score)))}
+              className={cn("h-2 mb-2", getProgressColor(parseInt(section.score)))}
             />
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Score</span>
