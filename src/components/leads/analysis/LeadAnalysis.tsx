@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronDown, MessageSquare, Building, DollarSign, Percent, Users, Globe, Briefcase } from "lucide-react";
+import { ChevronDown, MessageSquare, Building, DollarSign, Percent, Users, Globe, Briefcase, AlertCircle, Check, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LeadAnalysisProps {
@@ -59,10 +59,10 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
       return {
         title: cleanTitle,
         score: scoreValue,
-        content: cleanContent.filter(item => item.length > 0) // Only keep non-empty content
+        content: cleanContent.filter(item => item.length > 0)
       };
     })
-    .filter(section => section.content.length > 0); // Only keep sections with content
+    .filter(section => section.content.length > 0);
 
   const getIcon = (title: string) => {
     const lowerTitle = title.toLowerCase();
@@ -88,6 +88,19 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
     return "bg-yellow-500";
   };
 
+  const getConfidenceIcon = (content: string) => {
+    if (content.toLowerCase().includes('high')) return Check;
+    if (content.toLowerCase().includes('low')) return AlertCircle;
+    return Info;
+  };
+
+  const getConfidenceColor = (content: string) => {
+    const level = content.toLowerCase();
+    if (level.includes('high')) return "text-green-500";
+    if (level.includes('low')) return "text-red-500";
+    return "text-yellow-500";
+  };
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -100,7 +113,7 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
       {/* Score Overview */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-6">
         {sections.map((section, index) => section.score && (
-          <Card key={`score-${index}`} className="p-4">
+          <Card key={`score-${index}`} className="p-4 hover:shadow-md transition-shadow duration-200">
             <div className="flex items-center gap-3 mb-2">
               {React.createElement(getIcon(section.title), { className: "h-5 w-5 text-muted-foreground" })}
               <h4 className="font-medium text-sm">{section.title}</h4>
@@ -122,10 +135,10 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
       {/* Detailed Analysis */}
       <div className="grid gap-4">
         {sections.map((section, index) => (
-          <Card key={index} className="overflow-hidden">
+          <Card key={index} className="overflow-hidden group">
             <Collapsible>
               <CollapsibleTrigger className="w-full">
-                <div className="flex items-center justify-between p-4 hover:bg-gray-50/50">
+                <div className="flex items-center justify-between p-4 hover:bg-gray-50/50 transition-colors duration-200">
                   <div className="flex items-center gap-3">
                     {React.createElement(getIcon(section.title), { 
                       className: "h-5 w-5 text-muted-foreground" 
@@ -143,13 +156,33 @@ const LeadAnalysis = ({ lead }: LeadAnalysisProps) => {
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <CardContent className="border-t border-gray-100 space-y-2 pb-4">
-                  {section.content.map((point, i) => (
-                    <div key={i} className="flex items-start gap-2 py-1">
-                      <span className="text-gray-400 mt-1.5">•</span>
-                      <p className="text-gray-600 leading-relaxed">{point}</p>
-                    </div>
-                  ))}
+                <CardContent className="border-t border-gray-100 space-y-4 pb-4 bg-gray-50/50">
+                  {section.content.map((point, i) => {
+                    const isConfidence = point.toLowerCase().includes('confidence:');
+                    const Icon = isConfidence ? getConfidenceIcon(point) : null;
+                    
+                    return (
+                      <div key={i} className="flex items-start gap-3 p-2 rounded-md hover:bg-white transition-colors duration-200">
+                        {Icon && (
+                          <Icon className={cn("h-5 w-5 mt-0.5", getConfidenceColor(point))} />
+                        )}
+                        <div className="flex-1">
+                          {point.includes(':') ? (
+                            <>
+                              <span className="font-medium text-gray-700">
+                                {point.split(':')[0]}:
+                              </span>
+                              <span className="text-gray-600 ml-1">
+                                {point.split(':')[1]}
+                              </span>
+                            </>
+                          ) : (
+                            <p className="text-gray-600 leading-relaxed">{point}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </CardContent>
               </CollapsibleContent>
             </Collapsible>
