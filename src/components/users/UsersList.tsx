@@ -94,48 +94,54 @@ export default function UsersList() {
               key={user.id}
               className="flex items-center justify-between p-4 border rounded-lg"
             >
-              <div className="flex-grow">
-                <h3 className="font-medium">{user.full_name || "Unnamed User"}</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 hover:bg-secondary"
-                    onClick={() => handleCopy(user.email || "", "email")}
-                    title="Copy email"
-                  >
-                    <Copy className="h-3 w-3" />
-                  </Button>
-                </div>
-                {/* Show current password if it exists */}
-                {(user as any).password && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <p className="text-sm text-muted-foreground font-mono">
-                      Password: {(user as any).password}
-                    </p>
+              <div className="flex-grow space-y-2">
+                <h3 className="font-medium text-lg">{user.full_name || "Unnamed User"}</h3>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">Email:</span>
+                    <span className="text-sm">{user.email}</span>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6 hover:bg-secondary"
-                      onClick={() => handleCopy((user as any).password, "password")}
-                      title="Copy current password"
+                      onClick={() => handleCopy(user.email || "", "email")}
+                      title="Copy email"
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 hover:bg-secondary"
-                      onClick={() => handleResetPassword(user.id)}
-                      title="Change password and copy new one"
-                    >
-                      <Key className="h-3 w-3" />
-                    </Button>
                   </div>
-                )}
+                  
+                  {(user as any).password && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-muted-foreground">Password:</span>
+                      <span className="text-sm font-mono">{(user as any).password}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 hover:bg-secondary"
+                        onClick={() => handleCopy((user as any).password, "password")}
+                        title="Copy current password"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 hover:bg-secondary"
+                        onClick={() => handleResetPassword(user.id)}
+                        title="Change password and copy new one"
+                      >
+                        <Key className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">Type:</span>
+                    <Badge variant="secondary">{user.role}</Badge>
+                  </div>
+                </div>
               </div>
-              <Badge>{user.role}</Badge>
             </div>
           ))}
         </div>
