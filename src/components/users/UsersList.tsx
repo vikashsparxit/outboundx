@@ -56,17 +56,21 @@ export default function UsersList() {
     toast.success(`${type === "email" ? "Email" : "Password"} copied to clipboard`);
   };
 
-  const handleResetPassword = async (userId: string, email: string) => {
+  const handleResetPassword = async (userId: string) => {
     try {
       const response = await supabase.functions.invoke('reset-user-password', {
-        body: { userId, email },
+        body: { userId },
       });
 
       if (response.error) {
         throw new Error(response.error.message || 'Failed to reset password');
       }
 
-      toast.success("Password reset email sent successfully");
+      // Copy the new password to clipboard
+      if (response.data?.password) {
+        navigator.clipboard.writeText(response.data.password);
+        toast.success("New password copied to clipboard");
+      }
     } catch (error: any) {
       console.error("Error resetting password:", error);
       toast.error(error.message || "Failed to reset password");
@@ -119,8 +123,8 @@ export default function UsersList() {
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6 hover:bg-secondary"
-                    onClick={() => handleResetPassword(user.id, user.email || "")}
-                    title="Reset password"
+                    onClick={() => handleResetPassword(user.id)}
+                    title="Reset and copy new password"
                   >
                     <KeyRound className="h-3 w-3" />
                   </Button>

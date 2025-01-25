@@ -17,7 +17,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { userId, email } = await req.json()
+    const { userId } = await req.json()
 
     // Generate a random password
     const newPassword = Math.random().toString(36).slice(-12)
@@ -30,18 +30,8 @@ serve(async (req) => {
 
     if (updateError) throw updateError
 
-    // Send password reset email
-    const { error: resetError } = await supabaseClient.auth.resetPasswordForEmail(
-      email,
-      {
-        redirectTo: `${req.headers.get('origin')}/auth/reset-password`,
-      }
-    )
-
-    if (resetError) throw resetError
-
     return new Response(
-      JSON.stringify({ message: 'Password reset email sent successfully' }),
+      JSON.stringify({ message: 'Password reset successfully', password: newPassword }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
