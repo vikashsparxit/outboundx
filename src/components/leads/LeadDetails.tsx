@@ -102,7 +102,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
           "p-0 transition-all duration-300 ease-in-out",
           isFullScreen 
             ? "!w-screen !max-w-none !right-0" 
-            : "w-[95vw] sm:w-[680px] lg:w-[800px]"
+            : "w-[95vw] sm:w-[60vw] lg:w-[60vw]"
         )}
       >
         <div className="h-full flex flex-col">
