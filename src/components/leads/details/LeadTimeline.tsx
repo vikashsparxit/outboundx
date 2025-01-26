@@ -32,8 +32,7 @@ export const LeadTimeline = ({ leadId }: LeadTimelineProps) => {
           .select(`
             id, 
             content, 
-            created_at, 
-            user_id,
+            created_at,
             profiles!lead_notes_user_id_fkey (
               full_name
             )
@@ -48,8 +47,7 @@ export const LeadTimeline = ({ leadId }: LeadTimelineProps) => {
             outcome, 
             notes, 
             duration_minutes, 
-            created_at, 
-            user_id,
+            created_at,
             profiles!lead_status_actions_user_id_fkey (
               full_name
             )
