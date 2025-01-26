@@ -86,6 +86,16 @@ const MigrationUpload = ({ isOpen, onClose }: MigrationUploadProps) => {
     }
   };
 
+  const getErrorMessage = (errorLog: any): string => {
+    if (Array.isArray(errorLog) && errorLog.length > 0) {
+      return String(errorLog[0]);
+    }
+    if (typeof errorLog === 'string') {
+      return errorLog;
+    }
+    return "An error occurred during migration";
+  };
+
   const content = (
     <div className="space-y-8">
       <div>
@@ -135,11 +145,9 @@ const MigrationUpload = ({ isOpen, onClose }: MigrationUploadProps) => {
             </span>
           </div>
           <Progress value={progress} className="h-2" />
-          {migrationJob?.error_log && migrationJob.error_log.length > 0 && (
+          {migrationJob?.error_log && (
             <p className="text-sm text-destructive">
-              {Array.isArray(migrationJob.error_log) 
-                ? migrationJob.error_log[0]
-                : "An error occurred during migration"}
+              {getErrorMessage(migrationJob.error_log)}
             </p>
           )}
         </div>
