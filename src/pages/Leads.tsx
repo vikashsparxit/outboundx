@@ -11,7 +11,7 @@ import { Lead, DatabaseLead } from "@/types/lead";
 import { convertFromDatabase } from "@/types/lead";
 import { toast } from "sonner";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 50;  // Changed from 10 to 50
 
 const Leads = () => {
   const { user } = useAuth();
