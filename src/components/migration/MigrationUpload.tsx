@@ -1,186 +1,138 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { Progress } from "@/components/ui/progress";
 import { useQuery } from "@tanstack/react-query";
-import { Json } from "@/integrations/supabase/types";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { Loader2, Upload } from "lucide-react";
+import { useAuth } from "@/providers/AuthProvider";
 
-interface MigrationUploadProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-type MigrationJob = {
-  id: string;
-  filename: string;
-  total_records: number;
-  processed_records: number;
-  failed_records: number;
-  status: string;
-  error_log: Json[];
-  started_at: string | null;
-  completed_at: string | null;
-  created_at: string;
-  created_by: string | null;
-}
-
-export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProps) {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
+const MigrationUpload = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [jobId, setJobId] = useState<string | null>(null);
 
-  // Query for active migration job
-  const { data: migrationJob } = useQuery<MigrationJob | null>({
-    queryKey: ["migration-job"],
+  const { data: migrationJob, isLoading: isLoadingJob } = useQuery({
+    queryKey: ["migrationJob", jobId],
     queryFn: async () => {
-      const { data } = await supabase
+      if (!jobId) return null;
+      const { data, error } = await supabase
         .from("migration_jobs")
         .select("*")
-        .order("created_at", { ascending: false })
-        .limit(1)
+        .eq("id", jobId)
         .single();
-      
-      // Ensure error_log is always an array
-      return data ? {
-        ...data,
-        error_log: Array.isArray(data.error_log) ? data.error_log : []
-      } : null;
+
+      if (error) throw error;
+      return data;
     },
-    refetchInterval: (data) => {
-      if (!data) return false;
-      return data.status === "processing" ? 1000 : false;
-    },
+    enabled: !!jobId,
   });
 
+  const isComplete = migrationJob?.status === "completed";
+  const isFailed = migrationJob?.status === "failed";
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === "text/csv") {
-      setFile(selectedFile);
-    } else if (selectedFile) {
-      toast({
-        title: "Invalid file type",
-        description: "Please select a CSV file",
-        variant: "destructive",
-      });
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
     }
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file || !user) return;
 
+    setIsUploading(true);
     try {
-      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("userId", user.id);
 
-      // Upload file to storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("migrations")
-        .upload(`migration_${Date.now()}.csv`, file);
-
-      if (uploadError) throw uploadError;
-
-      // Create migration job
-      const { data: jobData, error: jobError } = await supabase
-        .from("migration_jobs")
-        .insert({
-          filename: uploadData.path,
-          total_records: 0,
-          status: "pending",
-        })
-        .select()
-        .single();
-
-      if (jobError) throw jobError;
-
-      // Start processing
-      const { error: processError } = await supabase.functions
-        .invoke("process-migration", {
-          body: { migrationId: jobData.id },
-        });
-
-      if (processError) throw processError;
-
-      toast({
-        title: "Migration started",
-        description: "The file is being processed. You can monitor the progress here.",
+      const response = await fetch("/api/migration/upload", {
+        method: "POST",
+        body: formData,
       });
-    } catch (error: any) {
-      console.error("Migration error:", error);
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      setJobId(data.jobId);
+
       toast({
-        title: "Error starting migration",
-        description: error.message,
+        title: "Upload successful",
+        description: "Your file is being processed",
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({
+        title: "Upload failed",
+        description: "Please try again",
         variant: "destructive",
       });
     } finally {
-      setUploading(false);
+      setIsUploading(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Upload Migration File</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          {migrationJob?.status === "processing" ? (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Migration in progress...
-              </p>
-              <Progress 
-                value={
-                  migrationJob?.total_records > 0
-                    ? (migrationJob.processed_records / migrationJob.total_records) * 100
-                    : 0
-                } 
-              />
-              <div className="text-sm">
-                <p>Processed: {migrationJob?.processed_records ?? 0}</p>
-                <p>Failed: {migrationJob?.failed_records ?? 0}</p>
-                {migrationJob?.total_records > 0 && (
-                  <p>Total: {migrationJob.total_records}</p>
-                )}
-              </div>
-            </div>
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold">Data Migration</h2>
+        <p className="text-muted-foreground">
+          Upload your data file to begin the migration process
+        </p>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <Input
+          type="file"
+          onChange={handleFileChange}
+          accept=".csv,.xlsx"
+          disabled={isUploading}
+        />
+        <Button
+          onClick={handleUpload}
+          disabled={!file || isUploading}
+        >
+          {isUploading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading...
+            </>
           ) : (
             <>
-              <div className="flex items-center justify-center w-full">
-                <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <p className="mb-2 text-sm text-gray-500">
-                      <span className="font-semibold">Click to upload</span> or drag
-                      and drop
-                    </p>
-                    <p className="text-xs text-gray-500">CSV file only</p>
-                  </div>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept=".csv"
-                    onChange={handleFileChange}
-                  />
-                </label>
-              </div>
-              {file && (
-                <div className="text-sm">Selected file: {file.name}</div>
-              )}
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleUpload}
-                  disabled={!file || uploading}
-                >
-                  {uploading ? "Uploading..." : "Start Migration"}
-                </Button>
-              </div>
+              <Upload className="mr-2 h-4 w-4" />
+              Upload
             </>
           )}
+        </Button>
+      </div>
+
+      {jobId && !isLoadingJob && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">
+              {isComplete
+                ? "Migration completed"
+                : isFailed
+                ? "Migration failed"
+                : "Processing..."}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {migrationJob?.progress || 0}%
+            </span>
+          </div>
+          <Progress value={migrationJob?.progress || 0} className="h-2" />
+          {migrationJob?.error && (
+            <p className="text-sm text-destructive">{migrationJob.error}</p>
+          )}
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </div>
   );
-}
+};
+
+export default MigrationUpload;
