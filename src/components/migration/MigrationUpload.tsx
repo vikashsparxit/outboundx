@@ -40,8 +40,13 @@ export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProp
         .select("*")
         .order("created_at", { ascending: false })
         .limit(1)
-        .maybeSingle();
-      return data;
+        .single();
+      
+      // Ensure error_log is always an array
+      return data ? {
+        ...data,
+        error_log: Array.isArray(data.error_log) ? data.error_log : []
+      } : null;
     },
     refetchInterval: (data) => {
       if (!data) return false;
