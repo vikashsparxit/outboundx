@@ -44,7 +44,7 @@ export const LeadTimeline = ({ leadId }: LeadTimelineProps) => {
         type: 'note' as const,
         created_at: note.created_at,
         content: note.content,
-        user_name: note.profiles?.full_name
+        user_name: note.profiles?.full_name || 'Unknown User'
       }));
 
       const actions = (actionsResponse.data || []).map(action => ({
@@ -52,10 +52,10 @@ export const LeadTimeline = ({ leadId }: LeadTimelineProps) => {
         type: 'status_action' as const,
         created_at: action.created_at,
         action_type: action.action_type,
-        outcome: action.outcome,
+        outcome: formatOutcome(action.outcome),
         notes: action.notes,
         duration_minutes: action.duration_minutes,
-        user_name: action.profiles?.full_name
+        user_name: action.profiles?.full_name || 'Unknown User'
       }));
 
       // Combine and sort by date
@@ -78,6 +78,14 @@ export const LeadTimeline = ({ leadId }: LeadTimelineProps) => {
       default:
         return <Clock className="h-4 w-4" />;
     }
+  };
+
+  const formatOutcome = (outcome: string | null | undefined): string => {
+    if (!outcome) return '';
+    return outcome
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   if (isLoading) {
