@@ -17,13 +17,18 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Activity, Users, Target, TrendingUp } from "lucide-react";
+import { Activity, Users, Target, TrendingUp, Upload } from "lucide-react";
 import CreateUserModal from "@/components/users/CreateUserModal";
 import UsersList from "@/components/users/UsersList";
 import { useAuth } from "@/providers/AuthProvider";
+import { Button } from "@/components/ui/button";
+import MigrationUpload from "@/components/migration/MigrationUpload";
+import { useState } from "react";
 
 const Index = () => {
   const { user } = useAuth();
+  const [showMigrationModal, setShowMigrationModal] = useState(false);
+  
   // Fetch dashboard statistics
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats"],
@@ -90,7 +95,20 @@ const Index = () => {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        {isAdmin && <CreateUserModal />}
+        <div className="space-x-2">
+          {isAdmin && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setShowMigrationModal(true)}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Import Data
+              </Button>
+              <CreateUserModal />
+            </>
+          )}
+        </div>
       </div>
       
       {/* Existing Stats Cards */}
@@ -179,6 +197,12 @@ const Index = () => {
           <UsersList />
         </div>
       )}
+
+      {/* Migration Modal */}
+      <MigrationUpload
+        isOpen={showMigrationModal}
+        onClose={() => setShowMigrationModal(false)}
+      />
 
       {/* Recent Activities */}
       <Card>

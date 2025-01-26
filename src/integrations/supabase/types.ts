@@ -503,6 +503,56 @@ export type Database = {
           },
         ]
       }
+      migration_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          error_log: Json | null
+          failed_records: number
+          filename: string
+          id: string
+          processed_records: number
+          started_at: string | null
+          status: string
+          total_records: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          error_log?: Json | null
+          failed_records?: number
+          filename: string
+          id?: string
+          processed_records?: number
+          started_at?: string | null
+          status?: string
+          total_records?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          error_log?: Json | null
+          failed_records?: number
+          filename?: string
+          id?: string
+          processed_records?: number
+          started_at?: string | null
+          status?: string
+          total_records?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "migration_jobs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
