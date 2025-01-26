@@ -142,7 +142,7 @@ export const LeadDetailsContent = ({
   return (
     <div className={cn(
       "mt-2",
-      isFullScreen ? "max-w-7xl mx-auto" : "space-y-4"
+      isFullScreen ? "max-w-7xl mx-auto pb-20" : "space-y-4"
     )}>
       <LeadStatusUpdate 
         lead={lead}
