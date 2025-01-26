@@ -7,8 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Upload } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
-const MigrationUpload = () => {
+interface MigrationUploadProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+const MigrationUpload = ({ isOpen, onClose }: MigrationUploadProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
@@ -33,6 +39,9 @@ const MigrationUpload = () => {
 
   const isComplete = migrationJob?.status === "completed";
   const isFailed = migrationJob?.status === "failed";
+  const progress = migrationJob 
+    ? Math.round((migrationJob.processed_records / Math.max(migrationJob.total_records, 1)) * 100)
+    : 0;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -77,7 +86,7 @@ const MigrationUpload = () => {
     }
   };
 
-  return (
+  const content = (
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold">Data Migration</h2>
@@ -122,17 +131,33 @@ const MigrationUpload = () => {
                 : "Processing..."}
             </span>
             <span className="text-sm text-muted-foreground">
-              {migrationJob?.progress || 0}%
+              {progress}%
             </span>
           </div>
-          <Progress value={migrationJob?.progress || 0} className="h-2" />
-          {migrationJob?.error && (
-            <p className="text-sm text-destructive">{migrationJob.error}</p>
+          <Progress value={progress} className="h-2" />
+          {migrationJob?.error_log && migrationJob.error_log.length > 0 && (
+            <p className="text-sm text-destructive">
+              {Array.isArray(migrationJob.error_log) 
+                ? migrationJob.error_log[0]
+                : "An error occurred during migration"}
+            </p>
           )}
         </div>
       )}
     </div>
   );
+
+  if (isOpen !== undefined && onClose) {
+    return (
+      <Sheet open={isOpen} onOpenChange={onClose}>
+        <SheetContent side="right" className="w-[95vw] sm:w-[680px] lg:w-[800px]">
+          {content}
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return content;
 };
 
 export default MigrationUpload;
