@@ -17,7 +17,7 @@ export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProp
   const { toast } = useToast();
 
   // Query for active migration job
-  const { data: activeJob } = useQuery({
+  const { data: migrationJob } = useQuery({
     queryKey: ["migration-job"],
     queryFn: async () => {
       const { data } = await supabase
@@ -102,23 +102,23 @@ export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProp
           <DialogTitle>Upload Migration File</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          {activeJob?.status === "processing" ? (
+          {migrationJob?.status === "processing" ? (
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 Migration in progress...
               </p>
               <Progress 
                 value={
-                  activeJob.total_records > 0
-                    ? (activeJob.processed_records / activeJob.total_records) * 100
+                  migrationJob.total_records > 0
+                    ? (migrationJob.processed_records / migrationJob.total_records) * 100
                     : 0
                 } 
               />
               <div className="text-sm">
-                <p>Processed: {activeJob.processed_records}</p>
-                <p>Failed: {activeJob.failed_records}</p>
-                {activeJob.total_records > 0 && (
-                  <p>Total: {activeJob.total_records}</p>
+                <p>Processed: {migrationJob.processed_records}</p>
+                <p>Failed: {migrationJob.failed_records}</p>
+                {migrationJob.total_records > 0 && (
+                  <p>Total: {migrationJob.total_records}</p>
                 )}
               </div>
             </div>
