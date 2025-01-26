@@ -81,11 +81,11 @@ const Leads = () => {
   }
 
   return (
-    <div className="w-full space-y-6 px-2 sm:px-4 md:px-6">
+    <div className="w-full space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Leads Management</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
+          <h1 className="text-2xl font-bold">Leads Management</h1>
+          <p className="text-muted-foreground">
             Manage and track all your leads
           </p>
         </div>
@@ -113,7 +113,7 @@ const Leads = () => {
       </div>
 
       {leads.length > 0 && (
-        <div className="mt-4 flex justify-center sm:justify-end">
+        <div className="mt-4">
           <LeadsPagination
             currentPage={currentPage}
             totalPages={totalPages}
