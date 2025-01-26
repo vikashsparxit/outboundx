@@ -29,7 +29,6 @@ const Index = () => {
   const { user } = useAuth();
   const [showMigrationModal, setShowMigrationModal] = useState(false);
   
-  // Fetch dashboard statistics
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
@@ -74,7 +73,6 @@ const Index = () => {
       }))
     : [];
 
-  // Check if user is admin
   const { data: userProfile } = useQuery({
     queryKey: ["userProfile", user?.id],
     queryFn: async () => {
@@ -92,15 +90,19 @@ const Index = () => {
   const isAdmin = userProfile?.role === "admin";
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {userProfile?.full_name || 'User'}</h1>
+          <p className="text-gray-500 mt-1">Here's what's happening with your leads today.</p>
+        </div>
         <div className="space-x-2">
           {isAdmin && (
             <>
               <Button
                 variant="outline"
                 onClick={() => setShowMigrationModal(true)}
+                className="bg-white hover:bg-gray-50"
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Import Data
@@ -111,25 +113,25 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Existing Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-gray-600">Total Leads</CardTitle>
+            <Users className="h-4 w-4 text-primary-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalLeads || 0}</div>
+            <div className="text-2xl font-bold text-gray-900">{stats?.totalLeads || 0}</div>
+            <p className="text-xs text-gray-500 mt-1">+12% from last month</p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-gray-600">Conversion Rate</CardTitle>
+            <Target className="h-4 w-4 text-primary-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-gray-900">
               {stats?.statusCounts
                 ? Math.round(
                     (stats.statusCounts.closed_won /
@@ -139,100 +141,113 @@ const Index = () => {
                 : 0}
               %
             </div>
+            <p className="text-xs text-gray-500 mt-1">+5% from last month</p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Active Leads</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-gray-600">Active Leads</CardTitle>
+            <TrendingUp className="h-4 w-4 text-primary-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-gray-900">
               {(stats?.statusCounts?.in_progress || 0) +
                 (stats?.statusCounts?.contacted || 0)}
             </div>
+            <p className="text-xs text-gray-500 mt-1">+8% from last month</p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Recent Activities</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-gray-600">Recent Activities</CardTitle>
+            <Activity className="h-4 w-4 text-primary-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-gray-900">
               {stats?.recentActivities?.length || 0}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Last 24 hours</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-white">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-gray-900">Lead Status Distribution</CardTitle>
+            <CardDescription className="text-gray-500">
+              Distribution of leads across different stages
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="status" stroke="#6B7280" />
+                  <YAxis stroke="#6B7280" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white',
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Bar dataKey="count" fill="#0078D4" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-gray-900">Recent Activities</CardTitle>
+            <CardDescription className="text-gray-500">Latest actions taken on leads</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats?.recentActivities?.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0"
+                >
+                  <div>
+                    <p className="font-medium text-gray-900">{activity.activity_type}</p>
+                    <p className="text-sm text-gray-500">
+                      {activity.description}
+                    </p>
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    {new Date(activity.created_at || "").toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Lead Status Distribution Chart */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Lead Status Distribution</CardTitle>
-          <CardDescription>
-            Distribution of leads across different stages
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#3b82f6" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Users List (only visible to admins) */}
       {isAdmin && (
-        <div className="mt-8">
-          <UsersList />
-        </div>
+        <Card className="bg-white mt-6">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-gray-900">Team Members</CardTitle>
+            <CardDescription className="text-gray-500">Manage your team and their access</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <UsersList />
+          </CardContent>
+        </Card>
       )}
 
-      {/* Migration Modal */}
       {isAdmin && (
         <MigrationUpload
           isOpen={showMigrationModal}
           onClose={() => setShowMigrationModal(false)}
         />
       )}
-
-      {/* Recent Activities */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activities</CardTitle>
-          <CardDescription>Latest actions taken on leads</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {stats?.recentActivities?.map((activity) => (
-              <div
-                key={activity.id}
-                className="flex items-center justify-between border-b pb-2"
-              >
-                <div>
-                  <p className="font-medium">{activity.activity_type}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {activity.description}
-                  </p>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {new Date(activity.created_at || "").toLocaleDateString()}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
