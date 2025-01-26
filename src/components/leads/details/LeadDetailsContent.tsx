@@ -141,7 +141,7 @@ export const LeadDetailsContent = ({
 
   return (
     <div className={cn(
-      "mt-2",
+      "mt-2 px-4",
       isFullScreen ? "max-w-7xl mx-auto pb-20" : "space-y-4"
     )}>
       <LeadStatusUpdate 
@@ -229,7 +229,6 @@ export const LeadDetailsContent = ({
             />
           </Card>
 
-          {/* Tertiary Sections - Collapsible */}
           <Card className="p-4">
             <LeadScoringCriteria
               lead={displayLead}
