@@ -25,7 +25,7 @@ export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProp
         .select("*")
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       return data;
     },
     refetchInterval: (data) => 
@@ -109,12 +109,17 @@ export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProp
               </p>
               <Progress 
                 value={
-                  (activeJob.processed_records / activeJob.total_records) * 100
+                  activeJob.total_records > 0
+                    ? (activeJob.processed_records / activeJob.total_records) * 100
+                    : 0
                 } 
               />
               <div className="text-sm">
                 <p>Processed: {activeJob.processed_records}</p>
                 <p>Failed: {activeJob.failed_records}</p>
+                {activeJob.total_records > 0 && (
+                  <p>Total: {activeJob.total_records}</p>
+                )}
               </div>
             </div>
           ) : (
