@@ -51,9 +51,28 @@ serve(async (req) => {
       throw new Error('Failed to download CSV file')
     }
 
-    // Parse CSV content
+    // Parse CSV content with error handling
     const csvContent = await fileData.text()
-    const records = parse(csvContent, { skipFirstRow: true, columns: true })
+    let records
+    try {
+      records = parse(csvContent, {
+        skipFirstRow: true,
+        columns: true,
+        relaxColumnCount: true, // Allow varying number of fields
+        ignoreEmpty: true
+      })
+    } catch (parseError) {
+      console.error('CSV parsing error:', parseError)
+      await supabase
+        .from('migration_jobs')
+        .update({ 
+          status: 'failed',
+          error_log: [{ error: `CSV parsing error: ${parseError.message}` }],
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', migrationId)
+      throw parseError
+    }
 
     // Process in chunks of 500
     const chunkSize = 500
@@ -65,6 +84,12 @@ serve(async (req) => {
     const errorLog = []
     let processedCount = 0
     let failedCount = 0
+
+    // Update total records count
+    await supabase
+      .from('migration_jobs')
+      .update({ total_records: records.length })
+      .eq('id', migrationId)
 
     // Process each chunk
     for (const chunk of chunks) {

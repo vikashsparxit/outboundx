@@ -80,7 +80,7 @@ export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProp
         .from("migration_jobs")
         .insert({
           filename: uploadData.path,
-          total_records: 0, // Will be updated by the processing function
+          total_records: 0,
           status: "pending",
         })
         .select()
@@ -100,7 +100,7 @@ export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProp
         title: "Migration started",
         description: "The file is being processed. You can monitor the progress here.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Migration error:", error);
       toast({
         title: "Error starting migration",
