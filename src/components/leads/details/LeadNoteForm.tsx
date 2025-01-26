@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/utils/activity-logger";
+import { useAuth } from "@/providers/AuthProvider";
 
 interface LeadNoteFormProps {
   leadId: string;
@@ -12,17 +13,20 @@ interface LeadNoteFormProps {
 
 export const LeadNoteForm = ({ leadId, onSuccess }: LeadNoteFormProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    if (!content.trim() || !user) return;
 
     setIsSubmitting(true);
     try {
+      console.log("Adding note with user ID:", user.id);
       const { error } = await supabase.from("lead_notes").insert({
         lead_id: leadId,
+        user_id: user.id,
         content: content.trim(),
       });
 
