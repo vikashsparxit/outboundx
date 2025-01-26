@@ -120,8 +120,8 @@ export const LeadDetailsContent = ({
 
   return (
     <div className={cn(
-      "mt-6",
-      isFullScreen ? "max-w-7xl mx-auto px-4" : "space-y-6"
+      "mt-2", // Reduced top margin
+      isFullScreen ? "max-w-7xl mx-auto" : "space-y-4" // Reduced spacing between elements
     )}>
       {!isEditing && (
         <LeadStatusUpdate 
@@ -132,18 +132,23 @@ export const LeadDetailsContent = ({
       )}
       
       <div className={cn(
-        "grid gap-6",
+        "grid gap-4", // Reduced gap
         isFullScreen ? "grid-cols-12" : "grid-cols-1"
       )}>
         {/* Primary Section - Left Column (8 cols in full screen) */}
         <div className={cn(
-          "space-y-6",
+          "space-y-4", // Reduced spacing
           isFullScreen ? "col-span-8" : ""
         )}>
           {/* Lead Interactions Section */}
           <Card className="p-4">
             <QuickActions />
             <LeadInteractions leadId={lead.id} />
+          </Card>
+
+          {/* Score Breakdown - Moved above Contact Info */}
+          <Card className="p-4">
+            <ScoreBreakdown lead={lead} />
           </Card>
 
           {/* Lead Contact Info */}
@@ -165,16 +170,11 @@ export const LeadDetailsContent = ({
               renderField={renderField}
             />
           </Card>
-
-          {/* Score Breakdown */}
-          <Card className="p-4">
-            <ScoreBreakdown lead={lead} />
-          </Card>
         </div>
 
         {/* Secondary & Tertiary Sections - Right Column (4 cols in full screen) */}
         <div className={cn(
-          "space-y-6",
+          "space-y-4", // Reduced spacing
           isFullScreen ? "col-span-4" : ""
         )}>
           {/* Secondary Sections */}

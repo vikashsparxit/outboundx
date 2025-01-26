@@ -123,7 +123,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
           />
           
           <ScrollArea className="flex-1">
-            <div className="px-6 pb-20">
+            <div className="px-4 pb-20"> {/* Adjusted padding */}
               <LeadDetailsContent
                 lead={lead}
                 isEditing={isEditing}
