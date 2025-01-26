@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import { useQuery } from "@tanstack/react-query";
+import { Json } from "@/integrations/supabase/types";
 
 interface MigrationUploadProps {
   isOpen: boolean;
@@ -18,7 +19,7 @@ type MigrationJob = {
   processed_records: number;
   failed_records: number;
   status: string;
-  error_log: any[];
+  error_log: Json[];
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
