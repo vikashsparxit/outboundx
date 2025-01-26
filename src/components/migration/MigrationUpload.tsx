@@ -14,6 +14,14 @@ interface MigrationUploadProps {
   onClose?: () => void;
 }
 
+interface MigrationJob {
+  id: string;
+  status: string;
+  processed_records: number;
+  total_records: number;
+  error_log: string[] | null;
+}
+
 const MigrationUpload = ({ isOpen, onClose }: MigrationUploadProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -32,7 +40,7 @@ const MigrationUpload = ({ isOpen, onClose }: MigrationUploadProps) => {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as MigrationJob;
     },
     enabled: !!jobId,
   });
@@ -137,9 +145,7 @@ const MigrationUpload = ({ isOpen, onClose }: MigrationUploadProps) => {
           <Progress value={progress} className="h-2" />
           {migrationJob?.error_log && migrationJob.error_log.length > 0 && (
             <p className="text-sm text-destructive">
-              {Array.isArray(migrationJob.error_log) 
-                ? migrationJob.error_log[0]
-                : "An error occurred during migration"}
+              {migrationJob.error_log[0]}
             </p>
           )}
         </div>

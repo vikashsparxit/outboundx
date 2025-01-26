@@ -11,6 +11,7 @@ const sidebarVariants = cva(
       variant: {
         default: "inset-y-0 left-0 w-64 -translate-x-full border-r border-sidebar-border bg-sidebar data-[state=open]:translate-x-0",
         floating: "left-4 top-4 h-[calc(100vh-32px)] w-64 -translate-x-full rounded-lg data-[state=open]:translate-x-0",
+        sidebar: "inset-y-0 left-0 w-64 border-r border-sidebar-border bg-sidebar",
       },
     },
     defaultVariants: {
@@ -22,23 +23,43 @@ const sidebarVariants = cva(
 interface SidebarContextValue {
   open: boolean;
   setOpen: (open: boolean) => void;
-  variant: "default" | "floating";
+  variant: "default" | "floating" | "sidebar";
+  state: "expanded" | "collapsed";
+  setState: (state: "expanded" | "collapsed") => void;
 }
 
 const SidebarContext = React.createContext<SidebarContextValue>({
   open: false,
   setOpen: () => undefined,
   variant: "default",
+  state: "expanded",
+  setState: () => undefined,
 });
+
+interface SidebarProviderProps {
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}
+
+const SidebarProvider = ({ children, defaultOpen = false }: SidebarProviderProps) => {
+  const [open, setOpen] = React.useState(defaultOpen);
+  const [state, setState] = React.useState<"expanded" | "collapsed">("expanded");
+
+  return (
+    <SidebarContext.Provider value={{ open, setOpen, variant: "sidebar", state, setState }}>
+      {children}
+    </SidebarContext.Provider>
+  );
+};
 
 const Sidebar = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof sidebarVariants>
 >(({ className, variant = "default", ...props }, ref) => {
-  const [open, setOpen] = React.useState(false);
+  const { open } = useSidebarContext();
 
   return (
-    <SidebarContext.Provider value={{ open, setOpen, variant }}>
+    <>
       <div
         ref={ref}
         data-state={open ? "open" : "closed"}
@@ -48,7 +69,7 @@ const Sidebar = React.forwardRef<
       {open && variant === "default" && (
         <div className="fixed inset-0 z-20 bg-black/80" onClick={() => setOpen(false)} />
       )}
-    </SidebarContext.Provider>
+    </>
   );
 });
 Sidebar.displayName = "Sidebar";
@@ -85,18 +106,6 @@ const SidebarHeader = React.forwardRef<
 ));
 SidebarHeader.displayName = "SidebarHeader";
 
-const SidebarBody = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex-1 overflow-auto", className)}
-    {...props}
-  />
-));
-SidebarBody.displayName = "SidebarBody";
-
 const SidebarTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
@@ -117,13 +126,87 @@ const SidebarTrigger = React.forwardRef<
 });
 SidebarTrigger.displayName = "SidebarTrigger";
 
+const SidebarGroup = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("px-2 py-2", className)}
+    {...props}
+  />
+));
+SidebarGroup.displayName = "SidebarGroup";
+
+const SidebarGroupContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("space-y-1", className)}
+    {...props}
+  />
+));
+SidebarGroupContent.displayName = "SidebarGroupContent";
+
+const SidebarFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("mt-auto", className)}
+    {...props}
+  />
+));
+SidebarFooter.displayName = "SidebarFooter";
+
+const SidebarMenu = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("space-y-1", className)}
+    {...props}
+  />
+));
+SidebarMenu.displayName = "SidebarMenu";
+
+const SidebarMenuItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("", className)}
+    {...props}
+  />
+));
+SidebarMenuItem.displayName = "SidebarMenuItem";
+
+const SidebarMenuButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { isActive?: boolean }
+>(({ className, isActive, ...props }, ref) => (
+  <button
+    ref={ref}
+    className={cn(
+      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+      isActive && "bg-sidebar-accent text-sidebar-accent-foreground",
+      className
+    )}
+    {...props}
+  />
+));
+SidebarMenuButton.displayName = "SidebarMenuButton";
+
 function useSidebarContext() {
   const context = React.useContext(SidebarContext);
-
   if (!context) {
-    throw new Error("useContext must be used within a Provider");
+    throw new Error("useSidebarContext must be used within a SidebarProvider");
   }
-
   return context;
 }
 
@@ -131,7 +214,13 @@ export {
   Sidebar,
   SidebarContent,
   SidebarHeader,
-  SidebarBody,
   SidebarTrigger,
+  SidebarProvider,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
   useSidebarContext,
 };
