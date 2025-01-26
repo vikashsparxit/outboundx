@@ -23,7 +23,7 @@ const AppSidebar = () => {
   };
 
   return (
-    <Sidebar className="z-50" variant="sidebar" collapsible="icon">
+    <Sidebar className="h-screen" variant="sidebar">
       <SidebarHeader />
       <SidebarContent>
         <SidebarGroup>
