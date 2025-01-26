@@ -10,7 +10,7 @@ import ScoreHistory from "../scoring/ScoreHistory";
 import ActivityLog from "../ActivityLog";
 import LeadAnalysis from "../analysis/LeadAnalysis";
 import LeadDiscoveries from "../discoveries/LeadDiscoveries";
-import { LeadInteractions } from "./LeadInteractions";
+import { LeadInteractions, ActionType } from "./LeadInteractions";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
