@@ -102,7 +102,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
           "p-0 transition-all duration-300 ease-in-out",
           isFullScreen 
             ? "!w-screen !max-w-none !right-0" 
-            : "w-[400px] sm:w-[600px]"
+            : "w-[95vw] sm:w-[680px] lg:w-[800px]"
         )}
       >
         <div className="h-full flex flex-col">
@@ -123,7 +123,7 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
           />
           
           <ScrollArea className="flex-1">
-            <div className="px-4 pb-20"> {/* Adjusted padding */}
+            <div className="px-4 pb-20">
               <LeadDetailsContent
                 lead={lead}
                 isEditing={isEditing}
