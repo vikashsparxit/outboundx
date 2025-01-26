@@ -12,6 +12,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/utils/activity-logger";
+import { useAuth } from "@/providers/AuthProvider";
 
 type ActionType = "call" | "email" | "meeting" | "proposal";
 type ActionOutcome = 
@@ -36,6 +37,7 @@ interface LeadStatusActionFormProps {
 
 export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionFormProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [actionType, setActionType] = useState<ActionType | "">("");
   const [outcome, setOutcome] = useState<ActionOutcome | "">("");
   const [notes, setNotes] = useState("");
@@ -44,13 +46,24 @@ export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionForm
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+    
     setIsSubmitting(true);
+    console.log("Submitting status action:", {
+      lead_id: leadId,
+      user_id: user.id,
+      action_type: actionType,
+      outcome,
+      notes,
+      duration_minutes: duration ? parseInt(duration) : null
+    });
 
     try {
       const { error } = await supabase
         .from("lead_status_actions")
         .insert([{
           lead_id: leadId,
+          user_id: user.id, // Add the user_id field
           action_type: actionType as ActionType,
           outcome: outcome as ActionOutcome,
           notes: notes,
