@@ -1,9 +1,8 @@
-// Copy of the entire LeadInteractions.tsx file content
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LeadTimeline } from "./LeadTimeline";
-import { LeadStatusActionForm } from "./LeadStatusActionForm";
-import { LeadNoteForm } from "./LeadNoteForm";
+import { LeadTimeline } from "../LeadTimeline";
+import { LeadStatusActionForm } from "../LeadStatusActionForm";
+import { LeadNoteForm } from "../LeadNoteForm";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface LeadInteractionsProps {

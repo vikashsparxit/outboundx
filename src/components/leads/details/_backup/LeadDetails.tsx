@@ -1,12 +1,11 @@
-// Copy of the entire LeadDetails.tsx file content
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Lead } from "@/types/lead";
 import { useLeadEdit } from "@/hooks/use-lead-edit";
 import { useLeadStatus } from "@/hooks/use-lead-status";
 import { useLeadContact } from "@/hooks/use-lead-contact";
-import { LeadFormField } from "./LeadFormField";
-import { LeadSubscription } from "./LeadSubscription";
-import { LeadDetailsHeader } from "./LeadDetailsHeader";
+import { LeadFormField } from "../LeadFormField";
+import { LeadSubscription } from "../LeadSubscription";
+import { LeadDetailsHeader } from "../LeadDetailsHeader";
 import { LeadDetailsContent } from "./LeadDetailsContent";
 import { useState } from "react";
 import { cn } from "@/lib/utils";

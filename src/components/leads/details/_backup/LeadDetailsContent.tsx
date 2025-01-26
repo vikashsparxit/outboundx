@@ -1,17 +1,16 @@
-// Copy of the entire LeadDetailsContent.tsx file content
 import { Lead } from "@/types/lead";
-import { LeadIdentification } from "./LeadIdentification";
-import { LeadContact } from "./LeadContact";
-import { LeadOnlinePresence } from "./LeadOnlinePresence";
-import { LeadLocation } from "./LeadLocation";
-import { LeadScoringCriteria } from "./LeadScoringCriteria";
-import { LeadStatusUpdate } from "./LeadStatusUpdate";
-import ScoreBreakdown from "../scoring/ScoreBreakdown";
-import ScoreHistory from "../scoring/ScoreHistory";
-import ActivityLog from "../ActivityLog";
-import LeadAnalysis from "../analysis/LeadAnalysis";
-import LeadDiscoveries from "../discoveries/LeadDiscoveries";
 import { cn } from "@/lib/utils";
+import { LeadIdentification } from "../LeadIdentification";
+import { LeadContact } from "../LeadContact";
+import { LeadOnlinePresence } from "../LeadOnlinePresence";
+import { LeadLocation } from "../LeadLocation";
+import { LeadScoringCriteria } from "../LeadScoringCriteria";
+import { LeadStatusUpdate } from "../LeadStatusUpdate";
+import ScoreBreakdown from "../../scoring/ScoreBreakdown";
+import ScoreHistory from "../../scoring/ScoreHistory";
+import ActivityLog from "../../ActivityLog";
+import LeadAnalysis from "../../analysis/LeadAnalysis";
+import LeadDiscoveries from "../../discoveries/LeadDiscoveries";
 import { LeadInteractions } from "./LeadInteractions";
 
 interface LeadDetailsContentProps {
