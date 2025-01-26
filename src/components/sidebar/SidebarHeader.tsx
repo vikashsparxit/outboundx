@@ -1,11 +1,11 @@
-import { SidebarHeader as Header, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { SidebarHeader as Header, SidebarTrigger, useSidebarContext } from "@/components/ui/sidebar";
 import "./SidebarHeader.css";
 
 const SidebarHeader = () => {
-  const { state } = useSidebar();
+  const { state } = useSidebarContext();
   
   return (
-    <Header className="border-b border-border px-4 py-2 mt-[64px]">
+    <Header className="border-b border-border px-4 py-2">
       <div className="flex items-center justify-between">
         <h2 
           className={`text-lg font-bold transition-all duration-200 outbound-logo ${
