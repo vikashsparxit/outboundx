@@ -28,8 +28,10 @@ export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProp
         .maybeSingle();
       return data;
     },
-    refetchInterval: (data) => 
-      data?.status === "processing" ? 1000 : false,
+    refetchInterval: (data) => {
+      if (!data) return false;
+      return data.status === "processing" ? 1000 : false;
+    },
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,15 +111,15 @@ export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProp
               </p>
               <Progress 
                 value={
-                  migrationJob.total_records > 0
+                  migrationJob?.total_records > 0
                     ? (migrationJob.processed_records / migrationJob.total_records) * 100
                     : 0
                 } 
               />
               <div className="text-sm">
-                <p>Processed: {migrationJob.processed_records}</p>
-                <p>Failed: {migrationJob.failed_records}</p>
-                {migrationJob.total_records > 0 && (
+                <p>Processed: {migrationJob?.processed_records ?? 0}</p>
+                <p>Failed: {migrationJob?.failed_records ?? 0}</p>
+                {migrationJob?.total_records > 0 && (
                   <p>Total: {migrationJob.total_records}</p>
                 )}
               </div>
