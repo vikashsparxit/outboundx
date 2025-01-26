@@ -11,13 +11,27 @@ interface MigrationUploadProps {
   onClose: () => void;
 }
 
+type MigrationJob = {
+  id: string;
+  filename: string;
+  total_records: number;
+  processed_records: number;
+  failed_records: number;
+  status: string;
+  error_log: any[];
+  started_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  created_by: string | null;
+}
+
 export default function MigrationUpload({ isOpen, onClose }: MigrationUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   // Query for active migration job
-  const { data: migrationJob } = useQuery({
+  const { data: migrationJob } = useQuery<MigrationJob | null>({
     queryKey: ["migration-job"],
     queryFn: async () => {
       const { data } = await supabase
