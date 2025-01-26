@@ -199,10 +199,12 @@ const Index = () => {
       )}
 
       {/* Migration Modal */}
-      <MigrationUpload
-        isOpen={showMigrationModal}
-        onClose={() => setShowMigrationModal(false)}
-      />
+      {isAdmin && (
+        <MigrationUpload
+          isOpen={showMigrationModal}
+          onClose={() => setShowMigrationModal(false)}
+        />
+      )}
 
       {/* Recent Activities */}
       <Card>
