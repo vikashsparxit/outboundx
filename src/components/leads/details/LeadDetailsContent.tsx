@@ -15,9 +15,9 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Phone, Mail, Calendar, Plus } from "lucide-react";
+import { MessageSquare, Phone, Mail, Calendar } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { toast } from "sonner";
+import { useRef } from "react";
 
 interface LeadDetailsContentProps {
   lead: Lead;
@@ -67,18 +67,15 @@ export const LeadDetailsContent = ({
   isFullScreen,
 }: LeadDetailsContentProps) => {
   const displayLead = isEditing ? editedLead as Lead : lead;
+  const interactionsRef = useRef<{ setActiveTab: (tab: string) => void }>(null);
 
   // Quick Actions with Keyboard Shortcuts
   useHotkeys('ctrl+n', () => {
-    toast.message("Quick Note", {
-      description: "Coming soon: Add a quick note with Ctrl+N"
-    });
+    interactionsRef.current?.setActiveTab("note");
   });
 
   useHotkeys('ctrl+c', () => {
-    toast.message("Quick Call", {
-      description: "Coming soon: Log a call with Ctrl+C"
-    });
+    interactionsRef.current?.setActiveTab("action");
   });
 
   const QuickActions = () => (
@@ -87,7 +84,7 @@ export const LeadDetailsContent = ({
         variant="outline"
         size="sm"
         className="gap-2"
-        onClick={() => toast.message("Coming soon!")}
+        onClick={() => interactionsRef.current?.setActiveTab("note")}
       >
         <MessageSquare className="w-4 h-4" /> Note
       </Button>
@@ -95,7 +92,7 @@ export const LeadDetailsContent = ({
         variant="outline"
         size="sm"
         className="gap-2"
-        onClick={() => toast.message("Coming soon!")}
+        onClick={() => interactionsRef.current?.setActiveTab("action")}
       >
         <Phone className="w-4 h-4" /> Call
       </Button>
@@ -103,7 +100,7 @@ export const LeadDetailsContent = ({
         variant="outline"
         size="sm"
         className="gap-2"
-        onClick={() => toast.message("Coming soon!")}
+        onClick={() => interactionsRef.current?.setActiveTab("action")}
       >
         <Mail className="w-4 h-4" /> Email
       </Button>
@@ -111,7 +108,7 @@ export const LeadDetailsContent = ({
         variant="outline"
         size="sm"
         className="gap-2"
-        onClick={() => toast.message("Coming soon!")}
+        onClick={() => interactionsRef.current?.setActiveTab("action")}
       >
         <Calendar className="w-4 h-4" /> Meeting
       </Button>
@@ -120,30 +117,31 @@ export const LeadDetailsContent = ({
 
   return (
     <div className={cn(
-      "mt-2", // Reduced top margin
-      isFullScreen ? "max-w-7xl mx-auto" : "space-y-4" // Reduced spacing between elements
+      "mt-2",
+      isFullScreen ? "max-w-7xl mx-auto" : "space-y-4"
     )}>
-      {!isEditing && (
-        <LeadStatusUpdate 
-          lead={lead}
-          isUpdating={isUpdating}
-          onStatusUpdate={onStatusUpdate}
-        />
-      )}
+      <LeadStatusUpdate 
+        lead={lead}
+        isUpdating={isUpdating}
+        onStatusUpdate={onStatusUpdate}
+      />
       
       <div className={cn(
-        "grid gap-4", // Reduced gap
+        "grid gap-4",
         isFullScreen ? "grid-cols-12" : "grid-cols-1"
       )}>
-        {/* Primary Section - Left Column (8 cols in full screen) */}
+        {/* Primary Section - Left Column */}
         <div className={cn(
-          "space-y-4", // Reduced spacing
+          "space-y-4",
           isFullScreen ? "col-span-8" : ""
         )}>
           {/* Lead Interactions Section */}
           <Card className="p-4">
             <QuickActions />
-            <LeadInteractions leadId={lead.id} />
+            <LeadInteractions 
+              leadId={lead.id} 
+              ref={interactionsRef}
+            />
           </Card>
 
           {/* Score Breakdown - Moved above Contact Info */}
@@ -172,9 +170,9 @@ export const LeadDetailsContent = ({
           </Card>
         </div>
 
-        {/* Secondary & Tertiary Sections - Right Column (4 cols in full screen) */}
+        {/* Secondary & Tertiary Sections - Right Column */}
         <div className={cn(
-          "space-y-4", // Reduced spacing
+          "space-y-4",
           isFullScreen ? "col-span-4" : ""
         )}>
           {/* Secondary Sections */}

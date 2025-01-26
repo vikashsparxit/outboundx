@@ -4,16 +4,30 @@ import { LeadTimeline } from "./LeadTimeline";
 import { LeadStatusActionForm } from "./LeadStatusActionForm";
 import { LeadNoteForm } from "./LeadNoteForm";
 import { useQueryClient } from "@tanstack/react-query";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
 interface LeadInteractionsProps {
   leadId: string;
 }
 
-export const LeadInteractions = ({ leadId }: LeadInteractionsProps) => {
+export const LeadInteractions = forwardRef<
+  { setActiveTab: (tab: string) => void },
+  LeadInteractionsProps
+>(({ leadId }, ref) => {
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("timeline");
+
+  useImperativeHandle(ref, () => ({
+    setActiveTab: (tab: string) => {
+      console.log("Setting active tab to:", tab);
+      setActiveTab(tab);
+    },
+  }));
 
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['lead-timeline', leadId] });
+    // Return to timeline view after successful action
+    setActiveTab("timeline");
   };
 
   return (
@@ -22,7 +36,7 @@ export const LeadInteractions = ({ leadId }: LeadInteractionsProps) => {
         <CardTitle>Lead Interactions</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="timeline" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
             <TabsTrigger value="action">Log Action</TabsTrigger>
@@ -44,4 +58,6 @@ export const LeadInteractions = ({ leadId }: LeadInteractionsProps) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+LeadInteractions.displayName = "LeadInteractions";
