@@ -7,16 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { LeadStatus } from "@/types/lead";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import { Activity, Users, Target, TrendingUp, Upload } from "lucide-react";
 import CreateUserModal from "@/components/users/CreateUserModal";
 import UsersList from "@/components/users/UsersList";
@@ -24,6 +14,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import MigrationUpload from "@/components/migration/MigrationUpload";
 import { useState } from "react";
+import { UserAnalytics } from "@/components/dashboard/UserAnalytics";
 
 const Index = () => {
   const { user } = useAuth();
@@ -40,7 +31,7 @@ const Index = () => {
         .from("leads")
         .select("status");
 
-      const statusCounts: Record<LeadStatus, number> = {
+      const statusCounts = {
         new: 0,
         contacted: 0,
         in_progress: 0,
@@ -49,7 +40,7 @@ const Index = () => {
       };
 
       statusData?.forEach((lead) => {
-        if (lead.status) statusCounts[lead.status as LeadStatus]++;
+        if (lead.status) statusCounts[lead.status]++;
       });
 
       const { data: recentActivities } = await supabase
@@ -65,13 +56,6 @@ const Index = () => {
       };
     },
   });
-
-  const chartData = stats?.statusCounts
-    ? Object.entries(stats.statusCounts).map(([status, count]) => ({
-        status,
-        count,
-      }))
-    : [];
 
   const { data: userProfile } = useQuery({
     queryKey: ["userProfile", user?.id],
@@ -93,8 +77,12 @@ const Index = () => {
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {userProfile?.full_name || 'User'}</h1>
-          <p className="text-gray-500 mt-1">Here's what's happening with your leads today.</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Welcome back, {userProfile?.full_name || 'User'}
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Here's what's happening with your leads today.
+          </p>
         </div>
         <div className="space-x-2">
           {isAdmin && (
@@ -112,6 +100,9 @@ const Index = () => {
           )}
         </div>
       </div>
+
+      {/* User-specific analytics */}
+      <UserAnalytics />
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-white hover:shadow-lg transition-shadow">
@@ -172,75 +163,6 @@ const Index = () => {
           </CardContent>
         </Card>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-white">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-gray-900">Lead Status Distribution</CardTitle>
-            <CardDescription className="text-gray-500">
-              Distribution of leads across different stages
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="status" stroke="#6B7280" />
-                  <YAxis stroke="#6B7280" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '8px'
-                    }}
-                  />
-                  <Bar dataKey="count" fill="#0078D4" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-gray-900">Recent Activities</CardTitle>
-            <CardDescription className="text-gray-500">Latest actions taken on leads</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {stats?.recentActivities?.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">{activity.activity_type}</p>
-                    <p className="text-sm text-gray-500">
-                      {activity.description}
-                    </p>
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    {new Date(activity.created_at || "").toLocaleDateString()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {isAdmin && (
-        <Card className="bg-white mt-6">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-gray-900">Team Members</CardTitle>
-            <CardDescription className="text-gray-500">Manage your team and their access</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <UsersList />
-          </CardContent>
-        </Card>
-      )}
 
       {isAdmin && (
         <MigrationUpload
