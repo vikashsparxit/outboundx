@@ -25,16 +25,35 @@ export const LeadTimeline = ({ leadId }: LeadTimelineProps) => {
   const { data: timelineItems, isLoading } = useQuery({
     queryKey: ['lead-timeline', leadId],
     queryFn: async () => {
-      // Fetch both notes and status actions
+      // Fetch both notes and status actions with proper profile joins
       const [notesResponse, actionsResponse] = await Promise.all([
         supabase
           .from('lead_notes')
-          .select('id, content, created_at, user_id, profiles(full_name)')
+          .select(`
+            id, 
+            content, 
+            created_at, 
+            user_id,
+            profiles!lead_notes_user_id_fkey (
+              full_name
+            )
+          `)
           .eq('lead_id', leadId)
           .order('created_at', { ascending: false }),
         supabase
           .from('lead_status_actions')
-          .select('id, action_type, outcome, notes, duration_minutes, created_at, user_id, profiles(full_name)')
+          .select(`
+            id, 
+            action_type, 
+            outcome, 
+            notes, 
+            duration_minutes, 
+            created_at, 
+            user_id,
+            profiles!lead_status_actions_user_id_fkey (
+              full_name
+            )
+          `)
           .eq('lead_id', leadId)
           .order('created_at', { ascending: false })
       ]);
