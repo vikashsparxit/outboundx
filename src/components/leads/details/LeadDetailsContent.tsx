@@ -95,11 +95,11 @@ export const LeadDetailsContent = ({
   };
 
   const QuickActions = () => (
-    <div className="flex gap-2 mb-4">
+    <div className="flex flex-wrap gap-2 mb-4 px-2">
       <Button
         variant="outline"
         size="sm"
-        className="gap-2"
+        className="gap-2 whitespace-nowrap"
         onClick={() => handleQuickAction("note")}
       >
         <MessageSquare className="w-4 h-4" /> Note
@@ -107,7 +107,7 @@ export const LeadDetailsContent = ({
       <Button
         variant="outline"
         size="sm"
-        className="gap-2"
+        className="gap-2 whitespace-nowrap"
         onClick={() => handleQuickAction("call")}
       >
         <Phone className="w-4 h-4" /> Call
@@ -115,7 +115,7 @@ export const LeadDetailsContent = ({
       <Button
         variant="outline"
         size="sm"
-        className="gap-2"
+        className="gap-2 whitespace-nowrap"
         onClick={() => handleQuickAction("email")}
       >
         <Mail className="w-4 h-4" /> Email
@@ -123,7 +123,7 @@ export const LeadDetailsContent = ({
       <Button
         variant="outline"
         size="sm"
-        className="gap-2"
+        className="gap-2 whitespace-nowrap"
         onClick={() => handleQuickAction("meeting")}
       >
         <Calendar className="w-4 h-4" /> Meeting
@@ -131,7 +131,7 @@ export const LeadDetailsContent = ({
       <Button
         variant="outline"
         size="sm"
-        className="gap-2"
+        className="gap-2 whitespace-nowrap"
         onClick={() => handleQuickAction("proposal")}
       >
         <FileText className="w-4 h-4" /> Proposal
@@ -159,7 +159,7 @@ export const LeadDetailsContent = ({
           "space-y-4",
           isFullScreen ? "col-span-8" : ""
         )}>
-          <Card className="p-4">
+          <Card className="p-4 overflow-hidden">
             <QuickActions />
             <LeadInteractions 
               leadId={lead.id} 
@@ -167,12 +167,10 @@ export const LeadDetailsContent = ({
             />
           </Card>
 
-          {/* Score Breakdown - Moved above Contact Info */}
           <Card className="p-4">
             <ScoreBreakdown lead={lead} />
           </Card>
 
-          {/* Lead Contact Info */}
           <Card className="p-4">
             <LeadContact 
               lead={displayLead}
@@ -198,7 +196,6 @@ export const LeadDetailsContent = ({
           "space-y-4",
           isFullScreen ? "col-span-4" : ""
         )}>
-          {/* Secondary Sections */}
           <Card className="p-4">
             <LeadIdentification 
               lead={displayLead}
@@ -245,7 +242,6 @@ export const LeadDetailsContent = ({
         </div>
       </div>
 
-      {/* Full Width Sections */}
       {lead.domain_type === 'business' && (
         <div className={cn("mt-6 space-y-6")}>
           <Card className="p-4">
