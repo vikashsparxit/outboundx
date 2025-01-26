@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,8 +13,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/utils/activity-logger";
 import { useAuth } from "@/providers/AuthProvider";
+import type { ActionType } from "./LeadInteractions";
 
-type ActionType = "call" | "email" | "meeting" | "proposal";
+interface LeadStatusActionFormProps {
+  leadId: string;
+  onSuccess: () => void;
+  initialActionType?: ActionType | null;
+}
+
 type ActionOutcome = 
   | "connected"
   | "not_connected"
@@ -30,12 +36,11 @@ type ActionOutcome =
   | "proposal_accepted"
   | "proposal_rejected";
 
-interface LeadStatusActionFormProps {
-  leadId: string;
-  onSuccess: () => void;
-}
-
-export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionFormProps) => {
+export const LeadStatusActionForm = ({ 
+  leadId, 
+  onSuccess,
+  initialActionType 
+}: LeadStatusActionFormProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [actionType, setActionType] = useState<ActionType | "">("");
@@ -43,6 +48,12 @@ export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionForm
   const [notes, setNotes] = useState("");
   const [duration, setDuration] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (initialActionType) {
+      setActionType(initialActionType);
+    }
+  }, [initialActionType]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +74,7 @@ export const LeadStatusActionForm = ({ leadId, onSuccess }: LeadStatusActionForm
         .from("lead_status_actions")
         .insert([{
           lead_id: leadId,
-          user_id: user.id, // Add the user_id field
+          user_id: user.id,
           action_type: actionType as ActionType,
           outcome: outcome as ActionOutcome,
           notes: notes,

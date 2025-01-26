@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Phone, Mail, Calendar } from "lucide-react";
+import { MessageSquare, Phone, Mail, Calendar, FileText } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useRef } from "react";
 
@@ -67,16 +67,32 @@ export const LeadDetailsContent = ({
   isFullScreen,
 }: LeadDetailsContentProps) => {
   const displayLead = isEditing ? editedLead as Lead : lead;
-  const interactionsRef = useRef<{ setActiveTab: (tab: string) => void }>(null);
+  const interactionsRef = useRef<{ 
+    setActiveTab: (tab: string) => void;
+    setActionType?: (type: ActionType) => void;
+    focusNoteInput?: () => void;
+  }>(null);
 
   // Quick Actions with Keyboard Shortcuts
   useHotkeys('ctrl+n', () => {
     interactionsRef.current?.setActiveTab("note");
+    interactionsRef.current?.focusNoteInput?.();
   });
 
   useHotkeys('ctrl+c', () => {
     interactionsRef.current?.setActiveTab("action");
+    interactionsRef.current?.setActionType?.("call");
   });
+
+  const handleQuickAction = (type: "note" | ActionType) => {
+    if (type === "note") {
+      interactionsRef.current?.setActiveTab("note");
+      interactionsRef.current?.focusNoteInput?.();
+    } else {
+      interactionsRef.current?.setActiveTab("action");
+      interactionsRef.current?.setActionType?.(type);
+    }
+  };
 
   const QuickActions = () => (
     <div className="flex gap-2 mb-4">
@@ -84,7 +100,7 @@ export const LeadDetailsContent = ({
         variant="outline"
         size="sm"
         className="gap-2"
-        onClick={() => interactionsRef.current?.setActiveTab("note")}
+        onClick={() => handleQuickAction("note")}
       >
         <MessageSquare className="w-4 h-4" /> Note
       </Button>
@@ -92,7 +108,7 @@ export const LeadDetailsContent = ({
         variant="outline"
         size="sm"
         className="gap-2"
-        onClick={() => interactionsRef.current?.setActiveTab("action")}
+        onClick={() => handleQuickAction("call")}
       >
         <Phone className="w-4 h-4" /> Call
       </Button>
@@ -100,7 +116,7 @@ export const LeadDetailsContent = ({
         variant="outline"
         size="sm"
         className="gap-2"
-        onClick={() => interactionsRef.current?.setActiveTab("action")}
+        onClick={() => handleQuickAction("email")}
       >
         <Mail className="w-4 h-4" /> Email
       </Button>
@@ -108,9 +124,17 @@ export const LeadDetailsContent = ({
         variant="outline"
         size="sm"
         className="gap-2"
-        onClick={() => interactionsRef.current?.setActiveTab("action")}
+        onClick={() => handleQuickAction("meeting")}
       >
         <Calendar className="w-4 h-4" /> Meeting
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-2"
+        onClick={() => handleQuickAction("proposal")}
+      >
+        <FileText className="w-4 h-4" /> Proposal
       </Button>
     </div>
   );
@@ -135,7 +159,6 @@ export const LeadDetailsContent = ({
           "space-y-4",
           isFullScreen ? "col-span-8" : ""
         )}>
-          {/* Lead Interactions Section */}
           <Card className="p-4">
             <QuickActions />
             <LeadInteractions 
