@@ -22,7 +22,7 @@ pipeline {
 
             steps{
                 
-                sh "docker image build -f Dockerfile.prod . -t ${DOCKER_IMAGE_WITH_TAG}"
+                sh "docker image build -f Dockerfile.dev . -t ${DOCKER_IMAGE_WITH_TAG}"
             }
         }
 
