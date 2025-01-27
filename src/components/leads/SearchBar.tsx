@@ -16,12 +16,12 @@ const SearchBar = ({
   isLoading,
 }: SearchBarProps) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-4">
-      <div className="relative flex-1">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full">
+      <div className="relative flex-1 min-w-0">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
           placeholder="Search leads..."
-          className="pl-8 w-full"
+          className="pl-8 w-full text-sm"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
         />
@@ -30,7 +30,7 @@ const SearchBar = ({
         variant="outline"
         onClick={onUploadClick}
         disabled={isLoading}
-        className="whitespace-nowrap"
+        className="whitespace-nowrap text-sm"
       >
         <Upload className="mr-2 h-4 w-4" />
         Upload CSV
