@@ -88,6 +88,9 @@ const DesktopView = ({
             <TableCell className="max-w-[200px] truncate" onClick={() => onLeadSelect(lead)}>
               {formatPhoneNumbers(lead.phone_numbers)}
             </TableCell>
+            <TableCell className="max-w-[200px] truncate" onClick={() => onLeadSelect(lead)}>
+              {lead.company_name || "-"}
+            </TableCell>
             <TableCell onClick={() => onLeadSelect(lead)}>
               <TooltipProvider>
                 <Tooltip>
@@ -123,13 +126,14 @@ const DesktopView = ({
             <TableCell className="max-w-[200px] truncate" onClick={() => onLeadSelect(lead)}>
               {lead.website || "-"}
             </TableCell>
-            <TableCell onClick={() => onLeadSelect(lead)}>{lead.lead_type || "-"}</TableCell>
-            <TableCell onClick={() => onLeadSelect(lead)}>{lead.client_type || "-"}</TableCell>
+            <TableCell className="max-w-[200px] truncate" onClick={() => onLeadSelect(lead)}>
+              {lead.company_size || "-"}
+            </TableCell>
+            <TableCell className="max-w-[200px] truncate" onClick={() => onLeadSelect(lead)}>
+              {lead.industry_vertical || "-"}
+            </TableCell>
             <TableCell onClick={() => onLeadSelect(lead)}>
               {lead.assignedTo?.full_name || "-"}
-            </TableCell>
-            <TableCell className="whitespace-nowrap" onClick={() => onLeadSelect(lead)}>
-              {new Date(lead.created_at).toLocaleDateString()}
             </TableCell>
             <TableCell onClick={(e) => e.stopPropagation()}>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity">

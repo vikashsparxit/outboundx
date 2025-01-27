@@ -34,7 +34,16 @@ interface MobileViewProps {
   onSelectAll: (checked: boolean) => void;
 }
 
-const PRIORITY_COLUMNS = ["email", "phone_numbers", "country", "beam_score", "status", "website", "actions"];
+const PRIORITY_COLUMNS = [
+  "email",
+  "phone_numbers",
+  "company_name",
+  "country",
+  "beam_score",
+  "status",
+  "website",
+  "actions"
+];
 
 const MobileView = ({
   leads,
@@ -81,16 +90,17 @@ const MobileView = ({
             <TableCell className="font-medium">{index + 1}</TableCell>
             <TableCell className="max-w-[250px]" onClick={() => onLeadSelect(lead)}>
               <div className="flex flex-col gap-0.5">
-                {lead.emails?.map((email, i) => (
-                  <div key={i} className="flex flex-col gap-0.5">
-                    <span className="truncate">{email.email}</span>
-                    <EmailTypeTag type={email.type} />
-                  </div>
-                ))}
+                <div className="flex flex-col gap-0.5">
+                  <span className="truncate">{lead.email}</span>
+                  <EmailTypeTag type={lead.email_type || 'business'} />
+                </div>
               </div>
             </TableCell>
             <TableCell className="max-w-[200px] truncate" onClick={() => onLeadSelect(lead)}>
               {formatPhoneNumbers(lead.phone_numbers)}
+            </TableCell>
+            <TableCell className="max-w-[200px] truncate" onClick={() => onLeadSelect(lead)}>
+              {lead.company_name || "-"}
             </TableCell>
             <TableCell onClick={() => onLeadSelect(lead)}>
               <TooltipProvider>
