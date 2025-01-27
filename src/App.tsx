@@ -10,10 +10,37 @@ import Leads from "./pages/Leads";
 import ActivityLog from "./pages/ActivityLog";
 import ScoringGuide from "./pages/ScoringGuide";
 import { useAuth } from "@/providers/AuthProvider";
-import { useState , useEffect } from "react";
-import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
+import { useState, useEffect } from "react";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/sidebar/AppSidebar";
 import { cn } from "@/lib/utils";
+
+const PageTitle = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    const getTitle = () => {
+      switch (location.pathname) {
+        case '/':
+          return 'Dashboard - OutboundX';
+        case '/leads':
+          return 'Leads - OutboundX';
+        case '/activity-log':
+          return 'Activity Log - OutboundX';
+        case '/scoring-guide':
+          return 'Scoring Guide - OutboundX';
+        case '/auth':
+          return 'Login - OutboundX';
+        default:
+          return 'OutboundX';
+      }
+    };
+    
+    document.title = getTitle();
+  }, [location]);
+
+  return null;
+};
 
 const PageTitle = () => {
   const location = useLocation();
