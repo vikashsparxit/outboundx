@@ -67,6 +67,9 @@ const Leads = () => {
             .gte('beam_score', filters.beamScoreRange[0])
             .lte('beam_score', filters.beamScoreRange[1]);
         }
+        if (filters.emailType) {
+          query = query.eq('email_type', filters.emailType.toLowerCase());
+        }
 
         const { data, error } = await query;
         

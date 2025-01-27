@@ -14,6 +14,7 @@ export interface FilterConfig {
   companySize?: string;
   industryVertical?: string;
   assignedTo?: string;
+  emailType?: string;
 }
 
 interface FiltersPanelProps {
@@ -39,6 +40,10 @@ const FiltersPanel = ({ filters, onFilterChange, onClearFilters }: FiltersPanelP
 
   const handleIndustryChange = (industry: string) => {
     onFilterChange({ ...filters, industryVertical: industry });
+  };
+
+  const handleEmailTypeChange = (type: string) => {
+    onFilterChange({ ...filters, emailType: type });
   };
 
   const getActiveFiltersCount = () => {
@@ -79,6 +84,22 @@ const FiltersPanel = ({ filters, onFilterChange, onClearFilters }: FiltersPanelP
                   <SelectItem value="in_progress">In Progress</SelectItem>
                   <SelectItem value="closed_won">Closed Won</SelectItem>
                   <SelectItem value="closed_lost">Closed Lost</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email Type</label>
+              <Select
+                value={filters.emailType}
+                onValueChange={handleEmailTypeChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select email type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="business">Business</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -158,6 +179,15 @@ const FiltersPanel = ({ filters, onFilterChange, onClearFilters }: FiltersPanelP
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => onFilterChange({ ...filters, status: undefined })}
+              />
+            </Badge>
+          )}
+          {filters.emailType && (
+            <Badge variant="secondary" className="gap-1">
+              Email: {filters.emailType}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => onFilterChange({ ...filters, emailType: undefined })}
               />
             </Badge>
           )}
