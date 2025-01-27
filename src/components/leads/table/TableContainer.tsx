@@ -140,16 +140,17 @@ const TableContainer = ({
 
   return (
     <>
-      <div className="w-full space-y-4">
+      <div className="w-full space-y-3 sm:space-y-4">
         {isAdmin && selectedLeads.length > 0 && (
-          <div className="flex items-center justify-between bg-muted/50 p-2 rounded-md">
-            <span className="text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-muted/50 p-2 sm:p-3 rounded-md">
+            <span className="text-sm text-muted-foreground mb-2 sm:mb-0">
               {selectedLeads.length} leads selected
             </span>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsAssignmentModalOpen(true)}
+              className="w-full sm:w-auto"
             >
               <Users className="mr-2 h-4 w-4" />
               Assign Leads
@@ -157,38 +158,40 @@ const TableContainer = ({
           </div>
         )}
         
-        <div className="w-full overflow-x-auto">
-          {isMobile ? (
-            <MobileView
-              leads={leads}
-              sortConfig={sortConfig}
-              onSort={onSort}
-              onLeadSelect={onLeadSelect}
-              isAdmin={isAdmin}
-              onDelete={(lead) => {
-                setLeadToDelete(lead);
-                setDeleteDialogOpen(true);
-              }}
-              selectedLeads={selectedLeads}
-              onSelectLead={handleSelectLead}
-              onSelectAll={handleSelectAll}
-            />
-          ) : (
-            <DesktopView
-              leads={leads}
-              sortConfig={sortConfig}
-              onSort={onSort}
-              onLeadSelect={onLeadSelect}
-              isAdmin={isAdmin}
-              onDelete={(lead) => {
-                setLeadToDelete(lead);
-                setDeleteDialogOpen(true);
-              }}
-              selectedLeads={selectedLeads}
-              onSelectLead={handleSelectLead}
-              onSelectAll={handleSelectAll}
-            />
-          )}
+        <div className="w-full overflow-x-auto -mx-4 sm:mx-0">
+          <div className="min-w-full inline-block align-middle px-4 sm:px-0">
+            {isMobile ? (
+              <MobileView
+                leads={leads}
+                sortConfig={sortConfig}
+                onSort={onSort}
+                onLeadSelect={onLeadSelect}
+                isAdmin={isAdmin}
+                onDelete={(lead) => {
+                  setLeadToDelete(lead);
+                  setDeleteDialogOpen(true);
+                }}
+                selectedLeads={selectedLeads}
+                onSelectLead={handleSelectLead}
+                onSelectAll={handleSelectAll}
+              />
+            ) : (
+              <DesktopView
+                leads={leads}
+                sortConfig={sortConfig}
+                onSort={onSort}
+                onLeadSelect={onLeadSelect}
+                isAdmin={isAdmin}
+                onDelete={(lead) => {
+                  setLeadToDelete(lead);
+                  setDeleteDialogOpen(true);
+                }}
+                selectedLeads={selectedLeads}
+                onSelectLead={handleSelectLead}
+                onSelectAll={handleSelectAll}
+              />
+            )}
+          </div>
         </div>
       </div>
 

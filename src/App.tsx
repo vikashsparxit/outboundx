@@ -11,8 +11,9 @@ import ActivityLog from "./pages/ActivityLog";
 import ScoringGuide from "./pages/ScoringGuide";
 import { useAuth } from "@/providers/AuthProvider";
 import { useState } from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/sidebar/AppSidebar";
+import { cn } from "@/lib/utils";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -28,15 +29,26 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen flex">
       <SidebarProvider defaultOpen={true}>
-        <div className="flex w-full relative">
-          <div className="fixed top-0 left-0 h-screen z-50">
-            <AppSidebar />
-          </div>
-          <main className="flex-1 ml-[var(--sidebar-width)] p-4">
-            {children}
-          </main>
-        </div>
+        <ProtectedContent>{children}</ProtectedContent>
       </SidebarProvider>
+    </div>
+  );
+};
+
+const ProtectedContent = ({ children }: { children: React.ReactNode }) => {
+  const { state } = useSidebar();
+
+  return (
+    <div className="flex w-full relative">
+      <div className="fixed top-0 left-0 h-screen z-50">
+        <AppSidebar />
+      </div>
+      <main className={cn(
+        "flex-1 p-4 overflow-auto transition-all duration-200",
+        state === "collapsed" ? "ml-[var(--sidebar-width-icon)]" : "ml-[var(--sidebar-width)]"
+      )}>
+        {children}
+      </main>
     </div>
   );
 };
