@@ -10,6 +10,7 @@ import LeadDetails from "@/components/leads/LeadDetails";
 import { Lead, DatabaseLead } from "@/types/lead";
 import { convertFromDatabase } from "@/types/lead";
 import { toast } from "sonner";
+import { FilterConfig } from "@/components/leads/filters/FiltersPanel";
 
 const ITEMS_PER_PAGE = 50;
 
@@ -20,16 +21,17 @@ const Leads = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [filters, setFilters] = useState<FilterConfig>({});
   const [sortConfig, setSortConfig] = useState({
     key: "created_at",
     direction: "desc" as "asc" | "desc",
   });
 
   const { data: leads = [], isLoading: isLoadingLeads, error, refetch } = useQuery({
-    queryKey: ["leads", searchTerm, sortConfig],
+    queryKey: ["leads", searchTerm, sortConfig, filters],
     queryFn: async () => {
       try {
-        console.log("Fetching leads with search term:", searchTerm);
+        console.log("Fetching leads with search term:", searchTerm, "and filters:", filters);
         let query = supabase
           .from("leads")
           .select(`
@@ -43,10 +45,27 @@ const Leads = () => {
           `)
           .order(sortConfig.key, { ascending: sortConfig.direction === "asc" });
 
+        // Apply search term
         if (searchTerm) {
           query = query.or(
-            `website.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,ticket_id.ilike.%${searchTerm}%`
+            `website.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,phone_numbers.cs.{${searchTerm}}`
           );
+        }
+
+        // Apply filters
+        if (filters.status) {
+          query = query.eq('status', filters.status);
+        }
+        if (filters.companySize) {
+          query = query.eq('company_size', filters.companySize);
+        }
+        if (filters.industryVertical) {
+          query = query.eq('industry_vertical', filters.industryVertical);
+        }
+        if (filters.beamScoreRange) {
+          query = query
+            .gte('beam_score', filters.beamScoreRange[0])
+            .lte('beam_score', filters.beamScoreRange[1]);
         }
 
         const { data, error } = await query;
@@ -103,6 +122,9 @@ const Leads = () => {
             onSearchChange={setSearchTerm}
             onUploadClick={() => setIsCsvModalOpen(true)}
             isLoading={isLoading}
+            filters={filters}
+            onFilterChange={setFilters}
+            onClearFilters={() => setFilters({})}
           />
         </div>
       </div>
