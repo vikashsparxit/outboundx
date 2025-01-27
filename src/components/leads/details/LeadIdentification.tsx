@@ -89,6 +89,13 @@ export const LeadIdentification = ({
           )}
         </div>
         <div>
+          <label className="text-sm text-muted-foreground">Assigned To</label>
+          <p>{lead.assignedTo?.full_name || "Unassigned"}</p>
+          {lead.assignedTo?.email && (
+            <p className="text-sm text-muted-foreground">{lead.assignedTo.email}</p>
+          )}
+        </div>
+        <div>
           <label className="text-sm text-muted-foreground">Location</label>
           {isEditing ? (
             <Input

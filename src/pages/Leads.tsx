@@ -11,7 +11,7 @@ import { Lead, DatabaseLead } from "@/types/lead";
 import { convertFromDatabase } from "@/types/lead";
 import { toast } from "sonner";
 
-const ITEMS_PER_PAGE = 50;  // Changed from 10 to 50
+const ITEMS_PER_PAGE = 50;
 
 const Leads = () => {
   const { user } = useAuth();
@@ -32,7 +32,15 @@ const Leads = () => {
         console.log("Fetching leads with search term:", searchTerm);
         let query = supabase
           .from("leads")
-          .select("*")
+          .select(`
+            *,
+            assignedTo:profiles!leads_assigned_to_fkey (
+              id,
+              email,
+              full_name,
+              role
+            )
+          `)
           .order(sortConfig.key, { ascending: sortConfig.direction === "asc" });
 
         if (searchTerm) {
