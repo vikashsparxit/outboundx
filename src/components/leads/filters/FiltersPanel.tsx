@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Filter } from "lucide-react";
+import { Filter, Globe } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { LeadStatus } from "@/types/lead";
+import { COUNTRIES } from "@/constants/leadOptions";
 
 export interface FilterConfig {
   status?: LeadStatus;
@@ -15,6 +16,7 @@ export interface FilterConfig {
   industryVertical?: string;
   assignedTo?: string;
   emailType?: string;
+  country?: string;
 }
 
 interface FiltersPanelProps {
@@ -44,6 +46,10 @@ const FiltersPanel = ({ filters, onFilterChange, onClearFilters }: FiltersPanelP
 
   const handleEmailTypeChange = (type: string) => {
     onFilterChange({ ...filters, emailType: type });
+  };
+
+  const handleCountryChange = (country: string) => {
+    onFilterChange({ ...filters, country });
   };
 
   const getActiveFiltersCount = () => {
@@ -100,6 +106,25 @@ const FiltersPanel = ({ filters, onFilterChange, onClearFilters }: FiltersPanelP
                 <SelectContent>
                   <SelectItem value="business">Business</SelectItem>
                   <SelectItem value="personal">Personal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Country</label>
+              <Select
+                value={filters.country}
+                onValueChange={handleCountryChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRIES.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -188,6 +213,15 @@ const FiltersPanel = ({ filters, onFilterChange, onClearFilters }: FiltersPanelP
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => onFilterChange({ ...filters, emailType: undefined })}
+              />
+            </Badge>
+          )}
+          {filters.country && (
+            <Badge variant="secondary" className="gap-1">
+              Country: {filters.country}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => onFilterChange({ ...filters, country: undefined })}
               />
             </Badge>
           )}
