@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/providers/AuthProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -10,9 +10,36 @@ import Leads from "./pages/Leads";
 import ActivityLog from "./pages/ActivityLog";
 import ScoringGuide from "./pages/ScoringGuide";
 import { useAuth } from "@/providers/AuthProvider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/sidebar/AppSidebar";
+
+const PageTitle = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    const getTitle = () => {
+      switch (location.pathname) {
+        case '/':
+          return 'Dashboard - OutboundX';
+        case '/leads':
+          return 'Leads - OutboundX';
+        case '/activity-log':
+          return 'Activity Log - OutboundX';
+        case '/scoring-guide':
+          return 'Scoring Guide - OutboundX';
+        case '/auth':
+          return 'Login - OutboundX';
+        default:
+          return 'OutboundX';
+      }
+    };
+    
+    document.title = getTitle();
+  }, [location]);
+
+  return null;
+};
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -51,6 +78,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <PageTitle />
             <Routes>
               <Route
                 path="/"

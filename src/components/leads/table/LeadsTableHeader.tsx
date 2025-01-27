@@ -56,6 +56,9 @@ const LeadsTableHeader = ({
           Email {getSortIcon("email")}
         </TableHead>
         <TableHead className="whitespace-nowrap">Phone Numbers</TableHead>
+        <TableHead onClick={() => onSort("company_name")} className="cursor-pointer whitespace-nowrap">
+          Company Name {getSortIcon("company_name")}
+        </TableHead>
         <TableHead onClick={() => onSort("country")} className="cursor-pointer whitespace-nowrap">
           Country {getSortIcon("country")}
         </TableHead>
@@ -66,21 +69,17 @@ const LeadsTableHeader = ({
           Status {getSortIcon("status")}
         </TableHead>
         <TableHead onClick={() => onSort("website")} className="cursor-pointer whitespace-nowrap">
-          Website {getSortIcon("website")}
+          Lead Source {getSortIcon("website")}
         </TableHead>
-        {!isMobile && (
-          <>
-            <TableHead onClick={() => onSort("lead_type")} className="cursor-pointer whitespace-nowrap">
-              Lead Type {getSortIcon("lead_type")}
-            </TableHead>
-            <TableHead onClick={() => onSort("client_type")} className="cursor-pointer whitespace-nowrap">
-              Client Type {getSortIcon("client_type")}
-            </TableHead>
-            <TableHead onClick={() => onSort("created_at")} className="cursor-pointer whitespace-nowrap">
-              Created At {getSortIcon("created_at")}
-            </TableHead>
-          </>
-        )}
+        <TableHead onClick={() => onSort("company_size")} className="cursor-pointer whitespace-nowrap">
+          Company Size {getSortIcon("company_size")}
+        </TableHead>
+        <TableHead onClick={() => onSort("industry_vertical")} className="cursor-pointer whitespace-nowrap">
+          Industry Vertical {getSortIcon("industry_vertical")}
+        </TableHead>
+        <TableHead onClick={() => onSort("assigned_to")} className="cursor-pointer whitespace-nowrap">
+          Assigned To {getSortIcon("assigned_to")}
+        </TableHead>
         <TableHead className="whitespace-nowrap">Actions</TableHead>
       </TableRow>
     </TableHeader>

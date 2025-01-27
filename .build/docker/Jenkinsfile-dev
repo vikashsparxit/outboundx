@@ -10,7 +10,6 @@ pipeline {
         DOCKER_SERVER  = "https://docker.clientwork.xyz/"
         DOCKER_IMAGE_WITH_TAG = "docker.clientwork.xyz/outboundx/${APP_NAME}:${DOCKER_TAG}"
         DOCKER_COMPOSE_YML = "/home/sparx/yml/outboundx/dev/docker-compose.yml"
-
         SSH_HOST = '10.0.2.146'
         SSH_PORT = '21146'
         SSH_KEY = '/var/lib/jenkins/.ssh/10.0.2.146'
