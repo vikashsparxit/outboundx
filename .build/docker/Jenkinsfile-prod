@@ -1,0 +1,61 @@
+pipeline {
+
+    agent any
+    
+    environment {
+
+        APP_NAME = 'outboundx-app'
+
+        DOCKER_TAG = getDockerTag()
+        DOCKER_SERVER  = "https://docker.clientwork.xyz/"
+        DOCKER_IMAGE_WITH_TAG = "docker.clientwork.xyz/outboundx/${APP_NAME}:${DOCKER_TAG}"
+        DOCKER_COMPOSE_YML = "/home/sparx/yml/outboundx/docker-compose.yml"
+
+        SSH_HOST = '10.0.2.146'
+        SSH_PORT = '21146'
+        SSH_KEY = '/var/lib/jenkins/.ssh/10.0.2.146'
+    }
+
+    stages {
+        
+        stage('Build Image') {
+
+            steps{
+                
+                sh "docker image build -f Dockerfile.prod . -t ${DOCKER_IMAGE_WITH_TAG}"
+            }
+        }
+
+        stage('Push Image') {
+            
+            steps{
+
+                withCredentials([usernamePassword(credentialsId: 'docker_prod_login', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh "docker login -u ${USER} -p ${PASS} ${DOCKER_SERVER}"
+                    sh "docker image push ${DOCKER_IMAGE_WITH_TAG}"
+                    sh 'sleep 1'
+                }
+            }
+        }
+
+        stage('RUN Instance') {
+            
+            steps {
+
+                withCredentials([usernamePassword(credentialsId: 'outboundx_server', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    
+                    echo 'Update Container..'
+                    
+                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-prod -f ${DOCKER_COMPOSE_YML} pull"
+                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-prod -f ${DOCKER_COMPOSE_YML} up -d"
+                    sh 'sleep 5'
+                }
+            }
+        }        
+    }
+}
+
+def getDockerTag(){
+
+    return 'prod'
+}
