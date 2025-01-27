@@ -16,6 +16,7 @@ import MigrationUpload from "@/components/migration/MigrationUpload";
 import { useState } from "react";
 import { UserAnalytics } from "@/components/dashboard/UserAnalytics";
 import { AdminAnalytics } from "@/components/dashboard/AdminAnalytics";
+import { TeamManagement } from "@/components/users/TeamManagement";
 
 const Index = () => {
   const { user } = useAuth();
@@ -70,17 +71,22 @@ const Index = () => {
 
       {/* Admin-specific sections */}
       {isAdmin && (
-        <div className="mt-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold">Team Management</CardTitle>
-              <CardDescription>Manage your team members and their roles</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UsersList />
-            </CardContent>
-          </Card>
-        </div>
+        <>
+          <div className="mt-8">
+            <TeamManagement />
+          </div>
+          <div className="mt-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold">Team Management</CardTitle>
+                <CardDescription>Manage your team members and their roles</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <UsersList />
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
 
       {isAdmin && (
