@@ -9,7 +9,8 @@ pipeline {
         DOCKER_TAG = getDockerTag()
         DOCKER_SERVER  = "https://docker.clientwork.xyz/"
         DOCKER_IMAGE_WITH_TAG = "docker.clientwork.xyz/outboundx/${APP_NAME}:${DOCKER_TAG}"
-        DOCKER_COMPOSE_YML = "/home/sparx/yml/outboundx/dev/docker-compose.yml"
+        DOCKER_COMPOSE_YML = "/home/sparx/yml/outboundx/prod/docker-compose.yml"
+
         SSH_HOST = '10.0.2.146'
         SSH_PORT = '21146'
         SSH_KEY = '/var/lib/jenkins/.ssh/10.0.2.146'
@@ -21,7 +22,7 @@ pipeline {
 
             steps{
                 
-                sh "docker image build -f Dockerfile.dev . -t ${DOCKER_IMAGE_WITH_TAG}"
+                sh "docker image build -f Dockerfile.prod . -t ${DOCKER_IMAGE_WITH_TAG}"
             }
         }
 
@@ -45,8 +46,8 @@ pipeline {
                     
                     echo 'Update Container..'
                     
-                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-dev -f ${DOCKER_COMPOSE_YML} pull"
-                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-dev -f ${DOCKER_COMPOSE_YML} up -d"
+                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-prod -f ${DOCKER_COMPOSE_YML} pull"
+                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-prod -f ${DOCKER_COMPOSE_YML} up -d"
                     sh 'sleep 5'
                 }
             }
@@ -56,5 +57,5 @@ pipeline {
 
 def getDockerTag(){
 
-    return 'dev'
+    return 'prod'
 }
