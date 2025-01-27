@@ -102,8 +102,15 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-[400px]">
-        <CardHeader>
-          <CardTitle>Welcome</CardTitle>
+        <CardHeader className="space-y-2">
+          <div className="flex justify-center mb-4">
+            <img
+              src="/og-image.png"
+              alt="OutboundX Logo"
+              className="h-12 w-auto"
+            />
+          </div>
+          <CardTitle>Welcome to OutboundX</CardTitle>
           <CardDescription>Sign in to your account or create a new one</CardDescription>
         </CardHeader>
         <CardContent>
