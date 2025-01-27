@@ -23,9 +23,9 @@ const SearchBar = ({
   onClearFilters,
 }: SearchBarProps) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full">
-      <div className="relative flex-1 min-w-0">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+    <div className="flex flex-col sm:flex-row gap-4">
+      <div className="relative flex-1">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search leads by email, phone, company..."
           className="pl-8 w-full"

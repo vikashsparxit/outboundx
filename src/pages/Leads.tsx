@@ -111,15 +111,15 @@ const Leads = () => {
   }
 
   return (
-    <div className="w-full p-4 sm:p-6 space-y-4 sm:space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Leads Management</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
+        <div>
+          <h1 className="text-2xl font-bold">Leads Management</h1>
+          <p className="text-muted-foreground">
             Manage and track all your leads
           </p>
         </div>
-        <div className="w-full sm:w-auto max-w-[600px]">
+        <div className="w-full sm:w-auto">
           <SearchBar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
@@ -132,7 +132,7 @@ const Leads = () => {
         </div>
       </div>
 
-      <div className="rounded-md border bg-white shadow-sm">
+      <div className="rounded-md border overflow-hidden bg-white">
         <div className="w-full overflow-x-auto">
           <LeadsTable
             leads={paginatedLeads}
@@ -146,7 +146,7 @@ const Leads = () => {
       </div>
 
       {leads.length > 0 && (
-        <div className="mt-4 flex justify-center sm:justify-end">
+        <div className="mt-4">
           <LeadsPagination
             currentPage={currentPage}
             totalPages={totalPages}

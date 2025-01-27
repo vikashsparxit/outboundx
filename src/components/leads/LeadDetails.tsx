@@ -99,13 +99,13 @@ const LeadDetails = ({ lead, isOpen, onClose, onLeadUpdate }: LeadDetailsProps) 
       <SheetContent 
         side="right"
         className={cn(
-          "p-0 transition-all duration-300 ease-in-out max-w[45%] w-[45%]",
+          "p-0 transition-all duration-300 ease-in-out",
           isFullScreen 
             ? "!w-screen !max-w-none !right-0" 
             : "w-[95vw] sm:w-[45vw] lg:w-[45vw]"
         )}
       >
-        <div className="h-full flex flex-col ">
+        <div className="h-full flex flex-col">
           <LeadSubscription lead={lead} onLeadUpdate={onLeadUpdate} />
           
           <LeadDetailsHeader
