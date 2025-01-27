@@ -76,6 +76,9 @@ const LeadsTableHeader = ({
             <TableHead onClick={() => onSort("client_type")} className="cursor-pointer whitespace-nowrap">
               Client Type {getSortIcon("client_type")}
             </TableHead>
+            <TableHead onClick={() => onSort("assigned_to")} className="cursor-pointer whitespace-nowrap">
+              Assigned To {getSortIcon("assigned_to")}
+            </TableHead>
             <TableHead onClick={() => onSort("created_at")} className="cursor-pointer whitespace-nowrap">
               Created At {getSortIcon("created_at")}
             </TableHead>

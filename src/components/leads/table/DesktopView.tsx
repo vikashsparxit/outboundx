@@ -125,6 +125,9 @@ const DesktopView = ({
             </TableCell>
             <TableCell onClick={() => onLeadSelect(lead)}>{lead.lead_type || "-"}</TableCell>
             <TableCell onClick={() => onLeadSelect(lead)}>{lead.client_type || "-"}</TableCell>
+            <TableCell onClick={() => onLeadSelect(lead)}>
+              {lead.assignedTo?.full_name || "-"}
+            </TableCell>
             <TableCell className="whitespace-nowrap" onClick={() => onLeadSelect(lead)}>
               {new Date(lead.created_at).toLocaleDateString()}
             </TableCell>

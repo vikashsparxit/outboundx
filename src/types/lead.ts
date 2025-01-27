@@ -15,6 +15,13 @@ export interface LeadActivity {
   created_at: string;
 }
 
+export interface AssignedUser {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  role: string | null;
+}
+
 export interface Lead {
   id: string;
   ticket_id: string | null;
@@ -36,6 +43,7 @@ export interface Lead {
   call_count: number | null;
   status: LeadStatus;
   assigned_to: string | null;
+  assignedTo?: AssignedUser | null;
   created_at: string;
   updated_at: string | null;
   contact_id: string | null;
@@ -58,11 +66,11 @@ export interface Lead {
   beam_score: number | null;
   domain_type: EmailDomainType | null;
   lead_activities?: LeadActivity[] | null;
-  company_name: string | null;  // Added this field
-  location: string | null;      // Added this field
+  company_name: string | null;
+  location: string | null;
 }
 
-export type DatabaseLead = Omit<Lead, 'emails'> & {
+export type DatabaseLead = Omit<Lead, 'emails' | 'assignedTo'> & {
   emails: Json;
 };
 
