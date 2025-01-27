@@ -46,8 +46,8 @@ pipeline {
                     
                     echo 'Update Container..'
                     
-                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-prod -f ${DOCKER_COMPOSE_YML} pull"
-                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-prod -f ${DOCKER_COMPOSE_YML} up -d"
+                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-dev -f ${DOCKER_COMPOSE_YML} pull"
+                    sh "ssh -i ${SSH_KEY} ${USER}@${SSH_HOST} -p ${SSH_PORT} docker compose -p outboundx-dev -f ${DOCKER_COMPOSE_YML} up -d"
                     sh 'sleep 5'
                 }
             }
