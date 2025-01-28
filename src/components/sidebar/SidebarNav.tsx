@@ -2,7 +2,8 @@ import {
   House,
   Globe,
   ListChecks,
-  Calculator
+  Calculator,
+  WarningCircle
 } from "@phosphor-icons/react";
 import {
   SidebarMenu,
@@ -40,6 +41,12 @@ const SidebarNav = () => {
       label: "Scoring Guide",
       path: "/scoring-guide",
       className: "calculator-icon",
+    },
+    {
+      icon: WarningCircle,
+      label: "Upload Errors",
+      path: "/upload-errors",
+      className: "warning-icon",
     },
   ];
 
