@@ -3,6 +3,9 @@ import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { SignOut, User } from "@phosphor-icons/react";
+import { SidebarHeader as Header, SidebarTrigger } from "@/components/ui/sidebar";
+import "./SidebarHeader.css";
+import "../ComponentsCss/component.css"
 import {
   Sidebar,
   SidebarContent,
@@ -37,7 +40,24 @@ const AppSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <div className="flex flex-col gap-2 p-2">
+      
+      <div className="flex flex-col gap-2">
+          <SidebarMenuButton  
+          tooltip="Expand"
+          className={cn(
+            "flex items-center w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md p-2 cursor-pointer sidebar-collapse",
+            state === "collapsed" ? "justify-center" : "justify-start"
+          )}>
+            <SidebarTrigger className="h-4 w-4 ml-0 sidebar-collapse-button" />
+            <span className={cn(
+              "transition-all duration-200",
+              state === "collapsed" ? "opacity-0 w-0" : "ml-2 opacity-100"
+            )}>
+              Collapse
+            </span>
+          </SidebarMenuButton>
+        </div>
+        <div className="flex flex-col gap-2">
           <SidebarMenuButton
             tooltip="Profile"
             className={cn(
@@ -46,8 +66,8 @@ const AppSidebar = () => {
           >
             <User className="h-4 w-4" />
             <span className={cn(
-              "ml-2 transition-all duration-200",
-              state === "collapsed" ? "opacity-0 w-0" : "opacity-100"
+              "transition-all duration-200",
+              state === "collapsed" ? "opacity-0 w-0" : "ml-2 opacity-100"
             )}>
               {user?.email}
             </span>
@@ -61,8 +81,8 @@ const AppSidebar = () => {
           >
             <SignOut className="h-4 w-4" />
             <span className={cn(
-              "ml-2 transition-all duration-200",
-              state === "collapsed" ? "opacity-0 w-0" : "opacity-100"
+              "transition-all duration-200",
+              state === "collapsed" ? "opacity-0 w-0" : "ml-2 opacity-100"
             )}>
               Sign Out
             </span>

@@ -1,4 +1,4 @@
-import { SidebarHeader as Header, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { SidebarHeader as Header, useSidebar } from "@/components/ui/sidebar";
 import "./SidebarHeader.css";
 
 const SidebarHeader = () => {
@@ -24,7 +24,6 @@ const SidebarHeader = () => {
             <span className="text-accent-foreground">X</span>
           </h2>
         </div>
-        <SidebarTrigger />
       </div>
     </Header>
   );
