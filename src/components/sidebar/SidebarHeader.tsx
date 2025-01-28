@@ -12,7 +12,7 @@ const SidebarHeader = () => {
             state === 'collapsed' ? 'opacity-0 w-0' : 'opacity-100'
           }`}
         >
-          <span className="text-primary">Outbound- Test</span>
+          <span className="text-primary">Outbound</span>
           <span className="text-accent-foreground">X</span>
         </h2>
         <SidebarTrigger />
