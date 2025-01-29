@@ -51,6 +51,8 @@ const Leads = () => {
             `website.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,phone_numbers.cs.{${searchTerm}}`
           );
         }
+        
+        
 
         // Apply filters
         if (filters.status) {
@@ -111,7 +113,7 @@ const Leads = () => {
   }
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full p-4 sm:p-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Leads Management</h1>
