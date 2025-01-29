@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Leads from "./pages/Leads";
 import ActivityLog from "./pages/ActivityLog";
 import ScoringGuide from "./pages/ScoringGuide";
+import UploadErrors from "./pages/UploadErrors";
 import { useAuth } from "@/providers/AuthProvider";
 import { useState , useEffect } from "react";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
@@ -29,6 +30,8 @@ const PageTitle = () => {
           return 'Activity Log - OutboundX';
         case '/scoring-guide':
           return 'Scoring Guide - OutboundX';
+        case '/upload-errors':
+          return 'Upload Errors - OutboundX';
         case '/auth':
           return 'Login - OutboundX';
         default:
@@ -121,6 +124,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <ScoringGuide />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/upload-errors"
+                element={
+                  <ProtectedRoute>
+                    <UploadErrors />
                   </ProtectedRoute>
                 }
               />
