@@ -9,6 +9,7 @@ import UploadZone from "./csv-upload/UploadZone";
 import { validateAndTransformLead } from "./csv-upload/leadValidation";
 import FieldMapping from "./csv-upload/FieldMapping";
 import { calculateBeamScore } from "@/utils/scoring";
+import { useAuth } from "@/providers/AuthProvider";
 
 interface CsvUploadModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
   const [mappings, setMappings] = useState<Record<string, string>>({});
   const [showMapping, setShowMapping] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const resetState = () => {
     setDuplicateCount(0);
@@ -106,6 +108,31 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
     return mappedData;
   };
 
+  const logUploadError = async (
+    fileName: string,
+    rowNumber: number,
+    originalData: any,
+    errorType: string,
+    errorMessage: string
+  ) => {
+    try {
+      const { error } = await supabase.from("upload_errors").insert({
+        file_name: fileName,
+        row_number: rowNumber,
+        original_data: originalData,
+        error_type: errorType,
+        error_message: errorMessage,
+        created_by: user?.id,
+      });
+
+      if (error) {
+        console.error("Error logging upload error:", error);
+      }
+    } catch (error) {
+      console.error("Failed to log upload error:", error);
+    }
+  };
+
   const handleUpload = async () => {
     if (!file) return;
 
@@ -123,13 +150,21 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
           const rawLeads = results.data as any[];
           const totalLeads = rawLeads.length;
           
-          for (const rawRow of rawLeads) {
+          for (let index = 0; index < rawLeads.length; index++) {
+            const rawRow = rawLeads[index];
             try {
               const mappedLead = mapRowToLead(rawRow);
               const transformedLead = validateAndTransformLead(mappedLead);
               
               if (!transformedLead) {
                 console.warn("Invalid lead data:", rawRow);
+                await logUploadError(
+                  file.name,
+                  index + 2, // Add 2 to account for header row and 0-based index
+                  rawRow,
+                  "validation",
+                  "Invalid lead data"
+                );
                 setErrorCount(prev => prev + 1);
                 continue;
               }
@@ -137,6 +172,13 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
               const isDuplicate = await checkDuplicate(transformedLead);
               if (isDuplicate) {
                 console.log('Duplicate lead found:', transformedLead);
+                await logUploadError(
+                  file.name,
+                  index + 2,
+                  rawRow,
+                  "duplicate",
+                  "Duplicate lead entry"
+                );
                 setDuplicateCount(prev => prev + 1);
                 continue;
               }
@@ -150,31 +192,42 @@ const CsvUploadModal = ({ isOpen, onClose, onSuccess }: CsvUploadModalProps) => 
               
               if (insertError) {
                 console.error('Error uploading lead:', insertError);
+                await logUploadError(
+                  file.name,
+                  index + 2,
+                  rawRow,
+                  "transformation",
+                  insertError.message
+                );
                 setErrorCount(prev => prev + 1);
                 continue;
               }
 
-              // Calculate BEAM score for the newly inserted lead
               if (insertedLead) {
                 console.log('Calculating initial BEAM score for lead:', insertedLead.id);
                 try {
-                  // Cast the insertedLead to Lead type to ensure type safety
                   const typedLead = insertedLead as unknown as Lead;
                   await calculateBeamScore(typedLead);
                   console.log('BEAM score calculated successfully');
                 } catch (scoreError) {
                   console.error('Error calculating BEAM score:', scoreError);
-                  // Don't increment error count as the lead was still inserted successfully
                 }
               }
               
               setSuccessCount(prev => prev + 1);
             } catch (error) {
               console.error("Error processing lead:", error);
+              await logUploadError(
+                file.name,
+                index + 2,
+                rawRow,
+                "processing",
+                error.message
+              );
               setErrorCount(prev => prev + 1);
             }
 
-            const progress = ((successCount + duplicateCount + errorCount + 1) / totalLeads) * 100;
+            const progress = ((index + 1) / totalLeads) * 100;
             setProgress(progress);
           }
 

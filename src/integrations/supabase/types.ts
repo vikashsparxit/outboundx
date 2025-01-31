@@ -637,6 +637,47 @@ export type Database = {
           },
         ]
       }
+      upload_errors: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          error_message: string
+          error_type: string
+          file_name: string
+          id: string
+          original_data: Json
+          row_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          error_message: string
+          error_type: string
+          file_name: string
+          id?: string
+          original_data: Json
+          row_number: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string
+          error_type?: string
+          file_name?: string
+          id?: string
+          original_data?: Json
+          row_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "upload_errors_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

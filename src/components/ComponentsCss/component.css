@@ -2,4 +2,17 @@
     width: 45%;
     max-width: 45%;
 }
-
+.sidebar-collapse {
+    position: relative;
+}
+.sidebar-collapse-button:after {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    content: "";
+    top: 0;
+    left: 0;
+}
+.collapse-wrap {
+    padding-left: 4px;
+}
